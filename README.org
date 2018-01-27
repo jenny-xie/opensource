@@ -1,0 +1,54 @@
+#+Title: propositum
+
+** Background
+Propositum is a collection of free and open-source, portable tools to facilitate task & information management, automation, data manipulation and analytics.
+
+The rationale for creating propositum, and maintaining in a GitHub repo, was to be able to quickly get up-and-running with the required tools + my own customisations, particularly those machines with severely restricted access to obtain external software.
+
+** Components
+Propositum consists of:
+
+- [[http://cmder.net/][Cmder]] a console emulator & cmd replacement  
+- [[https://www.gnu.org/software/emacs/][emacs]] & [[https://orgmode.org/][org-mode]] ([[http://spacemacs.org/][=spacemacs=]] flavour) for task & information management
+- [[https://www.knime.com/knime-analytics-platform][KNIME Analytics Platform]] for data pipelines, transformation, automation & reporting
+- [[https://superset.incubator.apache.org/][Apache Superset]] for data exploration, dashboards & data visualisation
+ - Running in a =virtualenv= under [[https://winpython.github.io/][WinPython]] (=Zero= flavour), a portable Python runtime
+- [[http://rawgraphs.io/][RAWGraphs]] for additional data visualisation options (and an quick-and-easy interface)
+ - Running with the standard =python3= HTTP server under WinPython
+- [[https://autohotkey.com/][AutoHotKey]] for general Windows automation 
+-  Customisations for each of these tools & separating user data
+-  A number of helper scripts to launch applications & maintain portability
+
+** Installation
+
+
+=git clone https://github.com/xeijin/propositum <folder to clone into>=
+
+Or if Git is prohibited, simply download the repository as a ZIP archive from the [[https://github.com/xeijin/propositum][GitHub page]].
+
+*Note:* Whilst portability has been maintained as much as possible, some components (notably =virtualenv=) aren't designed with 'live' portability in-mind.
+
+For best results it is strongly recommended that you use the =subst= command on windows to map the cloned/downloaded repository to the drive letter =P:=
+
+Example:
+
+=subst P: C:/Propositum/Location=
+
+You will find symlinks to all of the key components in the root directory, user files & customisations are stored in /home
+
+** License & Source
+
+Given the 'in-place' nature of the distribution of its repository, source code has not been included to decrease the download size & reduce complexity, but please see below for a summary and links to pertinent information.
+
+| Component                        | Usage                            | License     | Source Code / Release Download               |
+|----------------------------------+----------------------------------+-------------+----------------------------------------------|
+| Cmder                            | Standalone Tool                  | [[https://github.com/cmderdev/cmder#license][MIT License]] | https://github.com/cmderdev/cmder            |
+| WinPython                        | Standalone Tool (Runtime)        | [[https://github.com/winpython/winpython/blob/master/LICENSE][MIT License]] | https://github.com/winpython/winpython       |
+| AutoHotKey                       | Standalone Tool                  | [[https://github.com/Lexikos/AutoHotkey_L/blob/master/license.txt][GNU GPL v2]]  | https://github.com/Lexikos/AutoHotkey_L      |
+| emacs ('emacs-w64' build)        | Loosely Coupled with code (REST) | [[https://github.com/zklhp/emacs-w64/blob/emacs-25/COPYING][GNU GPL v3]]  | https://github.com/zklhp/emacs-w64           |
+| spacemacs (including all layers) | Loosely Coupled with code (REST) | [[https://github.com/syl20bnr/spacemacs#license][GNU GPL v3]]  | https://github.com/syl20bnr/spacemacs        |
+| KNIME Analytics Platform         | Loosely Coupled with code (REST) | [[https://www.knime.com/downloads/full-license][GNU GPL v3]]  | https://github.com/knime/knime-core          |
+| Apache Superset                  | Standalone Tool                  | [[https://github.com/apache/incubator-superset/blob/master/LICENSE.txt][Apache 2.0]]  | https://github.com/apache/incubator-superset |
+| RAWGraphs                        | Standalone Tool                  | [[https://github.com/densitydesign/raw/blob/master/LICENSE][Apache 2.0]]  | https://github.com/densitydesign/raw/        |
+
+

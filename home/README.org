@@ -1,0 +1,7 @@
+#+Title: home | propositum
+
+This folder holds all user-generated content and application-specific configuration.
+
+The 'projects' folder is intended to keep organise files from the various applications together into a single logical unit. Each time a new project is started remember to create a separate directory for that project
+* TODO Determine how org-agenda will scan these folders for org files without slowing down
+- perhaps it would be easier to simply push each project's main org file to org-agenda's list of org files?

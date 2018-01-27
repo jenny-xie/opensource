@@ -1,0 +1,4 @@
+#+Title: propositum | app
+
+This directory contains component application files. Where possible user data (such as configuraitons and user content) should be separated from the files inthis directory to simplify the upgrade process.| WinPython                        | [[https://github.com/winpython/winpython/blob/master/LICENSE][MIT License]] |                                              |
+

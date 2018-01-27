@@ -1,0 +1,5 @@
+#+Title: config | propositum
+
+This folder holds configuration files, in particular batch files used to set environment variables or otherwise tweak applications for portability prior to launching.
+
+It also contains auxiliary configuration files, such as windows registry entries for creating context menu entries.
