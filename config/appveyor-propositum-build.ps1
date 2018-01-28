@@ -123,8 +123,4 @@ deactivate # Exit the superset virtualenv, note: needs to NOT be proceeded by a 
 
 ### CREATE BUILD ARTIFACT ###
 echo "Compressing files into release artifact..."
-7z a propositum.7z C:\propositum -v200m
-dir
-dir P:\
-dir C:\
-dir C:\propositum
+7z a C:\propositum\propositum.7z C:\propositum
