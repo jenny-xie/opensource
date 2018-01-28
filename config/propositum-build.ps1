@@ -3,6 +3,7 @@ echo "Setting variables."
 $drv = "P:"
 $propositumRoot = $drv + "\"
 $propositumApp = $drv + "\app"
+$propositumDL = $drv + "\propositum-dl"
 $propositumHome = $drv + "\home"
 $propositumConfig = $drv + "\config"
 $propositumFont = $drv + "\font"
@@ -32,32 +33,32 @@ subst $drv C:\propositum
 
 Echo "Creating download folder for pre-built binaries."
 # Download pre-built binaries (paths hardcoded for now...)
-mkdir C:\propositum-dl
-cd C:\propositum-dl
+mkdir $propositumDL
+cd $propositumDL
 $WebClient = New-Object System.Net.WebClient
 
 echo "Downloading & extracting Cmder..."
-$WebClient.DownloadFile($cmderDL, "C:\propositum-dl\cmder.7z")
+$WebClient.DownloadFile($cmderDL, "$propositumDL\cmder.7z")
 7z x cmder.7z -o"$propositumApp\*" # '*' denotes fiename (sans-extension) is used as name of folder to extract to
 rm cmder.7z
 
 echo "Downloading & extracting KNIME..."
-$WebClient.DownloadFile($knimeDL, "C:\propositum-dl\knime.zip")
+$WebClient.DownloadFile($knimeDL, "$propositumDL\knime.zip")
 7z x knime.zip -o"$propositumApp\" # Removed '*' as we will rename the directory knime is already contained within, instead
 rm knime.zip
 
 echo "Downloading & extracting emacs..."
-$WebClient.DownloadFile($emacsDL, "C:\propositum-dl\emacs.7z")
+$WebClient.DownloadFile($emacsDL, "$propositumDL\emacs.7z")
 7z x emacs.7z -o"$propositumApp\" # Removed '*' as emacs already contained within its own directory called 'emacs'
 rm emacs.7z
 
 echo "Downloading & extracting AutoHotKey..."
-$WebClient.DownloadFile($autohotkeyDL, "C:\propositum-dl\autohotkey.zip")
+$WebClient.DownloadFile($autohotkeyDL, "$propositumDL\autohotkey.zip")
 7z x autohotkey.zip -o"$propositumApp\*"
 rm autohotkey.zip
 
 echo "Downloading & extracting WinPython Zero..."
-$WebClient.DownloadFile($winpythonDL, "C:\propositum-dl\winpythonzero.exe")
+$WebClient.DownloadFile($winpythonDL, "$propositumDL\winpythonzero.exe")
 ./winpythonzero.exe /S /D="$propositumapp\winpythonzero" | Out-Null # Out-Null to force Powershell to wait until winpython extract finishes
 rm winpythonzero.exe
 
@@ -127,7 +128,7 @@ python superset load_examples
 python superset init
 deactivate # Exit the superset virtualenv, note: needs to NOT be proceeded by a './' otherwise doesnt work in Powershell!
 
-
 ### CREATE BUILD ARTIFACT ###
+Remove-Item -path $propositumDL -recurse -force # Delete downloads directory
 echo "Compressing files into release artifact..."
 7z a C:\propositum\propositum.7z C:\propositum
