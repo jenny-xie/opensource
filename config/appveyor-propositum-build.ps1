@@ -71,7 +71,7 @@ cd $propositumHome
 git clone https://github.com/syl20bnr/spacemacs .emacs.d 2> $null
 echo "Installing spacemacs layers..."
 cd $propositumApp
-.\emacs\bin\emacs.exe --daemon --eval "(progn (configuration-layer/update-packages) (save-buffers-kill-emacs))" # Force spacemacs to load (as daemon), install required packages, then quit
+.\emacs\bin\emacs.exe --daemon --eval "(progn (configuration-layer/update-packages) (save-buffers-kill-emacs))" | Out-Null # Temporarily make a bit less verbose whilst troubleshooting AppVeyor build # Force spacemacs to load (as daemon), install required packages, then quit
 cd $propositumHome
 Remove-Item -path .\.emacs.d\.cache -recurse -force # Remove the cache folder to decrease overall artifact size
 
