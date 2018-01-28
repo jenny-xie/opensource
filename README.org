@@ -1,6 +1,5 @@
 #+Title: propositum
 
-** Background
 Propositum is a collection of free and open-source, portable tools to facilitate task & information management, automation, data manipulation and analytics.
 
 The rationale for creating propositum, and maintaining in a GitHub repo, was to be able to quickly get up-and-running with the required tools + my own customisations, particularly those machines with severely restricted access to obtain external software.
