@@ -1,53 +1,39 @@
 #+Title: propositum
 
-Propositum is a collection of free and open-source, portable tools to facilitate task & information management, automation, data manipulation and analytics.
+Propositum is a collection of free and open-source, portable components to facilitate task & information management, automation, data manipulation and analytics.
 
-The rationale for creating propositum, and maintaining in a GitHub repo, was to be able to quickly get up-and-running with the required tools + my own customisations, particularly those machines with severely restricted access to obtain external software.
-
-** Components
-Propositum consists of:
-
-- [[http://cmder.net/][Cmder]] a console emulator & cmd replacement  
-- [[https://www.gnu.org/software/emacs/][emacs]] & [[https://orgmode.org/][org-mode]] ([[http://spacemacs.org/][=spacemacs=]] flavour) for task & information management
-- [[https://www.knime.com/knime-analytics-platform][KNIME Analytics Platform]] for data pipelines, transformation, automation & reporting
-- [[https://superset.incubator.apache.org/][Apache Superset]] for data exploration, dashboards & data visualisation
- - Running in a =virtualenv= under [[https://winpython.github.io/][WinPython]] (=Zero= flavour), a portable Python runtime
-- [[http://rawgraphs.io/][RAWGraphs]] for additional data visualisation options (and an quick-and-easy interface)
- - Running with the standard =python3= HTTP server under WinPython
-- [[https://autohotkey.com/][AutoHotKey]] for general Windows automation 
--  Customisations for each of these tools & separating user data
--  A number of helper scripts to launch applications & maintain portability
+The rationale for creating propositum, and maintaining in a Git repo, was to be able to quickly get up-and-running with the required tools + any customisations, particularly those machines in organisations with severely restricted access to obtain external software.
 
 ** Installation
 
+1. Download and un-archive the latest =release= using 7-Zip to a folder of your choice.
 
-=git clone https://github.com/xeijin/propositum <folder to clone into>=
+2. Mount to the drive letter =P:= on Windows using the =subst= command=*=, example:
 
-Or if Git is prohibited, simply download the repository as a ZIP archive from the [[https://github.com/xeijin/propositum][GitHub page]].
+   =subst P: C:/Propositum/Location=
 
-*Note:* Whilst portability has been maintained as much as possible, some components (notably =virtualenv=) aren't designed with 'live' portability in-mind.
+3. You will find symlinks to all of the key components in the root directory which you can use to launch applications. User files & customisations are stored in ./home
 
-For best results it is strongly recommended that you use the =subst= command on windows to map the cloned/downloaded repository to the drive letter =P:=
+=*= Whilst portability has been maintained as much as possible, some components (notably =virtualenv=) aren't designed with 'live' portability in-mind, hence the workaround using =subst= above.
 
-Example:
+** Components, Intended Usage, Licenses & Sources
 
-=subst P: C:/Propositum/Location=
+- Releases are compiled by an orchestration script (see =./config/propositum-build.ps1=), mostly using a number of components' release binaries, and run on a cloud-hosted continuous integration platform which delivers the final release to GitHub.
 
-You will find symlinks to all of the key components in the root directory, user files & customisations are stored in /home
+- For this reason the source code has not been included in the repository, but please see below for a summary of the components, usage, licenses and links to sources.
 
-** License & Source
+- The *GNU GPL v3* license is applied to this repository overall, given its compatibility with the licenses listed (inferred from [[https://www.gnu.org/licenses/license-list.en.html#GPLCompatibleLicenses][this page on the GNU website]]) this is primarily driven by necessity (the internal software approval mechanisms of many organisations support only one license per download file).
 
-Given the 'in-place' nature of the distribution of its repository, source code has not been included to decrease the download size & reduce complexity, but please see below for a summary and links to pertinent information.
+| Component                          | Inteded Usage                                                                  | Usage Categorisation                                         | License     | Source Code / Release Download               |
+|------------------------------------+--------------------------------------------------------------------------------+--------------------------------------------------------------+-------------+----------------------------------------------|
+| [[http://cmder.net/][Cmder]]                              | console emulator & cmd replacement                                             | Standalone Tool                                              | [[https://github.com/cmderdev/cmder#license][MIT License]] | https://github.com/cmderdev/cmder            |
+| [[https://winpython.github.io/][WinPython]]                          | portable python runtime to support Apache Superset & data science applications | Standalone Tool                                              | [[https://github.com/winpython/winpython/blob/master/LICENSE][MIT License]] | https://github.com/winpython/winpython       |
+| [[https://autohotkey.com/][AutoHotKey]]                         | general Windows automation, expanding commonly used text snippets              | Standalone Tool                                              | [[https://github.com/Lexikos/AutoHotkey_L/blob/master/license.txt][GNU GPL v2]]  | https://github.com/Lexikos/AutoHotkey_L      |
+| [[https://www.gnu.org/software/emacs/][emacs]] (emas-w64 builds) & [[https://orgmode.org/][org-mode]] | task & information management, text editor, IDE, composing documentation       | Loosely Coupled with internal code (e.g. internal REST APIs) | [[https://github.com/zklhp/emacs-w64/blob/emacs-25/COPYING][GNU GPL v3]]  | https://github.com/zklhp/emacs-w64           |
+| [[http://spacemacs.org/][spacemacs (+layers)]]                | enhancement to emacs (see above for usage)                                     | Loosely Coupled with internal code (e.g. internal REST APIs) | [[https://github.com/zklhp/emacs-w64/blob/emacs-25/COPYING][GNU GPL v3]]  | https://github.com/syl20bnr/spacemacs        |
+| [[https://www.knime.com/knime-analytics-platform][KNIME Analytics Platform]]           | data pipelines, transformation, automation & reporting                         | Loosely Coupled with internal code (e.g. internal REST APIs) | [[https://www.knime.com/downloads/full-license][GNU GPL v3]]  | https://github.com/knime/knime-core          |
+| [[https://superset.incubator.apache.org/][Apache Superset]]                    | data exploration, dashboards & data visualisation                              | Standalone Tool                                              | [[https://github.com/apache/incubator-superset/blob/master/LICENSE.txt][Apache 2.0]]  | https://github.com/apache/incubator-superset |
+| [[http://rawgraphs.io/][RAWGraphs]]                          | additional data visualisation options                                          | Standalone Tool                                              | [[https://github.com/densitydesign/raw/blob/master/LICENSE][Apache 2.0]]  | https://github.com/densitydesign/raw/        |
 
-| Component                        | Usage                            | License     | Source Code / Release Download               |
-|----------------------------------+----------------------------------+-------------+----------------------------------------------|
-| Cmder                            | Standalone Tool                  | [[https://github.com/cmderdev/cmder#license][MIT License]] | https://github.com/cmderdev/cmder            |
-| WinPython                        | Standalone Tool (Runtime)        | [[https://github.com/winpython/winpython/blob/master/LICENSE][MIT License]] | https://github.com/winpython/winpython       |
-| AutoHotKey                       | Standalone Tool                  | [[https://github.com/Lexikos/AutoHotkey_L/blob/master/license.txt][GNU GPL v2]]  | https://github.com/Lexikos/AutoHotkey_L      |
-| emacs ('emacs-w64' build)        | Loosely Coupled with code (REST) | [[https://github.com/zklhp/emacs-w64/blob/emacs-25/COPYING][GNU GPL v3]]  | https://github.com/zklhp/emacs-w64           |
-| spacemacs (including all layers) | Loosely Coupled with code (REST) | [[https://github.com/syl20bnr/spacemacs#license][GNU GPL v3]]  | https://github.com/syl20bnr/spacemacs        |
-| KNIME Analytics Platform         | Loosely Coupled with code (REST) | [[https://www.knime.com/downloads/full-license][GNU GPL v3]]  | https://github.com/knime/knime-core          |
-| Apache Superset                  | Standalone Tool                  | [[https://github.com/apache/incubator-superset/blob/master/LICENSE.txt][Apache 2.0]]  | https://github.com/apache/incubator-superset |
-| RAWGraphs                        | Standalone Tool                  | [[https://github.com/densitydesign/raw/blob/master/LICENSE][Apache 2.0]]  | https://github.com/densitydesign/raw/        |
-
+Customised configuration files for all of these tools are also included, as are a number of 'helper' scripts (mainly batch files) to ensure the applications can run correctly & consistently across deployments.
 
