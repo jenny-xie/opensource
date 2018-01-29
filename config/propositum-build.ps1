@@ -18,7 +18,7 @@ $emacs = "https://github.com/zklhp/emacs-w64/releases/latest"
 $winpython = "https://github.com/winpython/winpython/releases/latest"
 $spacemacs = "https://github.com/syl20bnr/spacemacs"
 $rawgrpahs = "https://github.com/densitydesign/raw"
-$autohotkey = "https://autohotkey.com/download/ahk.zip"
+$autohotkey = "https://autohotkey.com/download/1.1/AutoHotKey_1.1.27.07.zip"
 
 # Temporary direct binary DL links for pre-built binaries
 $cmderDL = "https://github.com/cmderdev/cmder/releases/download/v1.3.4/cmder.7z"
