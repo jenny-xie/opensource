@@ -29,7 +29,7 @@ $autohotkeyDL = $autohotkey
 
 Echo "Mapping propositum root to drive letter 'P:'."
 # map the root folder to the supplied drive letter (default is P:)
-subst $drv C:\propositum
+subst $drv $MyInvocation.MyCommand.Path # Set to current working directory (which should be C:\propositum, or wherever the files were cloned to)
 
 Echo "Creating download folder for pre-built binaries."
 # Download pre-built binaries (paths hardcoded for now...)
