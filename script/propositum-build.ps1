@@ -12,13 +12,13 @@ $propositumFont = $drv + "\font"
 $env:HOME = $propositumHome
 
 # URLs for either binary downloads of applications, latest github release page or the github repository itself to be cloned
-$cmder = "https://github.com/cmderdev/cmder/releases/latest"
-$knime = "https://download.knime.org/analytics-platform/win/knime-latest-win32.win32.x86_64.zip"
-$emacs = "https://github.com/zklhp/emacs-w64/releases/latest"
-$winpython = "https://github.com/winpython/winpython/releases/latest"
-$spacemacs = "https://github.com/syl20bnr/spacemacs"
-$rawgrpahs = "https://github.com/densitydesign/raw"
-$autohotkey = "https://autohotkey.com/download/1.1/AutoHotKey_1.1.27.07.zip"
+# $cmder = "https://github.com/cmderdev/cmder/releases/latest"
+# $knime = "https://download.knime.org/analytics-platform/win/knime-latest-win32.win32.x86_64.zip"
+# $emacs = "https://github.com/zklhp/emacs-w64/releases/latest"
+# $winpython = "https://github.com/winpython/winpython/releases/latest"
+# $spacemacs = "https://github.com/syl20bnr/spacemacs"
+# $rawgrpahs = "https://github.com/densitydesign/raw"
+# $autohotkey = "https://autohotkey.com/download/1.1/AutoHotKey_1.1.27.07.zip"
 
 # Temporary direct binary DL links for pre-built binaries
 $cmderDL = "https://github.com/cmderdev/cmder/releases/download/v1.3.4/cmder.7z"
@@ -44,7 +44,7 @@ rm cmder.7z
 echo "Removing default Cmder config directory & symlinking to config in ./home"
 cd "$propositumApp\cmder"
 Remove-Item -Path .\config
-cmd ./c mklink /d .\config ..\..\home\cmder-config # Create the symlink to our config files in home dir so we can easily overwrite the app folder for future updates
+cmd ./c mklink /d .\config ..\..\home\.cmder # Create the symlink to our config files in home dir so we can easily overwrite the app folder for future updates
 
 echo "Downloading & extracting KNIME..."
 $WebClient.DownloadFile($knimeDL, "$propositumDL\knime.zip")
