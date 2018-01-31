@@ -41,6 +41,10 @@ echo "Downloading & extracting Cmder..."
 $WebClient.DownloadFile($cmderDL, "$propositumDL\cmder.7z")
 7z x cmder.7z -o"$propositumApp\*" # '*' denotes fiename (sans-extension) is used as name of folder to extract to
 rm cmder.7z
+echo "Removing default Cmder config directory & symlinking to config in ./home"
+cd "$propositumApp\cmder"
+Remove-Item -Path .\config
+cmd ./c mklink /d .\config ..\..\home\cmder-config # Create the symlink to our config files in home dir so we can easily overwrite the app folder for future updates
 
 echo "Downloading & extracting KNIME..."
 $WebClient.DownloadFile($knimeDL, "$propositumDL\knime.zip")
