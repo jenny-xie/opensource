@@ -8,13 +8,13 @@ The rationale for creating propositum, and maintaining in a Git repo, was to be 
 
 1. Download and un-archive the latest =release= using 7-Zip to a folder of your choice.
 
-2. Mount to the drive letter =P:= on Windows using the =subst= command=*=, example:
+2. Mount to the drive letter =P:= on Windows using the =subst= command[fn:1], example:
 
    =subst P: C:/Propositum/Location=
 
-3. You will find symlinks to all of the key components in the root directory which you can use to launch applications. User files & customisations are stored in ./home
+3. You will find symlinks to all of the key components in the root directory which you can use to launch applications. User files & customisations are stored in =./home=
 
-=*= Whilst portability has been maintained as much as possible, some components (notably =virtualenv=) aren't designed with 'live' portability in-mind, hence the workaround using =subst= above.
+[fn:1] Whilst portability has been maintained as much as possible, some components (notably =virtualenv=) aren't designed with 'live' portability in-mind, hence the workaround using =subst= above.
 
 ** Components, Intended Usage, Licenses & Sources
 
@@ -24,16 +24,16 @@ The rationale for creating propositum, and maintaining in a Git repo, was to be 
 
 - The *GNU GPL v3* license is applied to this repository overall, given its compatibility with the licenses listed (inferred from [[https://www.gnu.org/licenses/license-list.en.html#GPLCompatibleLicenses][this page on the GNU website]]) this is primarily driven by necessity (the internal software approval mechanisms of many organisations support only one license per download file).
 
-| Component                          | Inteded Usage                                                                  | Usage Categorisation                                         | License     | Source Code / Release Download               |
-|------------------------------------+--------------------------------------------------------------------------------+--------------------------------------------------------------+-------------+----------------------------------------------|
-| [[http://cmder.net/][Cmder]]                              | console emulator & cmd replacement                                             | Standalone Tool                                              | [[https://github.com/cmderdev/cmder#license][MIT License]] | https://github.com/cmderdev/cmder            |
-| [[https://winpython.github.io/][WinPython]]                          | portable python runtime to support Apache Superset & data science applications | Standalone Tool                                              | [[https://github.com/winpython/winpython/blob/master/LICENSE][MIT License]] | https://github.com/winpython/winpython       |
-| [[https://autohotkey.com/][AutoHotKey]]                         | general Windows automation, expanding commonly used text snippets              | Standalone Tool                                              | [[https://github.com/Lexikos/AutoHotkey_L/blob/master/license.txt][GNU GPL v2]]  | https://github.com/Lexikos/AutoHotkey_L      |
-| [[https://www.gnu.org/software/emacs/][emacs]] (emas-w64 builds) & [[https://orgmode.org/][org-mode]] | task & information management, text editor, IDE, composing documentation       | Loosely Coupled with internal code (e.g. internal REST APIs) | [[https://github.com/zklhp/emacs-w64/blob/emacs-25/COPYING][GNU GPL v3]]  | https://github.com/zklhp/emacs-w64           |
-| [[http://spacemacs.org/][spacemacs (+layers)]]                | enhancement to emacs (see above for usage)                                     | Loosely Coupled with internal code (e.g. internal REST APIs) | [[https://github.com/zklhp/emacs-w64/blob/emacs-25/COPYING][GNU GPL v3]]  | https://github.com/syl20bnr/spacemacs        |
-| [[https://www.knime.com/knime-analytics-platform][KNIME Analytics Platform]]           | data pipelines, transformation, automation & reporting                         | Loosely Coupled with internal code (e.g. internal REST APIs) | [[https://www.knime.com/downloads/full-license][GNU GPL v3]]  | https://github.com/knime/knime-core          |
-| [[https://superset.incubator.apache.org/][Apache Superset]]                    | data exploration, dashboards & data visualisation                              | Standalone Tool                                              | [[https://github.com/apache/incubator-superset/blob/master/LICENSE.txt][Apache 2.0]]  | https://github.com/apache/incubator-superset |
-| [[http://rawgraphs.io/][RAWGraphs]]                          | additional data visualisation options                                          | Standalone Tool                                              | [[https://github.com/densitydesign/raw/blob/master/LICENSE][Apache 2.0]]  | https://github.com/densitydesign/raw/        |
+| Component                           | Inteded Usage                                                                  | Usage Categorisation                                         | License     | Source Code / Release Download               |
+|-------------------------------------+--------------------------------------------------------------------------------+--------------------------------------------------------------+-------------+----------------------------------------------|
+| [[http://cmder.net/][Cmder]]                               | console emulator & cmd replacement                                             | Standalone Tool                                              | [[https://github.com/cmderdev/cmder#license][MIT License]] | https://github.com/cmderdev/cmder            |
+| [[https://winpython.github.io/][WinPython]]                           | portable python runtime to support Apache Superset & data science applications | Standalone Tool                                              | [[https://github.com/winpython/winpython/blob/master/LICENSE][MIT License]] | https://github.com/winpython/winpython       |
+| [[https://autohotkey.com/][AutoHotKey]]                          | general Windows automation, expanding commonly used text snippets              | Standalone Tool                                              | [[https://github.com/Lexikos/AutoHotkey_L/blob/master/license.txt][GNU GPL v2]]  | https://github.com/Lexikos/AutoHotkey_L      |
+| [[https://www.gnu.org/software/emacs/][emacs]] (emacs-w64 builds) & [[https://orgmode.org/][org-mode]] | task & information management, text editor, IDE, composing documentation       | Loosely Coupled with internal code (e.g. internal REST APIs) | [[https://github.com/zklhp/emacs-w64/blob/emacs-25/COPYING][GNU GPL v3]]  | https://github.com/zklhp/emacs-w64           |
+| [[http://spacemacs.org/][spacemacs (+layers)]]                 | enhancement to emacs (see above for usage)                                     | Loosely Coupled with internal code (e.g. internal REST APIs) | [[https://github.com/zklhp/emacs-w64/blob/emacs-25/COPYING][GNU GPL v3]]  | https://github.com/syl20bnr/spacemacs        |
+| [[https://www.knime.com/knime-analytics-platform][KNIME Analytics Platform]]            | data pipelines, transformation, automation & reporting                         | Loosely Coupled with internal code (e.g. internal REST APIs) | [[https://www.knime.com/downloads/full-license][GNU GPL v3]]  | https://github.com/knime/knime-core          |
+| [[https://superset.incubator.apache.org/][Apache Superset]]                     | data exploration, dashboards & data visualisation                              | Standalone Tool                                              | [[https://github.com/apache/incubator-superset/blob/master/LICENSE.txt][Apache 2.0]]  | https://github.com/apache/incubator-superset |
+| [[http://rawgraphs.io/][RAWGraphs]]                           | additional data visualisation options                                          | Standalone Tool                                              | [[https://github.com/densitydesign/raw/blob/master/LICENSE][Apache 2.0]]  | https://github.com/densitydesign/raw/        |
 
 Customised configuration files for all of these tools are also included, as are a number of 'helper' scripts (mainly batch files) to ensure the applications can run correctly & consistently across deployments.
 
