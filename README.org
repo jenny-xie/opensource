@@ -8,13 +8,13 @@ The rationale for creating propositum, and maintaining in a Git repo, was to be 
 
 1. Download and un-archive the latest =release= using 7-Zip to a folder of your choice.
 
-2. Mount to the drive letter =P:= on Windows using the =subst= command[fn:1], example:
+2. Mount to the drive letter =P:= on Windows using the =subst= command(*), example:
 
    =subst P: C:/Propositum/Location=
 
 3. You will find symlinks to all of the key components in the root directory which you can use to launch applications. User files & customisations are stored in =./home=
 
-[fn:1] Whilst portability has been maintained as much as possible, some components (notably =virtualenv=) aren't designed with 'live' portability in-mind, hence the workaround using =subst= above.
+(*) Whilst portability has been maintained as much as possible, some components (notably =virtualenv=) aren't designed with 'live' portability in-mind, hence the workaround using =subst= above.
 
 ** Components, Intended Usage, Licenses & Sources
 
