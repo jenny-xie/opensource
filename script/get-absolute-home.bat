@@ -1,6 +1,6 @@
 @echo off
 
-set REL_HOME=..\..\home
+set REL_HOME=..\home
 set HOME=
 
 rem // Save current directory and change to target directory
