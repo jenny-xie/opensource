@@ -1,39 +1,1517 @@
-#+Title: propositum
+#+TITLE: propositum | =WIN= | Build & Deploy
+#+PROPERTY: header-args :tangle script/propositum-windows.ps1
+#+OPTIONS: prop:t
 
-Propositum is a collection of free and open-source, portable components to facilitate task & information management, automation, data manipulation and analytics.
+This script can be used on any Windows PC, or in conjunction with AppVeyor to install propositum on the local machine, or create a new GitHub release respectively.
 
-The rationale for creating propositum, and maintaining in a Git repo, was to be able to quickly get up-and-running with the required tools + any customisations, particularly those machines in organisations with severely restricted access to obtain external software.
+#+BEGIN_SRC powershell :exports code
+### --- NOTE: If you are reading from the PS1 script you will find documentation sparse - this script is accompanied by an org-mode file used to literately generate it --- ####
+### --- Please see https://github.com/xeijin/propositum for the accompanying README.org --- ###
+#+END_SRC
 
-** Installation
+* Define
+  
+Some background on the literate functions used, as well as the tables used to maintain the user-defined [[Components]] and [[Variables & Secrets]].
 
-1. Download and un-archive the latest =release= using 7-Zip to a folder of your choice.
+** Literate Functions
 
-2. Mount to the drive letter =P:= on Windows using the =subst= command(*), example:
+The list of [[Components]] and their attributes, as well as user-defined [[Variables & Secrets]] are both maintained in an [[https://orgmode.org/manual/Tables.html][org-mode tables]]. Using [[https://orgmode.org/worg/org-contrib/babel/][org-babel]] and some elisp the contents of these tables are actually executed by PowerShell for use in scripts.
 
-   =subst P: C:/Propositum/Location=
+This makes it easier to add new components and variables, as well as modify the existing attributes of these items. It also helps us segregate user-defined inputs from functions, making debugging easier and our code (hopefully) cleaner.
 
-3. You will find symlinks to all of the key components in the root directory which you can use to launch applications. User files & customisations are stored in =./home=
+*** Require elisp dependencies
 
-(*) Whilst portability has been maintained as much as possible, some components (notably =virtualenv=) aren't designed with 'live' portability in-mind, hence the workaround using =subst= above.
+First, let's ensure we get any required elisp dependencies
 
-** Components, Intended Usage, Licenses & Sources
+#+BEGIN_SRC elisp :exports both
+  (require 'org)
+  ;(require 'json)
+#+END_SRC
 
-- Releases are compiled by an orchestration script (see =./config/propositum-build.ps1=), mostly using a number of components' release binaries, and run on a cloud-hosted continuous integration platform which delivers the final release to GitHub.
+*** Import from CSV
 
-- For this reason the source code has not been included in the repository, but please see below for a summary of the components, usage, licenses and links to sources.
+Now define an org-babel source code block to /import/ variables from an existing =CSV= file, into an org-mode table. It takes a single argument, the path to the =CSV= file as a string.
 
-- The *GNU GPL v3* license is applied to this repository overall, given its compatibility with the licenses listed (inferred from [[https://www.gnu.org/licenses/license-list.en.html#GPLCompatibleLicenses][this page on the GNU website]]) this is primarily driven by necessity (the internal software approval mechanisms of many organisations support only one license per download file).
+#+NAME: org-babel-tbl-import-csv
+#+BEGIN_SRC elisp :results value table :exports code :var csv-path=""
+  (with-temp-buffer
+    (org-table-import csv-path nil) ;; MEMO on `nil' arg is in the footnotes.
+    (setq LST (org-table-to-lisp))
+    ;; comment out or cut below one line if you don't have column names in CSV file.
+    (append (list (car LST)) '(hline) (cdr (org-table-to-lisp))))
+#+END_SRC
 
-| Component                           | Inteded Usage                                                                  | Usage Categorisation                                         | License     | Source Code / Release Download               |
-|-------------------------------------+--------------------------------------------------------------------------------+--------------------------------------------------------------+-------------+----------------------------------------------|
-| [[http://cmder.net/][Cmder]]                               | console emulator & cmd replacement                                             | Standalone Tool                                              | [[https://github.com/cmderdev/cmder#license][MIT License]] | https://github.com/cmderdev/cmder            |
-| [[https://winpython.github.io/][WinPython]]                           | portable python runtime to support Apache Superset & data science applications | Standalone Tool                                              | [[https://github.com/winpython/winpython/blob/master/LICENSE][MIT License]] | https://github.com/winpython/winpython       |
-| [[https://autohotkey.com/][AutoHotKey]]                          | general Windows automation, expanding commonly used text snippets              | Standalone Tool                                              | [[https://github.com/Lexikos/AutoHotkey_L/blob/master/license.txt][GNU GPL v2]]  | https://github.com/Lexikos/AutoHotkey_L      |
-| [[https://www.gnu.org/software/emacs/][emacs]] (emacs-w64 builds) & [[https://orgmode.org/][org-mode]] | task & information management, text editor, IDE, composing documentation       | Loosely Coupled with internal code (e.g. internal REST APIs) | [[https://github.com/zklhp/emacs-w64/blob/emacs-25/COPYING][GNU GPL v3]]  | https://github.com/zklhp/emacs-w64           |
-| [[http://spacemacs.org/][spacemacs (+layers)]]                 | enhancement to emacs (see above for usage)                                     | Loosely Coupled with internal code (e.g. internal REST APIs) | [[https://github.com/zklhp/emacs-w64/blob/emacs-25/COPYING][GNU GPL v3]]  | https://github.com/syl20bnr/spacemacs        |
-| [[https://www.knime.com/knime-analytics-platform][KNIME Analytics Platform]]            | data pipelines, transformation, automation & reporting                         | Loosely Coupled with internal code (e.g. internal REST APIs) | [[https://www.knime.com/downloads/full-license][GNU GPL v3]]  | https://github.com/knime/knime-core          |
-| [[https://superset.incubator.apache.org/][Apache Superset]]                     | data exploration, dashboards & data visualisation                              | Standalone Tool                                              | [[https://github.com/apache/incubator-superset/blob/master/LICENSE.txt][Apache 2.0]]  | https://github.com/apache/incubator-superset |
-| [[http://rawgraphs.io/][RAWGraphs]]                           | additional data visualisation options                                          | Standalone Tool                                              | [[https://github.com/densitydesign/raw/blob/master/LICENSE][Apache 2.0]]  | https://github.com/densitydesign/raw/        |
+*** Export to CSV
 
-Customised configuration files for all of these tools are also included, as are a number of 'helper' scripts (mainly batch files) to ensure the applications can run correctly & consistently across deployments.
+We also need to define an org-babel source block to export an org-mode table back to a =CSV=.
+
+It takes two arguments, the path to the =CSV= file, and also a name for the org-mode table it generates. Both should be a =string=.
+
+#+NAME: org-babel-tbl-export-csv
+#+BEGIN_SRC elisp :exports code :var csv-path="" tbl-name=""
+  (save-excursion
+    (org-open-link-from-string (concat "[[" tbl-name "]]"))
+    (while (not (org-table-p)) (forward-line))
+    (org-table-export csv-path "orgtbl-to-csv"))
+#+END_SRC
+
+** Components
+  
+Components to be installed are maintained in a org-mode table and csv file which holds the metadata:
+
+  - ~var~ short/variable name for the component
+  - ~component~ full name for the component (including link to home page)
+  - ~license~ license type and evidence url
+  - ~usage~ the intended usage of the componet
+  - ~categorisation~ categorisation for assisting with internal sign-offs
+  - ~status~ whether a component is enabled or disabled
+  - ~service~ the method through which the component is acquired
+    - ~github-release~ download as a GitHub release artifact (will take care of finding the Url for the latest release)
+    - ~github-clone~ clone directly from GitHub repo
+    - ~apache-dir-dl~ download from an apache-style directory/file listing web page (e.g. [[https://ftp.gnu.org/gnu/][GNU Download Page]]) 
+    - ~direct-dl~ direct download link (can be redirected url)
+  - ~user~ the GitHub user for clone / release artifact download
+  - ~repo~ the GitHub repo for clone / release artifact download
+  - ~regex~ a regular expression to find the latest version of the file
+  - ~dl~ direct download link (also used to store the download link in vairous PowerShell functions)
+  - ~source~ the source download link (usually where newest versions of files are placed) -- some logic for handling component name/version folders
+  - ~comment~ any other noteworthy information on a component
+
+Let's ensure we're in the script root first
+
+#+BEGIN_SRC powershell
+  cd $psScriptRoot
+#+END_SRC
+
+Now we use org-babel's =#+CALL:= to import our variables defined in ~components.csv~ using the [[Literate Functions]] we defined earlier.
+
+=IMPORT= =IMPORT= =IMPORT=
+#+NAME: components-import
+#+CALL: org-babel-tbl-import-csv(csv-path="components.csv")
+=IMPORT= =IMPORT= =IMPORT=
+
+Next, within the table, define the environment variables and their desired values
+
+#+NAME: components-tbl
+#+RESULTS: components-import
+| var        | status   | component                | license     | usage                                                                          | categorisation                                               | service        | user          | repo               | regex                                  | dl                                                                                    | source                                 | comment                                                                                                                     |
+|------------+----------+--------------------------+-------------+--------------------------------------------------------------------------------+--------------------------------------------------------------+----------------+---------------+--------------------+----------------------------------------+---------------------------------------------------------------------------------------+----------------------------------------+-----------------------------------------------------------------------------------------------------------------------------|
+| [[cmder]]      | enabled  | [[http://cmder.net/][Cmder]]                    | [[https://github.com/cmderdev/cmder#license][MIT License]] | console emulator & cmd replacement                                             | Standalone Tool                                              | github-release | cmderdev      | cmder              | cmder.7z                               |                                                                                       |                                        |                                                                                                                             |
+| [[emacs]]      | enabled  | [[https://www.gnu.org/software/emacs/][emacs]] & [[https://orgmode.org/][org-mode]]         | [[https://github.com/zklhp/emacs-w64/blob/emacs-25/COPYING][GNU GPL v3]]  | task & information management, text editor, IDE, composing documentation       | Loosely Coupled with internal code (e.g. internal REST APIs) | apache-dir-dl  |               |                    | emacs-(\d*\.\d+)*?-x86_64\.zip(?![\.]) |                                                                                       | https://ftp.gnu.org/gnu/emacs/windows/ |                                                                                                                             |
+| [[doom-emacs]] | enabled  | [[https://github.com/hlissner/doom-emacs][doom-emacs]]               | [[https://github.com/hlissner/doom-emacs/blob/master/LICENSE][MIT License]] | configuration framework for emacs                                              | Loosely Coupled with internal code (e.g. internal REST APIs) | github-clone   | hlissner      | doom-emacs         |                                        |                                                                                       |                                        |                                                                                                                             |
+| [[autohotkey]] | enabled  | [[https://autohotkey.com/][AutoHotKey]]               | [[https://github.com/Lexikos/AutoHotkey_L/blob/master/license.txt][GNU GPL v2]]  | general Windows automation, expanding commonly used text snippets              | Standalone Tool                                              | apache-dir-dl  |               |                    | AutoHotkey_(\d*\.\d+)*?.*(?=\.zip)     |                                                                                       | https://autohotkey.com/download/1.1/   | 1.1 download folder as root folder takes us to 2.0 which isnt as advanced yet/no backwards compatibility for AHK v1 scripts |
+| [[knime]]      | enabled  | [[https://www.knime.com/knime-analytics-platform][KNIME Analytics Platform]] | [[https://www.knime.com/downloads/full-license][GNU GPL v3]]  | data pipelines, transformation, automation & reporting                         | Loosely Coupled with internal code (e.g. internal REST APIs) | direct-dl      |               |                    |                                        | https://download.knime.org/analytics-platform/win/knime-latest-win32.win32.x86_64.zip |                                        |                                                                                                                             |
+| [[rawgraphs]]  | enabled  | [[http://rawgraphs.io/][RAWGraphs]]                | [[https://github.com/densitydesign/raw/blob/master/LICENSE][Apache 2.0]]  | additional data visualisation options                                          | Standalone Tool                                              | github-clone   | densitydesign | raw                |                                        |                                                                                       |                                        |                                                                                                                             |
+| [[winpython]]  | enabled  | [[https://winpython.github.io/][WinPython]]                | [[https://github.com/winpython/winpython/blob/master/LICENSE][MIT License]] | portable python runtime to support Apache Superset & data science applications | Standalone Tool                                              | github-release | winpython     | winpython          | WinPython64-(\d*\.\d+)*?(?=Zero\.exe)  |                                                                                       |                                        |                                                                                                                             |
+| [[superset]]   | enabled  | [[https://superset.incubator.apache.org/][Apache Superset]]          | [[https://github.com/apache/incubator-superset/blob/master/LICENSE.txt][Apache 2.0]]  | data exploration, dashboards & data visualisation                              | Standalone Tool                                              | github-clone   | apache        | incubator-superset |                                        |                                                                                       |                                        |                                                                                                                             |
+| [[spacemacs]]  | disabled | [[http://spacemacs.org/][spacemacs (+layers)]]      | [[https://github.com/zklhp/emacs-w64/blob/emacs-25/COPYING][GNU GPL v3]]  | enhancement to emacs (see above for usage)                                     | Loosely Coupled with internal code (e.g. internal REST APIs) | github-clone   | syl20bnr      | spacemacs          |                                        |                                                                                       |                                        |                                                                                                                             |
+
+Then export to ~components.csv~
+
+=EXPORT= =EXPORT= =EXPORT=
+#+NAME: components-export
+#+CALL: org-babel-tbl-export-csv(csv-path="components.csv", tbl-name="components-tbl")
+=EXPORT= =EXPORT= =EXPORT=
+
+#+RESULTS: components-export
+: Export done.
+
+*** Import into PowerShell
+
+We can now import the ~components.csv~ into PowerShell.
+
+The script below will first examine the ~status~ column, importing only ~enabled~ components, this prevents alot of the issues trying to do this through ~if~'s and ~try{}~ ~catch{}~ 
+
+Next, it removes ~\[\[~ and ~\]\]~ placed around each component var name, used to create the hyperlinks in this document. 
+
+Note the ~;~ appended to the ~-replace~ function, which lets us chain another command (in this case outputting ~$_~ so that we retrieve the whole ~PSCustomObject~ after the trim operation is completed).
+
+ #+BEGIN_SRC powershell
+   Try
+   {
+       $components = Import-CSV "components.csv" | ?{ $_.status -ne "disabled" } | %{ $_.var = $_.var.Trim("[]"); $_}
+   }
+   Catch
+   {
+       Throw "Check the CSV file actually exists and is formatted correctly before proceeding."
+       $error[0]|format-list -force
+   }
+ #+END_SRC
+
+** Variables
+*** Platform-specific variables & secrets
+
+ Use =#+CALL:= once again to import our variables defined in ~vars-platform.csv~
+
+ =IMPORT= =IMPORT= =IMPORT=
+ #+NAME: vars-platform-import
+ #+CALL: org-babel-tbl-import-csv(csv-path="vars-platform.csv")
+ =IMPORT= =IMPORT= =IMPORT=
+
+ Define the environment variables and their desired values in the table
+
+ - note that for AppVeyor some of these are defined in the UI as secrets, but when we run the script locally we will need to securely collect these from the user
+ - Remember *not* to include a ~$~ before the variable name in the =var= column of the table. The ~New-Variable~ command will add this in upon execution
+ - Important to specify =assign= or =execute= values, otherwise ~iex~ can cause undesired behaviour (e.g. trying to evaluate a path that doesn't exist instead of assigning)
+
+ #+NAME: vars-platform-tbl
+ #+RESULTS: vars-platform-import
+ | type   | exec    | var                  | appveyor                   | local                                                                                                                                                            | local-gs                                                                                                                                                        | testing                                                                                                                                                         | comment                                         |
+ |--------+---------+----------------------+----------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------|
+ | normal | assign  | propositumLocation   | $env:APPVEYOR_BUILD_FOLDER | C:\propositum                                                                                                                                                    | H:\propositum                                                                                                                                                   | C:\propositum-test                                                                                                                                              |                                                 |
+ | normal | execute | drv                  | $env:propositumDrv         | if(($result=Read-Host -Prompt "Please provide a letter for the Propositum root drive (default is 'P').") -eq ""){("P").Trim(":")+":"}else{$result.Trim(":")+":"} | if(($result=Read-Host -Prompt "Please provide a drive letter for the Propositum root (default is 'P')") -eq ""){("P").Trim(":")+":"}else{$result.Trim(":")+":"} | if(($result=Read-Host -Prompt "Please provide a drive letter for the Propositum root (default is 'P')") -eq ""){("P").Trim(":")+":"}else{$result.Trim(":")+":"} | Don't put drive in double quotes, causes issues |
+ | secure | execute | env:githubApiToken   | $env:githubApiToken        | Read-Host -AsSecureString -Prompt "Please provide your GitHub token."                                                                                            | Read-Host -AsSecureString -Prompt "Please provide your GitHub token."                                                                                           | Read-Host -AsSecureString -Prompt "Please provide your GitHub token."                                                                                           |                                                 |
+ | secure | execute | env:supersetPassword | $env:supersetPassword      | Read-Host -AsSecureString -Prompt "Please provide a password for the Superset user 'Propositum'."                                                                | Read-Host -AsSecureString -Prompt "Please provide a password for the Superset user 'Propositum'."                                                               | Read-Host -AsSecureString -Prompt "Please provide a password for the Superset user 'Propositum'."                                                               |                                                 |
+
+ Then export to ~vars-platform.csv~
+
+ =EXPORT= =EXPORT= =EXPORT=
+ #+NAME: vars-platform-export
+ #+CALL: org-babel-tbl-export-csv(csv-path="vars-platform.csv", tbl-name="vars-platform-tbl")
+ =EXPORT= =EXPORT= =EXPORT=
+
+ #+RESULTS: vars-platform-export
+ : Export done.
+
+*** Other variables
+
+    We need to define a few key paths and other variables which will be referred to regularly throughout the coming scripts, but are not platform specific. 
+
+    Let's import these from =vars-other.csv=
+
+ =IMPORT= =IMPORT= =IMPORT=
+ #+NAME: vars-other-import
+ #+CALL: org-babel-tbl-import-csv(csv-path="vars-other.csv")
+ =IMPORT= =IMPORT= =IMPORT=
+
+Then lets define them in a simplified table
+
+ #+NAME: vars-other-tbl
+ #+RESULTS: vars-other-import
+ | type    | exec    | var        | value                              | comment                                         |
+ |---------+---------+------------+------------------------------------+-------------------------------------------------|
+ | hashtbl | execute | propositum | @{}                                | Initialises the hash table                      |
+ | path    | execute | root       | $propositum.root = $drv+"\"        |                                                 |
+ | path    | execute | app        | $propositum.app = $drv+"\app"      |                                                 |
+ | path    | execute | dl         | $propositum.dl = $drv+"\dl"        |                                                 |
+ | path    | execute | home       | $propositum.home = $drv+"\home"    |                                                 |
+ | path    | execute | font       | $propositum.font= $drv+"\font"     |                                                 |
+ | path    | execute | util       | $propositum.util =  $drv+"\util"   |                                                 |
+ | path    | execute | bin        | $propositum.bin = $drv+"\util\bin" |                                                 |
+ | env-var | execute | env:HOME   | $propositum.home                   | Set user home as required for winpython install |
+ | env-var | execute | env:SCOOP  | $propositum.bin                    | Set scoop app/shim parent directories           |
+
+And finally, export the table back to csv
+
+ =EXPORT= =EXPORT= =EXPORT=
+ #+NAME: vars-other-export
+ #+CALL: org-babel-tbl-export-csv(csv-path="vars-other.csv", tbl-name="vars-other-tbl")
+ =EXPORT= =EXPORT= =EXPORT=
+
+ #+RESULTS: vars-other-export
+ : Export done.
+
+*** Import into PowerShell
+    As some of the variables are dependent on other build environment functions this section has been moved: [[Import functions & variables]]
+
+* Prepare
+** Define helper functions
+:PROPERTIES:
+:header-args: :tangle script/propositum-helper-fns.ps1
+:END:
+
+Define helper functions to perform repetitive activities
+
+*** ~Get-GHLatestReleaseDl~: Get the download link for the latest GitHub release
+
+Takes a component hash table as an input
+
+#+BEGIN_SRC powershell
+  function Get-GHLatestReleaseDl ($compValsArr) {
+  # Original: https://www.helloitscraig.co.uk/2016/02/download-the-latest-repo.html
+
+  # --- Set the uri for the latest release
+  $URI = "https://api.github.com/repos/"+$compValsArr.user+"/"+$compValsArr.repo+"/releases/latest"
+
+  # --- Query the API to get the url of the zip
+
+  # Switch to supported version of TLS protocol (1.2) for Github
+  [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
+  # Traverse the 
+  $latestRelease = Invoke-RestMethod -Method Get -Uri $URI
+  $allReleaseAssets = Invoke-RestMethod -Method Get -URI $latestRelease.assets_url
+
+  # RegEx to isolate the filename (and version number if multiple artifacts)
+  $releaseAsset = $allReleaseAssets -match $compValsArr.regex
+
+  # Store a sorted list of download URLs (as if contianing version number we want highest at top)
+  $downloadUrl = $releaseAsset.browser_download_url | Sort-Object -Descending
+
+  # Check if the downloadUrl is an array, if true return first array value (i.e. highest ver number)
+  If ($downloadUrl -is [array]) {return $downloadUrl[0]}
+
+  # If not array, must be single download url, return as string
+  Else {return $downloadUrl}
+  }
+#+END_SRC
+
+*** ~Get-LatestApacheDirDl~: Get the download link for latest direct-dl release (Apache directory listing)
+
+Takes a url to the apache directory, a regex for the file and the component's variable name from the table as inputs.
+
+The function makes some basic attempts to try and dig into subdirectories if it doesn't find the file, primarily based on trying to parse a folder beginning with the component name or version number.
+
+#+BEGIN_SRC powershell
+  function Get-LatestApacheDirDl ($directoryUrl, $fileRegex, $componentVarName) {
+
+      $componentRegex = "^" + $componentVarName + ".*$"
+      $versionRegex = "^(\d*\.\d+)*\/$|^(\d+)*\/$"
+
+      $regexArr = $componentRegex, $versionRegex
+
+      function Get-SiteAsObject ($uri) {
+          # Get the HTML and parse
+          return (Invoke-WebRequest $uri)
+      }
+
+      function Get-UrlFragWithRegex ($siteData, $regex)
+      {
+          # Initialise Variable
+          #$frag = ""
+          # Perform match and assign to variable
+          $frag = $siteData.Links.href -match $regex | sort -Descending
+          #{$frag = $Matches | sort -Descending} # sort descending to get highest ver number
+          # Return first element (highest ver) if multiple matches
+          If ($frag -is [array]) {return $frag[0]}
+          # Otherwise just return as-is
+          Else {return $frag}
+      }
+
+      #### Function still needs some work, incorrectly parsing table (i.e. not capturing dates)    
+      #    function Get-ApacheDirTable ($directoryUrl) {
+      #    $directoryUrl.ParsedHtml.getElementsByTagName("tbody") | ForEach-Object {
+      #
+      #    $Headers = $null
+      #
+      #    # Might need to uncomment the following line depending on table being parsed
+      #    # And if there is more than one table, need a way to get the right headers for each table
+      #    #$Headers = @("IP Address", "Hostname", "HW Address", "Device Type")
+      #
+      #    # Iterate over each <tr> in this table body
+      #    $_.getElementsByTagName("tr") | ForEach-Object {
+      #        # Select/get the <td>'s, but just grab the InnerText and make them an array
+      #        $OutputRow = $_.getElementsByTagName("td") | Select-Object -ExpandProperty InnerText
+      #        # If $Headers not defined, this must be the first row and must contain headers
+      #        # Otherwise create an object out of the row by building up a hash and then using it to make an object
+      #        # These objects can be piped to a lot of different cmdlets, like Out-GridView, ConvertTo-Csv, Format-Table, etc.
+      #        if ($Headers) {
+      #            $OutputHash = [ordered]@{}
+      #            for($i=0;$i -lt $OutputRow.Count;$i++) {
+      #                $OutputHash[$Headers[$i]] = $OutputRow[$i]
+      #            }
+      #            New-Object psobject -Property $OutputHash
+      #        } else {
+      #            $Headers = $OutputRow
+      #
+      #        }
+      #    }
+      #}
+      #}
+      ### 
+
+      # Initialise variables for loop
+      $site = Get-SiteAsObject $directoryUrl
+      $match = ""
+      $file = ""
+
+      Do {
+          ForEach ($regex in $regexArr) {
+              # Check each time if the file can be found in the current dir
+              $file = Get-UrlFragWithRegex $site $fileRegex
+              if ($file -match $fileRegex) {
+                  ### COMMENTED OUT OBJ ROUTINE AS NOT PARSING DATES ###
+                  # File found, but let's be extra cautious and isolate those with the latest date
+                  #$sitePsObj = Get-ApacheDirTable $site
+                  # Then find the latest date & filter the table
+                  #$sitePsObj | Where-Object {$_.Name -match $fileRegex}
+                  # Break out of the loop and return the full URL
+                  ### END PS OBJ ROUTINE ###
+                  $directoryUrl = $directoryUrl+$file
+                  break
+              }
+              # Otherwise crawl through the RegEx array attempting to find a directory that matches
+              else {
+                  $match = Get-UrlFragWithRegex $site $regex
+                  $directoryUrl = $directoryUrl+$match
+                  # Re-initialize the $site object each time we find a match so that we 'enter' the directory
+              $site = Get-SiteAsObject $directoryUrl
+                  continue
+              }
+          }
+      }
+      Until ($file -match $fileRegex)
+
+      # Finally, return the full download Url
+      return $directoryUrl
+  }
+#+END_SRC
+*** ~Dl-ToDir~: Binary file download wrapper
+
+Since finding no single download tool satisfactorily met my needs, I decided to create a wrapper for them all (plus a relatively easy way to extend for any I may need in the future)
+
+Usage (from ~Get-Help "Dl-ToDir"~)
+
+#+BEGIN_EXAMPLE powershell
+  NAME
+  Dl-ToDir
+
+  SYNTAX
+  Dl-ToDir [[-backend] {curl | wget | aria2c*}] [[-customFilename] <string>] [[-opts] <string[]>] [-uri] <string> [[-dir] <Object>] [-allowRedirs] [-cdispFilename] [-uriFilename]  
+  [<CommonParameters>]
+#+END_EXAMPLE
+
+=*= =aria2c= is used as the default backend if none is specified
+
+- *Further Enhancements*
+  - [ ] Would be good to get backend mapping from org-mode table (with JSON import/export)
+  - [ ] Implement multi-file download, particularly for aria2c which supports concurrent connections (could reduce build time)
+
+
+#+BEGIN_SRC powershell
+  function Dl-ToDir {
+      # Define Parameters incl. defaults, types & validation
+      Param(
+      # Define accepted backends, each needs its own hash table entry in switch
+      [ValidateSet("curl", "wget", "aria2c")]
+      [string]$backend = "aria2c", # default
+
+      # Convenience switches for common behaviours we might need to toggle
+      [switch]$allowRedirs,
+      [switch]$cdispFilename,
+      [switch]$uriFilename,
+
+      # Allow user to specify customFilename, which will disable other options
+      [string]$customFilename,
+
+      # Allow user to pass arbitrary options
+      [string[]]$opts,
+    
+      # Make URI mandatory to avoid hash table init issues later
+      [parameter(Mandatory=$true)]
+      [string]$uri,
+
+      # Check dir exists before accept
+      [ValidateScript({Test-Path $_ -PathType 'Container'})]
+      $dir = ($dir+"\") # default to current dir if not provided or add backslash to path
+      )
+
+      # Define mapping of common commands for each backend
+      switch ($backend)
+      {
+          "curl"
+              {
+               $cmdMap = [ordered]@{
+                          backend = $backend+".exe"; # append .exe to workaround powershell alias issue...
+                          allowRedirs = "-L";
+                          cdispFilename = "-J";
+                          uriFilename = "-O";
+                          customFilename = ("-o '"+$customFilename+"'");
+                          progressBar = "-#"; # 'graphical' progress indicator, rather than 'tabular' progress indicator
+                          uri = $uri;
+                          }
+              }
+
+          "wget"
+              {
+               $cmdMap = [ordered]@{
+                          backend = $backend+".exe"; # append .exe to workaround powershell alias issue...
+                          allowRedirs = if(-not ($allowRedirs)) {"--max-redirect=0"}; # wget allows redirs by default, so disable if switch is false
+                          cdispFilename = "--content-disposition";
+                          uriFilename = if(-not ($cdispFilename)) {("-O '"+($uri | Split-Path -Leaf)+"'")}; # Get filename from path only if user doesn't want to try sourcing from Content-Disposition
+                          customFilename = ("-O '"+$customFilename+"'");
+                          overWrite = "-N"; # Note this will only overwrite if the server file timestamp is newer than the local, for 'true' overwrite use the customFilename option
+                          progressBar = "--progress=bar:force:noscroll";
+                          uri = $uri;
+                          }
+              }
+
+          "aria2c"
+              {
+               $cmdMap = [ordered]@{
+                          backend = $backend;
+                          allowRedirs = ""; # no effect - aria decides this itself
+                          cdispFilename = ""; # no effect - aria decides this itself
+                          uriFilename = if(-not ($cdispFilename)) {("--out='"+($uri | Split-Path -Leaf)+"'")}; # Get filename from path only if user doesn't want to try sourcing from Content-Disposition
+                          customFilename = ("--out='"+$customFilename+"'");
+                          overWrite = "--allow-overwrite=true"; # always overwrite an existing file, since mostly we will be running from build servers which start with a fresh env each time. Also prevents creation of .aria control files.
+                          dontResume = "--always-resume=false"; # prevent aria from resuming downloads
+                          uri = $uri;
+                          }
+              }
+
+          default # For an unknown backend
+              {
+              Throw ("Error: backend '"+$backend+"' not found.")
+              }
+      }
+
+  ## De-dupe $opts params passed by the user
+
+      # Initialize a new List object to hold the RegEx for de-dupe
+      $optDeDupe = New-Object Collections.Generic.List[object]
+
+      # Loop through the keys defined in backend hash table & add to array
+      ForEach ($key in $cmdMap.Keys)
+          {   
+          # Get the associated value for the given arg
+          $val = $cmdMap.$key
+
+          # If the $arg has a val, add the RegEx to the list
+          if($val) {  
+              # Concat regex start/end string tokens & add to list
+              $optDeDupe.Add("^"+[string]$val+"$")            
+            }
+          # Otherwise skip to the next $key
+          else {continue}
+          }
+
+      # Concat into single Regex with "|" (or) operator
+      $optDeDupe = $optDeDupe -join "|"
+
+
+  ## Construct the download command
+
+      # Initialise the hash table used to construct the download command
+      $dlCmd = [ordered]@{}
+
+      # Add in backend mapping
+      $dlCmd += $cmdMap
+    
+      #  Exclude any duplicates from $opts passed by user, then Add to hash table
+      $uniqueOpts = $opts | ?{ $_ -notmatch $optDeDupe }
+      $dlCmd.Add("opts", $uniqueOpts)
+    
+      # Disable (remove) other parameters if customFileName is passed by user
+      if ($customFilename) {
+
+          $dlCmd.Remove("cdispFilename")
+          $dlCmd.Remove("uriFilename")
+      }
+      # Else remove the customFilename entry copied from the array
+      else {$dlCmd.Remove("customFilename")}
+
+      # Get enumerated hashtable, where an given key has a value, then:
+      # expand each property to just its value before concat into dl command
+      $dlCmd = ($dlCmd.GetEnumerator() | ? Value | Select -ExpandProperty Value) -join " "
+
+  ## Download, get filename & return details
+
+      # If dir isn't the current path, store the current directory location then cd to the path
+      # this is primarily to workaround limitations with Curl -O
+      if($dir -ne (Get-Location)){
+      $origLocation = Get-Location
+      Set-Location $dir
+      }
+
+  Try {
+
+      # Execute the download (and pipe the output to the console)
+      iex $dlCmd | Out-Host
+
+      # If a customFilename was specified, return that as the filename
+      if ($customFilename)
+      {$fileName = $customFilename}
+      # Otherwise get the name of the file added to the download folder *after* the command was run
+      else {
+      $funcExecTimestamp = (Get-History | Where { $_.CommandLine -contains $MyInvocation.MyCommand } | Sort StartExecutionTime -Descending | Select StartExecutionTime -First 1).StartExecutionTime
+      $fileName = Get-ChildItem -Path $propTest | Sort-Object LastWriteTime -Descending | ?{ $_.LastWriteTime -gt $funcExecTimestamp } | Select -First 1}
+      }
+
+  Finally {
+      # cd back to the original location if it exists
+      if($origLocaction) {Set-Location $origLocation}
+
+      # Assemble result array (outside of Try block, to assist with debugging) - includes full path to the file, as well as the command used to initiate the download
+      $result = ($dir+"\"+$fileName), ([string]$dlCmd)
+
+      }
+
+    return $result
+
+  }
+#+END_SRC
+
+Useful parts of the function that I began writing but later realised I didn't need, in particular traversing using the key paradigm may come in handy one day... the code block is set not to tangle.
+
+#+BEGIN_SRC powershell :exports none
+  ### Potentially useful but not currently required ###
+  #    # Copy the relevant keys 
+  #    ForEach ($key in $cmdMap.Keys)
+  #
+  #    {        
+  #        # Set some initial variables to make things more legible
+  #        $value = $cmdMap.$key
+  #        $keyIsArg = if($PSBoundParameters.ContainsKey($key)) {$true}
+  #        $keyAsVarValue = $PSBoundParameters.$key
+  #
+  #        # If the key is equal to the name of an argument variable and the argument variable is not empty or false
+  #        if ( ($keyIsArg) -and ($keyAsVarValue) ) 
+  #            # Then add the key-value pair 
+  #            {
+  #            $dlCmd.Add($key, $value)
+  #            }
+  #        }
+  #    }
+  #
+  #    # construct the download command
+  #    $dlCmd = (([ordered]@{ # [ordered] to preserve command order when we concat later
+  #               backend = $cmdMap.backend; # append .exe to workaround powershell alias issue...
+  #               allowRedirs = if($allowRedirs){$cmdMap.allowRedirs};
+  #               cdispFilename = if($cdispFilename){$cmdMap.cdispFilename};
+  #               uriFilename = if($uriFilename){$cmdMap.uriFilename};
+  #               uniqueOpts = $opts | ?{ $_ -notmatch $optExcludeRegex }; # Remove any dupe opts that user passed
+  #               uri = $uri;
+  #               }).Values | %{ [string]$_ }) -join " " # Get hashtable values, recursively convert to string (to catch opts with an arg) then concat into command
+  #
+  #    # Loop through arguments passed by user and add to array
+  #    ForEach ($arg in $PSBoundParameters.Keys)
+  #        {   
+      #        # Get the associated value for the given arg
+      #        $val = $PSBoundParameters.$arg
+      #
+      #        # Skip '$opts' vals otherwise it will delete opts during de-dupe
+      #        if($arg -eq "opts") {continue}
+      #        # If the $arg has a val, add the RegEx to the list
+      #        if($val) {  
+          #            # Concat regex start/end string tokens & add to list
+          #            $optDeDupe.Add("^"+[string]$val+"$")            
+          #          }
+      #        # Otherwise skip to the next $arg
+      #        else {continue}
+      #        }
+#+END_SRC
+*** TODO ~Path-CheckOrCreate~: Check for path and optionally create dir or symlink
+
+Check if a dir exists, and if specified, create the directory (or symlink)
+
+#+BEGIN_SRC powershell
+  function Path-CheckOrCreate {
+
+  # Don't make parameters positionally-bound (unless explicitly stated) and make the Default set required with all
+  [CmdletBinding(PositionalBinding=$False,DefaultParameterSetName="Default")]
+
+      # Define Parameters incl. defaults, types & validation
+      Param(
+          # Allow an array of strings (paths)
+          [Parameter(Mandatory,ParameterSetName="Default")]
+          [Parameter(Mandatory,ParameterSetName="CreateDir")]
+          [Parameter(Mandatory,ParameterSetName="CreateSymLink")]
+          [string[]]$paths,
+
+          # Parameter sets to allow either/or but not both, of createDir and createSymLink. createSymLink is an array of strings to provide the option of matching with multiple paths.
+          [Parameter(ParameterSetName="CreateDir",Mandatory=$false)][switch]$createDir,
+          [Parameter(ParameterSetName="CreateSymLink",Mandatory=$false)][string[]]$createSymLink = @() # Default value is an empty array to prevent 'Cannot index into null array'
+     )
+
+      # Create Arrs to collect the directories that exist/don't exist
+      $existing = @()
+      $notExisting = @()
+      $existingSymLink = @()
+      $notExistingSymLink = @()
+      $createdDir = @()
+      $createdSymLink = @()
+
+      # Loop through directories in $directory
+      for ($i = 0; $i -ne $paths.Length; $i++)
+      {
+
+          # If exists, add to existing, else add to not existing
+          if (Test-Path $paths[$i]) {$existing += , $paths[$i]}
+          else {$notExisting += , $paths[$i]}
+
+          # If any symlinks have been provided, also do a check to see if these exist
+          if ( ($createSymLink[$i]) -and (Test-Path $createSymLink[$i]) )
+          {$existingSymLink += , $createSymLink[$i]}
+          else {$notExistingSymLink += , $createSymLink[$i]}
+
+          # Next, check if valid path
+          if (Test-Path -Path $paths[$i] -IsValid)
+          {
+              # If user wants to create the directory, do so
+              if ($createDir)
+              {
+                  if (mkdir $paths[$i]) {$createdDir += , $paths[$i]}
+              }
+              # If user wants to create a symbolic link, do so
+              elseif ($createSymlink)
+              {
+              if(New-Item -ItemType SymbolicLink -Value $paths[$i] -Path $createSymLink[$i]) # Use the counter to select the right Symlink value
+                  {$createdSymLink += , $createSymLink[$i]}
+              }
+          }
+          else {Throw "An error occurred. Check the path is valid."}
+
+      }
+
+      # Write summary of directory operations to console [Turned off as annoying to see each time the command is run]
+      #Write-Host "`n==========`n"
+      #Write-Host "`n[Summary of Directory Operations]`n"
+      #Write-Host "`nDirectories already exist:`n$existing`n"
+      #Write-Host "`nDirectories that do not exist:`n$notExisting`n"
+      #Write-Host "`nDirectories created:`n$createdDir`n"
+      #Write-Host "`nSymbolic Links created:`n$createdSymLink`n"
+      #Write-Host "`n==========`n"
+    
+      # Create a hash table of arrs, to access a given entry: place e.g. ["existing"] at the end of the expression
+      # to get the arr value within add an index ref. e.g. ["existing"][0] for the first value within existing dirs
+      $result = [ordered]@{
+          existing = $existing
+          existingSymLinks = $existingSymLink
+          notExisting = $notexisting
+          notExistingSymLinks = $notExistingSymLink
+          createdDirs = $createdDir
+          createdSymLinks = $createdSymLink
+      }
+    
+      # Write results to the console
+      Write-Host "`n================================="
+      Write-Host "[Summary of Directory Operations]"
+      Write-Host "=================================`n"
+      Write-Host ($result | Format-Table | Out-String)
+    
+      return $result
+
+  }
+#+END_SRC
+
+*** ~GitHub-CloneRepo~: Clone GitHub repo
+
+#+BEGIN_SRC powershell
+  function Github-CloneRepo ($opts, $compValsArr, $cloneDir) {
+  Write-Host ("Cloning ... [ "+"~"+$compValsArr.user+"/"+$compValsArr.repo+" ]") -ForegroundColor Yellow -BackgroundColor Black
+  $cloneUrl = ("https://github.com/"+$compValsArr.user+"/"+$compValsArr.repo)
+  iex "git clone $opts $cloneUrl $cloneDir"
+  }
+#+END_SRC
+*** TODO ~Write-InstallStatus~: Write & Log Install Status
+#+BEGIN_SRC powershell
+  function Write-InstallStatus ($component, $arr, $status, $msg) {
+    
+      # Set status Write-Host colours & messages
+      switch ($status)
+      {
+          "Disabled"
+          {
+                  $msg = If ($msg) {$msg} else {" Component is disabled -- check the components table. "}
+                  $fgColour = "White"
+                  $bgColour = "DarkRed"
+              }
+          "Failed"
+          {
+                  $msg = If ($msg) {$msg} else {" Component installation failed -- check error message "}
+                  $fgColour = "White"
+                  $bgColour = "DarkRed"
+              }
+          "Succeeded"
+          {
+                  $msg = If ($msg) {$msg} else {" Component installation succeeded. "}
+                  $fgColour = "Green"
+                  $bgColour = "DarkGreen"
+              }
+          default # If no status provided
+          {
+                  $status = "Unknown"
+                  $msg = If ($msg) {$msg} else {" Unable to verify the installation status. "}
+                  $fgColour = "Yellow"
+                  $bgColour = "DarkYellow"
+              }
+      }
+    
+      # Send message to user and include the error message if not 'succeeded'
+      if($status -ne "Succeeded")
+      {Write-Host ("`n ["+$status+"] "+$component.var+": "+$msg+"`nError:`n"+$Error[0]) -ForegroundColor $fgColour -BackgroundColor $bgColour}
+      else
+      {Write-Host ("`n ["+$status+"] "+$component.var+": "+$msg) -ForegroundColor $fgColour -BackgroundColor $bgColour}
+    
+      # Write details into psobj Results Array
+      $result = [PSCustomObject]@{
+          Component = $component.var
+          Status = $status
+          Date = Get-Date -Format "ddd dd MMM yyyy h:mm:ss tt"
+          Message = $msg
+          LastError = if ($status -eq "Failed") {"L: "+$Error[0].InvocationInfo.ScriptLineNumber+" "+$Error[0].Exception}
+      }
+      $arr += $result
+  }
+#+END_SRC
+
+*** ~Refresh-PathVariable~: Refresh Path Variable
+
+Refresh path variable to reflect any executables added from a given installation
+
+#+BEGIN_SRC powershell
+  function Refresh-PathVariable {
+      foreach($level in "Machine","User") {
+      [Environment]::GetEnvironmentVariables($level).GetEnumerator() | % {
+          # For Path variables, append the new values, if they're not already in there
+          if($_.Name -match 'Path$') { 
+              $_.Value = ($((Get-Content "Env:$($_.Name)") + ";$($_.Value)") -split ';' | Select -unique) -join ';'
+          }
+          $_
+      } | Set-Content -Path { "Env:$($_.Name)" }
+  }
+  }
+#+END_SRC
+** Build environment
+
+The order of these elements is quite tightly constrained so worth double checking if that is changed...
+
+*** Start in the Script Root
+
+Make sure we start in the script root to avoid issues with executing in the wrong directory & to ensure we can access any scripts or data structures that we need to import.
+
+#+BEGIN_SRC powershell
+  cd $PSScriptRoot
+#+END_SRC
+
+*** Set testing/development mode
+
+Add a variable to allow us to switch to testing / development mode - this will use the variable assignments in the "testing" column when we come to our [[Variables & Secrets]].
+
+#+BEGIN_SRC powershell
+  # Testing / development mode  
+  $testing = $true
+#+END_SRC
+
+*** Determine the build platform
+
+Figure out if the script is being run from a local machine, from gs machine or on appveyor, or if we're testing/debugging
+
+#+BEGIN_SRC powershell
+  $buildPlatform = if ($env:APPVEYOR) {"appveyor"}
+  elseif ($testing) {"testing"} # For debugging locally
+  elseif ($env:computername -match "NDS.*") {"local-gs"} # Check for a GS NDS
+  else {"local"}
+#+END_SRC
+*** Import functions & variables
+**** Import functions
+
+ Let's import the helper functions we defined earlier. Using the =.= notation means they will be imported with access to the variables in the current script scope.
+
+ #+BEGIN_SRC powershell
+   . ./propositum-helper-fns.ps1
+ #+END_SRC
+
+**** Import platform-specific variables
+
+ We can now import ~vars-platform.csv~ we created earlier into PowerShell
+
+ #+BEGIN_SRC powershell
+   Try
+   {
+       $environmentVars = Import-CSV "vars-platform.csv"
+   }
+   Catch
+   {
+       Throw "Check the CSV file actually exists and is formatted correctly before proceeding."
+       $error[0]|format-list -force
+   }
+ #+END_SRC
+
+ Finally, set each of the environment variables according to ~$buildPlatform~
+
+ - ~Select~ is used to first narrow the ~PSObject~ to the column containing the variable name, and the column matching our buildPlatform
+ - ~iex~ ensures that the value of each variable gets executed upon assignment, rather than being stored as a string
+ - the ~if~ statement is used in conjunction with the =exec= column as mentioned earlier to avoid incorrectly executing a value that should be assigned
+
+ #+BEGIN_SRC powershell
+   $environmentVars | Select "exec", "var", $buildPlatform | ForEach-Object { if ($_.exec -eq "execute") {New-Variable $_.var (iex $_.$buildPlatform) -Force} else {New-Variable $_.var $_.$buildPlatform -Force}}
+ #+END_SRC
+
+**** Import other variables
+     
+ Let's import the ~vars-other.csv~ into PowerShell
+
+ #+BEGIN_SRC powershell
+   Try
+   {
+       $otherVars = Import-CSV "vars-other.csv"
+   }
+   Catch
+   {
+       Throw "Check the CSV file actually exists and is formatted correctly before proceeding."
+       $error[0]|format-list -force
+   }
+ #+END_SRC
+
+A simplified version of the per-platform command is used to execute / assign as necessary
+
+ #+BEGIN_SRC powershell
+   $otherVars | Select "exec", "var", "value" | ForEach-Object { if ($_.exec -eq "execute") {New-Variable $_.var (iex $_.value) -Force} else {New-Variable $_.var $_.value -Force}}
+ #+END_SRC
+
+*** Clear testing directory
+
+To save some time, let's also delete the contents of the testing directory when in testing mode. 
+
+We also add an additional condition to ensure that =$propositumLocation= has been set, otherwise we could end up deleting the root drive..
+
+Note there's currently a powershell bug that prevents this from working if any symlinks are contained within the directories.
+
+#+BEGIN_SRC powershell
+  if ($testing -and $propositumLocation) {Remove-Item ($propositumLocation+"\*") -Recurse -Force}
+#+END_SRC
+*** Clone propositum repo
+
+    A number of required or source-controlled artifacts, including fonts, scripts and configuration files are already located in the propositum Repo, let's fetch those first
+
+ #+BEGIN_SRC powershell
+   # If git isn't installed, install it
+   if (-not (iex "choco list -lo" | ?{$_ -match "git.*"})) {iex "choco install git -y"}
+   # Refresh path variable to include git
+   Refresh-PathVariable
+
+   # Hash table with necessary details for the clone command
+   $propositumRepo = [ordered]@{
+       user = "xeijin"
+       repo = "propositum"
+   }
+
+   # Clone the repo
+   Github-CloneRepo "" $propositumRepo $propositumLocation
+ #+END_SRC
+
+*** Map propositum drive letter & create folder structure
+ 
+ Mapping the propositum folder to a drive letter creates a short, intuitive path to key directories
+
+  #+BEGIN_SRC powershell
+    subst $drv $propositumLocation
+  #+END_SRC
+
+  Now let's use the hash table we defined earlier in [[Other variables]], and loop through the paths; creating the directories where they don't already exist
+
+  #+BEGIN_SRC powershell
+    $createdDirs = Path-CheckOrCreate -Paths $propositum.values -CreateDir
+  #+END_SRC
+
+  Using the hash table of directories, we can now navigate to a given folder in the following manner
+
+  #+BEGIN_SRC powershell
+    cd $propositum.root
+  #+END_SRC
+
+*** Set TLS / SSL versions
+This stops WebClient and other processes that require a secure connection from complaining if the connection requires a version other than TLS v1.0
+
+#+BEGIN_SRC powershell
+  [Net.ServicePointManager]::SecurityProtocol = "Tls12, Tls11, Tls, Ssl3"
+#+END_SRC
+
+*** Install Scoop
+    
+    =scoop= is a bit like =chocolatey= but focused more on open source tools, and importantly, allows you to install apps as self-contained 'units'.
+    
+    Before installing, lets set the scoop install directory to be within the =\util\bin= folder so that cmder can reference these later on.
+    
+#+NAME: set-scoop-env-var
+#+BEGIN_SRC powershell
+  [environment]::setEnvironmentVariable('SCOOP',($propositum.app+"\scoop"),'User')
+#+END_SRC
+
+Then install scoop
+
+#+BEGIN_SRC powershell
+  iex (new-object net.webclient).downloadstring('https://get.scoop.sh')
+#+END_SRC
+
+*** Install GNU make
+
+    Needed for =doom-emacs= and not included in the minigw included with =cmder= 
+
+#+BEGIN_SRC powershell
+  scoop install make
+#+END_SRC
+
+*** Install Chocolatey                                    :depreciated:admin:
+
+Chocolatey is the easiest way to install 7zip (& potentially other) required packages (although it's not always the most up-to-date source, particularly for less popular apps)
+
+#+BEGIN_SRC powershell
+  if (-not (Get-Command choco.exe)) {
+      Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+  }
+#+END_SRC
+
+7zip is a versatile tool for extracting from a variety of different formats
+
+*** Install 7zip                                                 :chocolatey:
+
+#+BEGIN_SRC powershell
+  if (-not (Get-Command 7z.exe)) {choco install -y 7zip}
+  Refresh-PathVariable
+#+END_SRC
+*** Install cURL                                                 :chocolatey:
+
+=Invoke-WebRequest= has been unreliable for me, there also seems to be no easy or reliable way to preserve the original filename. 
+
+The =cURL= command to preserve filename adds only two modifiers in addition to the URL and as a bonus will likely be alot easier to get working with GitHub authentication.
+
+Microsoft have, for some reason, inexplicably made ~curl~ an alias for ~Invoke-WebRequest~; so we need to get rid of that first
+
+#+BEGIN_SRC powershell
+  if($alias:curl) {remove-item alias:curl}
+#+END_SRC
+
+Then install with =Chocolatey= and update the PATH variable
+
+#+BEGIN_SRC powershell
+  if (-not (Get-Command curl.exe)) {choco install -y curl}
+  Refresh-PathVariable
+#+END_SRC
+
+*** Install wget                                                 :chocolatey:
+
+Another backend for further optionality, also has the most compact, configurable progress display (try adding ~--progress=bar:force:noscroll~ to your command).
+
+Microsoft have, for some reason, inexplicably made ~wget~ an alias for ~Invoke-WebRequest~; so we need to get rid of that first
+
+#+BEGIN_SRC powershell
+  if($alias:wget) {remove-item alias:wget}
+#+END_SRC
+
+Then install with =Chocolatey= and update the PATH variable
+
+#+BEGIN_SRC powershell
+  if (-not (Get-Command curl.exe)) {choco install -y curl}
+  Refresh-PathVariable
+#+END_SRC
+
+*** Install aria2c                                               :chocolatey:
+
+Yet another download client...
+#+BEGIN_SRC powershell
+  if (-not (Get-Command aria2c.exe)) {choco install -y aria2c}
+  Refresh-PathVariable
+#+END_SRC
+
+*** Fetch latest download URLs
+
+ Traverse the list of components and download the latest version of any components offered as a Gitub release or through an Apache directory structure
+
+ #+BEGIN_SRC powershell
+   foreach($component in $components)
+   {
+       if ($component.service -eq "github-release") {
+           Write-Host ("`n Finding ... "+$component.var+" :: [ "+$component.usage+" ] `n") -ForegroundColor Yellow -BackgroundColor Black
+           $component.dl = Get-GHLatestReleaseDl $component
+           continue
+       }
+       elseif ($component.service -eq "apache-dir-dl") {
+           Write-Host ("`n Finding ... "+$component.var+" :: [ "+$component.usage+" ] `n") -ForegroundColor Yellow -BackgroundColor Black
+           $component.dl = Get-LatestApacheDirDl $component.source $component.regex $component.var
+           continue
+       }
+       else {continue}
+   }
+ #+END_SRC
+*** TODO Create =$installResults= array
+
+Create an empty array to store the =PSCustomObject= of results from each installation
+
+#+BEGIN_SRC powershell
+  $installResults = @()
+#+END_SRC
+   
+* Build 
+** Install components
+This is where the different tools and components that make up propositum are downloaded, installed and configured.
+
+Each component should have its own section. The format is as-follows:
+
+- component
+  - define install function
+    - specify a component name, then do most heavy lifting with boilerplate fns (e.g. downloading, extracting, cloning etc)
+    - particularly complicated or multi-stage configurations may be split into multiple install functions
+    - basic error handling, support for quickly disabling components & storage of results for later examination / summary  
+  - perform installation
+
+*** cmder                                                    :github:release:
+   
+ Define function to perform installation, i.e. Download / install / configure component, and only if the component is not listed as disabled
+
+ #+BEGIN_SRC powershell
+   function Install-Cmder
+   {
+       # Search the components array & retrieve the correct array location
+       $component = $components | ?{$_.var -eq "cmder"}
+       $componentDir = ($propositum.app+"\"+$component.var)
+
+       # Don't run this block if the component is listed as 'disabled' in the components table
+       if ($component.status -eq "enabled") # ieq = case-insensitive equals
+       {
+             try {
+                 # Download the archive
+                 $componentDownload = Dl-ToDir -backend aria2c -allowRedirs -cdispFilename -uriFilename -uri $component.dl -dir $propositum.dl
+                 $componentArchive = $componentDownload[0]
+
+                 # As a portable installation, extract directly to the app folder
+                 7z x $componentArchive ("-o"+$propositum.app+"\*")
+
+                 # cd to the corect directory (necessary for relative symlinks)
+                 cd $propositum.home
+                
+                 # Define symlink Paths & Values
+                 $symLinkPaths = ".\.cmder"
+                 $symLinkValues = "..\app\cmder\config"
+
+              
+                 # Check if the .cmder directory exists in the home folder
+                 if ( -not (Path-CheckOrCreate -Paths ".\.cmder").Existing) 
+                 # if not move the existing config directory to create it
+                 {Move-Item -Path ($componentDir+"\config") -Destination ($propositum.home+"\.cmder") -Force}
+                 # Otherwise delete the existing config directory in preparation for symlink
+                 else {Remove-Item ($componentDir+"\config") -Recurse -Force}
+ 
+                 # Create symLinks
+                 Path-CheckOrCreate -Paths $symLinkPaths -CreateSymLink $symLinkValues
+
+                 # Symlink other bin dir
+                 cd $propositum.root
+                 Path-CheckOrCreate -Paths ".\util\bin" -CreateSymLink ".\app\cmder\bin\utils-bin"
+ 
+                 # Let user know component was successfully installed
+                 Write-InstallStatus $component $installResults "Succeeded"
+             }
+           catch {
+               Write-InstallStatus $component $installResults "Failed"
+           }
+       }
+       elseif ($component.status -eq "disabled") {
+           # Let user know the component was disabled
+           Write-InstallStatus $component $installResults "Disabled"
+       }
+       else {Write-InstallStatus $component $installResults "" "Empty or incorrect component status. Check the components table."}
+   }
+ #+END_SRC
+
+ Then initiate the install function
+
+ #+BEGIN_SRC powershell
+ Install-Cmder
+ #+END_SRC
+
+*** emacs                                                       :apachedirdl:
+
+ Define function to perform installation, i.e. Download / install / configure component, and only if the component is not listed as disabled
+
+ #+BEGIN_SRC powershell
+   function Install-emacs
+   {
+       # Search the components array & retrieve the correct array locaiton
+       $component = $components | ?{$_.var -eq "emacs"}
+       $componentDir = ($propositum.app+"\"+$component.var)
+
+       # Don't run this block if the component is listed as 'disabled' in the components table
+       if ($component.status -eq "enabled")
+       {
+           try {
+               # Download the archive
+               $componentDownload = Dl-ToDir -backend aria2c -allowRedirs -cdispFilename -uriFilename -uri $component.dl -dir $propositum.dl
+               $componentArchive = $componentDownload[0]
+
+               # As a portable installation, extract directly to the app folder
+               7z x $componentArchive ("-o"+$propositum.app+"\emacs")
+
+               # Move to the component binaries directory
+               cd ($componentDir+"\bin")
+
+               # Define symLink data
+               $symLinkPaths = ".\runemacs.exe", ".\emacsclientw.exe"
+               $symLinkValues = "..\..\cmder\bin\runemacs.exe", "..\..\cmder\bin\emacsclientw.exe"
+
+               # Create symlinks
+               Path-CheckOrCreate -Paths $symLinkPaths -CreateSymLink $symLinkValues
+
+               # Let user know component was successfully installed
+               Write-InstallStatus $component $installResults "Succeeded"
+           }
+           catch {
+               Write-InstallStatus $component $installResults "Failed"
+           }
+       }
+       elseif ($component.status -eq "disabled") {
+         # Let user know the component was disabled
+         Write-InstallStatus $component $installResults "Disabled"
+     }
+       else {Write-InstallStatus $component $installResults "" "Empty or incorrect component status. Check the components table."}
+   }
+ #+END_SRC
+
+ Then initiate the install function
+
+ #+BEGIN_SRC powershell
+   Install-emacs
+ #+END_SRC
+*** autohotkey                                                  :apachedirdl:
+
+ Define function to perform installation, i.e. Download / install / configure component, and only if the component is not listed as disabled
+
+ #+BEGIN_SRC powershell
+   function Install-autohotkey
+   {
+       # Search the components array & retrieve the correct array locaiton
+       $component = $components | ?{$_.var -eq "autohotkey"}
+       $componentDir = ($propositum.app+"\"+$component.var)
+
+       # Don't run this block if the component is listed as 'disabled' in the components table
+       if ($component.status -eq "enabled")
+       {
+           try {
+               # Download the archive
+               $componentDownload = Dl-ToDir -backend aria2c -allowRedirs -cdispFilename -uriFilename -uri $component.dl -dir $propositum.dl
+               $componentArchive = $componentDownload[0]
+
+               # As a portable installation, extract directly to the app folder
+               7z x $componentArchive ("-o"+$propositum.app+"\autohotkey")
+
+               # Let user know component was successfully installed
+               Write-InstallStatus $component $installResults "Succeeded"
+           }
+           catch {
+               Write-InstallStatus $component $installResults "Failed"
+           }
+       }
+       elseif ($component.status -eq "disabled") {
+         # Let user know the component was disabled
+         Write-InstallStatus $component $installResults "Disabled"
+     }
+       else {Write-InstallStatus $component $installResults "" "Empty or incorrect component status. Check the components table."}
+   }
+ #+END_SRC
+
+ Then initiate the install function
+
+ #+BEGIN_SRC powershell
+   Install-autohotkey
+ #+END_SRC
+
+*** doom-emacs                                                 :github:clone:
+   
+ Define function to perform installation, i.e. Download / install / configure component, and only if the component is not listed as disabled
+
+ #+BEGIN_SRC powershell
+   function Install-doomemacs
+   {
+       # Search the components array & retrieve the correct array locaiton
+       $component = $components | ?{$_.var -eq "doom-emacs"}
+       $componentDir = ($propositum.app+"\"+$component.var)
+       $emacsd =  ($propositum.home+"\.emacs.d")
+
+       # Change to $propositum.root
+       cd $propositum.root
+
+       # Don't run this block if the component is listed as 'disabled' in the components table
+       if ($component.status -eq "enabled") # ieq = case-insensitive equals
+       {
+             try {
+
+                 # Clone & switch to 'develop' branch for latest fixes
+                 GitHub-CloneRepo "" $component $emacsd
+                 cd $emacsd
+                 iex "git checkout develop"
+
+                 # Symlink doom/bin
+                 cd ($emacsd) # Need to relative symlink so have to cd to path first
+                 Path-CheckOrCreate -Paths ".\bin" -CreateSymLink "..\..\app\cmder\bin\doom-bin"
+                 
+                 # Install Doom
+                 make | Out-Host # Ensure we can see output in console?
+                 
+                 # Complete doom installation |GETTING ERRORS WITH THIS CMD CURRENTRLY|
+                 #.\bin\doom.cmd -p $emacsd quickstart
+
+                 # Let user know component was successfully installed
+                 Write-InstallStatus $component $installResults "Succeeded"
+             }
+           catch {
+               Write-InstallStatus $component $installResults "Failed"
+           }
+       }
+       elseif ($component.status -eq "disabled") {
+           # Let user know the component was disabled
+           Write-InstallStatus $component $installResults "Disabled"
+       }
+       else {Write-InstallStatus $component $installResults "" "Empty or incorrect component status. Check the components table."}
+   }
+ #+END_SRC
+
+ Then initiate the install function
+
+ #+BEGIN_SRC powershell
+   Install-doomemacs
+ #+END_SRC
+*** knime                                                         :direct:dl:
+
+ Define function to perform installation, i.e. Download / install / configure component, and only if the component is not listed as disabled
+
+ #+BEGIN_SRC powershell
+   function Install-knime
+   {
+       # Search the components array & retrieve the correct array locaiton
+       $component = $components | ?{$_.var -eq "knime"}
+       $componentDir = ($propositum.app+"\"+$component.var)
+
+       # Don't run this block if the component is listed as 'disabled' in the components table
+       if ($component.status -eq "enabled")
+       {
+           try {
+               # Download the archive
+               $componentDownload = Dl-ToDir -backend aria2c -allowRedirs -cdispFilename -uriFilename -uri $component.dl -dir $propositum.dl
+               $componentArchive = $componentDownload[0]
+
+               # As a portable installation, extract to default folder name
+               7z x $componentArchive ("-o"+$propositum.app+"\")
+              
+               # Rename the versioned KNIME folder
+               cd $propositum.app
+               if (Get-ChildItem -Directory knime*) {Get-ChildItem -Directory knime* | Rename-Item -NewName knime}
+              
+               # Install KNIME plugins - arguments for repository and installIU are both comma-separated strings
+               ./knime/eclipsec.exe -application org.eclipse.equinox.p2.director -noSplash -repository "http://update.knime.com/analytics-platform/3.5,http://update.knime.com/store/3.5,http://update.knime.com/community-contributions/trusted/3.5", -installIU "org.knime.features.ext.chromium.feature.group,org.knime.features.ext.exttool.feature.group,org.knime.features.exttool.feature.group,org.knime.features.base.filehandling.feature.group,org.knime.features.ext.birt.feature.group,org.knime.features.js.views.feature.group,org.knime.features.js.views.labs.feature.group,org.knime.features.ext.jfreechart.feature.group,org.knime.features.network.feature.group,org.pasteur.pf2.ngs.feature.feature.group,org.knime.features.ext.perl.feature.group,com.knime.features.enterprise.client.exampleserver.feature.group,org.knime.features.python2.feature.group,com.knime.features.reporting.designer.feature.group,org.knime.features.rest.feature.group,com.knime.features.explorer.serverspace.feature.group,org.knime.features.ext.svg.feature.group,org.knime.features.ext.tableau.feature.group,org.knime.features.ext.textprocessing.feature.group,org.knime.features.ext.webservice.client.feature.group,ws.palladian.nodes.feature.feature.group"
+             
+               # Symlink key emacs binaries to cmder bin folder, for injection into cmder PATH variable
+               New-Item -ItemType SymbolicLink -Path ".\emacsclientw.exe" -Value "..\..\cmder\bin\emacsclientw.exe" # So org-protocol and other apps can launch emacsclient sessions
+
+               # Let user know component was successfully installed
+               Write-InstallStatus $component $installResults "Succeeded"
+           }
+           catch {
+               Write-InstallStatus $component $installResults "Failed"
+           }
+       }
+       elseif ($component.status -eq "disabled") {
+         # Let user know the component was disabled
+         Write-InstallStatus $component $installResults "Disabled"
+     }
+       else {Write-InstallStatus $component $installResults "" "Empty or incorrect component status. Check the components table."}
+   }
+ #+END_SRC
+
+ Then initiate the install function
+
+ #+BEGIN_SRC powershell
+   Install-knime
+ #+END_SRC
+
+*** rawgraphs                                                  :github:clone:
+
+ Define function to perform installation, i.e. Download / install / configure component, and only if the component is not listed as disabled
+
+ #+BEGIN_SRC powershell
+   function Install-rawgraphs
+   {
+       # Search the components array & retrieve the correct array locaiton
+       $component = $components | ?{$_.var -eq "rawgraphs"}
+       $componentDir = ($propositum.app+"\"+$component.var)
+
+       # Change to $propositum.root
+       cd $propositum.root
+
+       # Don't run this block if the component is listed as 'disabled' in the components table
+       if ($component.status -eq "enabled")
+       {
+           try {
+
+               # Check if bower is installed, proceed with installation if not
+               if (-not (choco list -lo | ?{$_ -match "bower.*"})) {choco install bower -y}
+
+               # Refresh path variable to include Bower
+               Refresh-PathVariable
+
+               Github-CloneRepo "" $component $componentDir
+
+               # Bower install & configuration
+               cd $componentDir
+               iex "bower install"
+               Rename-Item -Path ".\js\analytics.sample.js" -NewName "analytics.js"
+
+               # Let user know component was successfully installed
+               Write-InstallStatus $component $installResults "Succeeded"
+           }
+           catch {
+               Write-InstallStatus $component $installResults "Failed"
+           }
+       }
+       elseif ($component.status -eq "disabled") {
+             # Let user know the component was disabled
+             Write-InstallStatus $component $installResults "Disabled"
+         }
+       else {Write-InstallStatus $component $installResults "" "Empty or incorrect component status. Check the components table."}
+   }
+ #+END_SRC
+
+ Then initiate the install function
+
+ #+BEGIN_SRC powershell
+   Install-rawgraphs
+ #+END_SRC
+*** winpython                                                :github:release:
+
+ *Export disabled until other headings are complete* 
+
+ Define function to perform installation, i.e. Download / install / configure component, and only if the component is not listed as disabled
+
+ #+BEGIN_SRC powershell
+   function Install-WinPython
+   {
+       # Search the components array & retrieve the correct array locaiton
+       $component = $components | ?{$_.var -eq "winpython"}
+       $componentDir = ($propositum.app+"\"+$component.var)
+
+       # Don't run this block if the component is listed as 'disabled' in the components table
+       if ($component.status -eq "enabled")
+       {
+           try {
+               # Download the archive
+               $componentDownload = Dl-ToDir -backend aria2c -allowRedirs -cdispFilename -uriFilename -uri $component.dl -dir $propositum.dl
+               $componentArchive = $componentDownload[0]
+            
+               # As a portable installation, extract directly to the app folder
+               iex ($componentArchive+" /S /D="+$componentDir) | Out-Host # Out-Host to force Powershell to wait until winpython extract finishes
+
+               # WinPython configuration
+               set-executionpolicy unrestricted -force # To allow us to run the winpython PS1 script
+               iex ($componentDir+"\scripts\WinPython_PS_Prompt.ps1") # Start the winpython shell
+               $env:home = $propositum.home # Set the home variable in the winpython shell
+               $env:pythonhome = "" # Sets to nothing to stop clash with existing python installation
+               pip install --upgrade setuptools pip # Ensure we have the latest version of key tools first
+               pip install virtualenv # Get python virtualenv
+
+               # Let user know component was successfully installed
+               Write-InstallStatus $component $installResults "Succeeded"
+           }
+           catch {
+               Write-InstallStatus $component $installResults "Failed"
+           }
+       }
+       elseif ($component.status -eq "disabled") {
+             # Let user know the component was disabled
+             Write-InstallStatus $component $installResults "Disabled"
+         }
+       else {Write-InstallStatus $component $installResults "" "Empty or incorrect component status. Check the components table."}
+   }
+ #+END_SRC
+
+ Then initiate the install function
+
+ #+BEGIN_SRC powershell
+   Install-WinPython
+ #+END_SRC
+
+*** superset                                                 :github:release:
+
+ Define function to perform installation, i.e. Download / install / configure component, and only if the component is not listed as disabled
+
+ #+BEGIN_SRC powershell
+     function Install-Superset
+     {
+         # Search the components array & retrieve the correct array locaiton
+         $component = $components | ?{$_.var -eq "superset"}
+         $componentDir = ($propositum.app+"\"+$component.var)
+
+         # Don't run this block if the component is listed as 'disabled' in the components table
+         if ($component.status -eq "enabled")
+         {
+             try {
+              
+                 ## superset install & config ##
+                 cd $propositum.App
+                 virtualenv superset
+                 virtualenv superset --relocatable
+                 cd ./superset/Scripts
+                 ./activate # Activate virtualenv -- important not to include '.bat' on the end otherwise powershell doesnt actually activate...
+                 pip install superset
+                 echo "Configuring Superset..."
+                 fabmanager create-admin --app superset --username 'propositum' --firstname 'Propositum' --lastname 'Admin' --email 'propositum@propositum' --password "'"+$env:supersetpassword+"'" # Pre-populate admin info, $env:supersetpassword is an AppVeyor secure variable, encrypted using the Accounts > Encrypt Data tool on the AppVeyor site
+                 python superset db upgrade
+                 python superset load_examples
+                 python superset init
+                 deactivate # Exit the superset virtualenv, note: needs to NOT be proceeded by a './' otherwise doesnt work in Powershell!
+
+                 # Let user know component was successfully installed
+                 Write-InstallStatus $component $installResults "Succeeded"
+             }
+             catch {
+                 Write-InstallStatus $component $installResults "Failed"
+             }
+         }
+         elseif ($component.status -eq "disabled") {
+               # Let user know the component was disabled
+               Write-InstallStatus $component $installResults "Disabled"
+           }
+         else {Write-InstallStatus $component $installResults "" "Empty or incorrect component status. Check the components table."}
+     }
+ #+END_SRC
+
+ Then initiate the install function
+
+ #+BEGIN_SRC powershell
+   Install-Superset
+ #+END_SRC
+
+** Create build artifact
+
+Create the 7zip'd build artifact for later deployment to GitHub - this is the file unzipped on systems wich require an 'offline' install (i.e. no access to external package repositories).
+
+We only need to do this if running on AppVeyor.
+
+#+BEGIN_SRC powershell
+  if ($buildPlatform -eq "appveyor")
+  {
+      Remove-Item -path $propositumDL -recurse -force # Delete downloads directory
+      echo "Compressing files into release artifact..."
+      7z a -t7z -m0=lzma2:d1024m -mx=9 -aoa -mfb=64 -md=32m -ms=on C:\propositum\propositum.7z C:\propositum  # Additional options to increase compression ratio
+  }
+#+END_SRC
+
+* Deploy
+
+Only attempt to deploy if the ~$buildPlatform~ is AppVeyor
+
+#+BEGIN_SRC powershell
+  if ($buildPlatform -eq "appveyor") {$deploy = $true}
+  else {$deploy = $false}
+#+END_SRC
+
+* Upgrade
+:PROPERTIES:
+:header-args: :tangle script/propositum-upgrade.ps1
+:END:
+
+TBD - Will be used for upgrades in future
+
+*TODO List*
+
+- [ ] tangles as a separate file =propositum-upgrade.ps1=
+- [ ] should include the =propositum-helper-fns.ps1=
+- [ ] should be able to run as a local user (not an admin)
+- [ ] should be able to take the latest propositum artifact release from GitHub as an input
+- [ ] should have a separate function that just updates configs (or perhaps a separate github release that is just the config info? e.g. updated .doom.d config file)
+
+* Finish
+** Delete =propositum.dl= folder
+** Generate post-install script
+:PROPERTIES:
+:header-args: :tangle script/propositum-post-install.ps1
+:END:
+
+These are variables or commands that need to be set again post-installation. Note that we use org-babel's =<<NOWEB>>= syntax here to import the variables from wherever they are defined.
+
+This section has a =:PROPERTIES:= section that tangles to =propositum-post-install.ps1= allowing that file to be included e.g. as a script upon launch of cmder (or just run as a one-off).
+
+#+BEGIN_SRC powershell :noweb yes
+<<set-scoop-env-var>>
+#+END_SRC
 
