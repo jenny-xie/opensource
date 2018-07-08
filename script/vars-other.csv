@@ -1,0 +1,11 @@
+type,exec,var,value,comment
+hashtbl,execute,propositum,@{},Initialises the hash table
+path,execute,root,"$propositum.root = $drv+""\""",
+path,execute,app,"$propositum.app = $drv+""\app""",
+path,execute,dl,"$propositum.dl = $drv+""\dl""",
+path,execute,home,"$propositum.home = $drv+""\home""",
+path,execute,font,"$propositum.font= $drv+""\font""",
+path,execute,util,"$propositum.util =  $drv+""\util""",
+path,execute,bin,"$propositum.bin = $drv+""\util\bin""",
+env-var,execute,env:HOME,$propositum.home,Set user home as required for winpython install
+env-var,execute,env:SCOOP,$propositum.bin,Set scoop app/shim parent directories
