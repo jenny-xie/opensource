@@ -9,6 +9,10 @@ This script can be used on any Windows PC, or in conjunction with AppVeyor to in
 ### --- Please see https://github.com/xeijin/propositum for the accompanying README.org --- ###
 #+END_SRC
 
+#+BEGIN_SRC powershell
+$env:APPVEYOR_BUILD_FOLDER
+#+END_SRC
+
 * Define
   
 Some background on the literate functions used, as well as the tables used to maintain the user-defined [[Components]] and [[Variables & Secrets]].
