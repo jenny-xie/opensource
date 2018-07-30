@@ -215,7 +215,7 @@ And finally, export the table back to csv
     As some of the variables are dependent on other build environment functions this section has been moved: [[Import functions & variables]]
 
 * Prepare
-** Define helper functions
+** Helper functions
 :PROPERTIES:
 :header-args: :tangle propositum-helper-fns.ps1
 :END:
@@ -781,7 +781,7 @@ Add a variable to allow us to switch to testing / development mode - this will u
 
 #+BEGIN_SRC powershell
   # Testing / development mode  
-  $testing = $true
+  $testing = $false
 #+END_SRC
 
 *** Determine the build platform
@@ -833,6 +833,7 @@ Figure out if the script is being run from a local machine, from gs machine or o
      
  Let's import the ~vars-other.csv~ into PowerShell
 
+#+NAME: collect-other-vars
  #+BEGIN_SRC powershell
    Try
    {
@@ -847,6 +848,7 @@ Figure out if the script is being run from a local machine, from gs machine or o
 
 A simplified version of the per-platform command is used to execute / assign as necessary
 
+#+NAME: set-other-vars
  #+BEGIN_SRC powershell
    $otherVars | Select "exec", "var", "value" | ForEach-Object { if ($_.exec -eq "execute") {New-Variable $_.var (iex $_.value) -Force} else {New-Variable $_.var $_.value -Force}}
  #+END_SRC
@@ -878,8 +880,8 @@ Note there's currently a powershell bug that prevents this from working if any s
        repo = "propositum"
    }
 
-   # Clone the repo
-   Github-CloneRepo "" $propositumRepo $propositumLocation
+   # Clone the repo (if not AppVeyor as it is already cloned for us)
+   if(-not $buildPlatform -eq "appveyor"){Github-CloneRepo "" $propositumRepo $propositumLocation}
  #+END_SRC
 
 *** Map propositum drive letter & create folder structure
@@ -1929,7 +1931,10 @@ These are variables or commands that need to be set again post-installation. Not
 This section has a =:PROPERTIES:= section that tangles to =propositum-post-install.ps1= allowing that file to be included e.g. as a script upon launch of cmder (or just run as a one-off).
 
 #+BEGIN_SRC powershell :noweb yes
+<<collect-other-vars>>
+<<set-other-vars>>
 <<set-scoop-env-var>>
+
 #+END_SRC
 
 - [ ] Should we also be adding an include for the shims here?

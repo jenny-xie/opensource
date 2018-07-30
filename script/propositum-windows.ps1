@@ -16,7 +16,7 @@ Catch
 cd $PSScriptRoot
 
 # Testing / development mode  
-$testing = $true
+$testing = $false
 
 $buildPlatform = if ($env:APPVEYOR) {"appveyor"}
 elseif ($testing) {"testing"} # For debugging locally
@@ -62,8 +62,8 @@ $propositumRepo = [ordered]@{
     repo = "propositum"
 }
 
-# Clone the repo
-Github-CloneRepo "" $propositumRepo $propositumLocation
+# Clone the repo (if not AppVeyor as it is already cloned for us)
+if(-not $buildPlatform -eq "appveyor"){Github-CloneRepo "" $propositumRepo $propositumLocation}
 
 subst $drv $propositumLocation
 
