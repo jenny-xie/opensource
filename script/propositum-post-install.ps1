@@ -1,1 +1,1 @@
-[environment]::setEnvironmentVariable('SCOOP',($propositum.app+"\scoop"),'User')
+[environment]::setEnvironmentVariable('SCOOP',($propositum.root),'User')

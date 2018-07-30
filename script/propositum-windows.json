@@ -1,0 +1,1 @@
+"pre_install": "Push-Location $dir; 'START \"RAWGraphs Server: Close when finished\" cmd /c \"COLOR FA && echo. & echo.Starting RAWGraphs ... your browser will open shortly. & echo. && python -m http.server 4000\" && START /MIN cmd /c \"TIMEOUT 5 && explorer http://localhost:4000\"' | Out-File 'RAWGraphs.bat' -Encoding ASCII; Pop-Location",
