@@ -84,7 +84,7 @@ $propositumRepo = [ordered]@{
 # Clone the repo (if not AppVeyor as it is already cloned for us)
 if(-not $buildPlatform -eq "appveyor"){Github-CloneRepo "" $propositumRepo $propositumLocation}
 
-scoop install cmder autohotkey knime-p rawgraphs-p regfont-p emacs-p doom-emacs-develop-p texteditoranywhere-p superset-p
+scoop install knime-p #cmder autohotkey knime-p rawgraphs-p regfont-p emacs-p doom-emacs-develop-p texteditoranywhere-p superset-p
 
 if ($buildPlatform -eq "appveyor")
 {

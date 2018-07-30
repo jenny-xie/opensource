@@ -1073,7 +1073,7 @@ Bring together the different components & create the final build artifact.
 Use scoop to manage the installation of all components, including any dependencies as defined in the component's manifest JSON.
 
 #+BEGIN_SRC powershell
-  scoop install cmder autohotkey knime-p rawgraphs-p regfont-p emacs-p doom-emacs-develop-p texteditoranywhere-p superset-p
+  scoop install knime-p #cmder autohotkey knime-p rawgraphs-p regfont-p emacs-p doom-emacs-develop-p texteditoranywhere-p superset-p
 #+END_SRC
 
 ** Create build artifact
