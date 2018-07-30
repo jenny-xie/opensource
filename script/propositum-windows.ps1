@@ -51,20 +51,6 @@ $otherVars | Select "exec", "var", "value" | ForEach-Object { if ($_.exec -eq "e
 
 if ($testing -and $propositumLocation) {Remove-Item ($propositumLocation+"\*") -Recurse -Force}
 
-# If git isn't installed, install it
-if (-not (iex "choco list -lo" | ?{$_ -match "git.*"})) {iex "choco install git -y"}
-# Refresh path variable to include git
-Refresh-PathVariable
-
-# Hash table with necessary details for the clone command
-$propositumRepo = [ordered]@{
-    user = "xeijin"
-    repo = "propositum"
-}
-
-# Clone the repo (if not AppVeyor as it is already cloned for us)
-if(-not $buildPlatform -eq "appveyor"){Github-CloneRepo "" $propositumRepo $propositumLocation}
-
 subst $drv $propositumLocation
 
 $createdDirs = Path-CheckOrCreate -Paths $propositum.values -CreateDir
@@ -80,6 +66,21 @@ iex (new-object net.webclient).downloadstring('https://get.scoop.sh')
 scoop bucket add extras
 
 scoop bucket add propositum 'https://github.com/xeijin/propositum-bucket.git'
+
+# If git isn't installed, install it
+if (-not (Get-Command 7z.exe)) {scoop install 7zip --global}
+
+# If git isn't installed, install it
+if (-not (Get-Command git.exe)) {scoop install git --global}
+
+# Hash table with necessary details for the clone command
+$propositumRepo = [ordered]@{
+    user = "xeijin"
+    repo = "propositum"
+}
+
+# Clone the repo (if not AppVeyor as it is already cloned for us)
+if(-not $buildPlatform -eq "appveyor"){Github-CloneRepo "" $propositumRepo $propositumLocation}
 
 scoop install cmder autohotkey knime-p rawgraphs-p regfont-p emacs-p doom-emacs-develop-p texteditoranywhere-p superset-p
 
