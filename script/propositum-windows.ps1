@@ -3,6 +3,8 @@
 
 $errorActionPreference = 'silentlyContinue'
 
+Set-Variable -Name "errorActionPreference" -Value "silentlyContinue" -Visibility "Public" -Scope "Global"
+
 $env:APPVEYOR_BUILD_FOLDER
 
 cd $psScriptRoot
