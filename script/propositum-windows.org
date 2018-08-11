@@ -207,8 +207,7 @@ And finally, export the table back to csv
  =EXPORT= =EXPORT= =EXPORT=
 
  #+RESULTS: vars-other-export
- : Export done.
-
+ : Export done. 
 *** Import into PowerShell
     As some of the variables are dependent on other build environment functions this section has been moved: [[Import functions & variables]]
 * Prepare
