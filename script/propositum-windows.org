@@ -1120,6 +1120,12 @@ Then =doom quickstart= to install packages for a basic configuration (at least u
 doom quickstart
 #+END_SRC
 
+Return to the original path
+
+#+BEGIN_SRC powershell
+Pop-Location
+#+END_SRC
+
 *** TODO Create private doom-config
 ** Create build artifact
 
