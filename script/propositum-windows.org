@@ -9,12 +9,6 @@ This script can be used on any Windows PC, or in conjunction with AppVeyor to in
 ### --- Please see https://github.com/xeijin/propositum for the accompanying README.org --- ###
 #+END_SRC
 
-Turn the PowerShell background color to Black to make blue output from commands easier to read
-
-#+BEGIN_SRC powershell
-  $Host.UI.RawUI.BackgroundColor = ($bckgrnd = 'Black')
-#+END_SRC
-
 * Define
   
 Some background on the literate functions used, as well as the tables used to maintain the user-defined [[Components]] and [[Variables & Secrets]].
@@ -194,18 +188,19 @@ Then lets define them in a simplified table
 
  #+NAME: vars-other-tbl
  #+RESULTS: vars-other-import
- | type    | exec    | var        | value                              | comment                                                    |
- |---------+---------+------------+------------------------------------+------------------------------------------------------------|
- | hashtbl | execute | propositum | @{}                                | Initialises the hash table                                 |
- | path    | execute | root       | $propositum.root = $drv+"\"        |                                                            |
- | path    | execute | app        | $propositum.app = $drv+"\app"      |                                                            |
- | path    | execute | dl         | $propositum.dl = $drv+"\dl"        |                                                            |
- | path    | execute | home       | $propositum.home = $drv+"\home"    |                                                            |
- | path    | execute | font       | $propositum.font= $drv+"\font"     |                                                            |
- | path    | execute | util       | $propositum.util =  $drv+"\util"   |                                                            |
- | path    | execute | bin        | $propositum.bin = $drv+"\util\bin" |                                                            |
- | env-var | execute | env:HOME   | $propositum.home                   | Set user home as required for winpython install            |
- | env-var | execute | env:SCOOP  | $propositum.root                   | Place scoop app/shim parent directories in the root folder |
+ | type    | exec    | var               | value                              | comment                                                    |
+ |---------+---------+-------------------+------------------------------------+------------------------------------------------------------|
+ | hashtbl | execute | propositum        | @{}                                | Initialises the hash table                                 |
+ | path    | execute | root              | $propositum.root = $drv+"\"        |                                                            |
+ | path    | execute | app               | $propositum.app = $drv+"\app"      |                                                            |
+ | path    | execute | dl                | $propositum.dl = $drv+"\dl"        |                                                            |
+ | path    | execute | home              | $propositum.home = $drv+"\home"    |                                                            |
+ | path    | execute | font              | $propositum.font= $drv+"\font"     |                                                            |
+ | path    | execute | util              | $propositum.util =  $drv+"\util"   |                                                            |
+ | path    | execute | bin               | $propositum.bin = $drv+"\util\bin" |                                                            |
+ | env-var | execute | env:HOME          | $propositum.home                   | Set user home as required for winpython install            |
+ | env-var | execute | env:SCOOP         | $propositum.root                   | Place scoop app/shim parent directories in the root folder |
+ | env-var | execute | env:SUPERSET_HOME | $propositum.home\.superset         | Superset home folder location (where db file is stored)    |
 
 And finally, export the table back to csv
 
@@ -219,11 +214,16 @@ And finally, export the table back to csv
 
 *** Import into PowerShell
     As some of the variables are dependent on other build environment functions this section has been moved: [[Import functions & variables]]
-
 * Prepare
 
 Ensure the necessary tooling is in place & prepare the build environment.
+** Console formatting
 
+Turn the PowerShell background color to Black to make blue output from commands easier to read
+
+#+BEGIN_SRC powershell
+  $Host.UI.RawUI.BackgroundColor = ($bckgrnd = 'Black')
+#+END_SRC
 ** Helper functions
 :PROPERTIES:
 :header-args: :tangle propositum-helper-fns.ps1
@@ -1073,7 +1073,6 @@ Required to clone GitHub repos
   # Clone the repo (if not AppVeyor as it is already cloned for us)
   if(-not $buildPlatform -eq "appveyor"){Github-CloneRepo "" $propositumRepo $propositumLocation}
 #+END_SRC
-
 * Build 
 
 Bring together the different components & create the final build artifact.
@@ -1083,8 +1082,37 @@ Bring together the different components & create the final build artifact.
 Use scoop to manage the installation of all components, including any dependencies as defined in the component's manifest JSON.
 
 #+BEGIN_SRC powershell
-  scoop install cmder autohotkey knime-p rawgraphs-p regfont-p emacs-p doom-emacs-develop-p texteditoranywhere-p superset-p
+  scoop install cmder autohotkey knime-p rawgraphs-p regfont-p emacs-p texteditoranywhere-p superset-p
 #+END_SRC
+** Install & setup =doom-emacs=
+
+Save the current path & navigate to the =$propositum.home= folder
+
+#+BEGIN_SRC powershell
+Push-Location $propositum.home
+#+END_SRC
+
+Clone the =doom-emacs= repo as our =.emacs.d= folder and switch to the =develop= branch (=master= is out-of-date)
+
+#+BEGIN_SRC powershell
+git clone https://github.com/hlissner/doom-emacs .emacs.d; cd .emacs.d; git checkout develop
+#+END_SRC
+
+Add the =doom-emacs= binaries folder to =path=
+
+#+NAME: add-doom-bin-to-path
+#+BEGIN_SRC powershell
+$doomBin = "$propositum.home\.emacs.d\bin"
+[Environment]::SetEnvironmentVariable("Path", $env:Path + ";" + $doomBin, 'User')
+#+END_SRC
+
+Then =doom quickstart= to install packages for a basic configuration (at least until my custom one is ready)
+
+#+BEGIN_SRC powershell
+doom quickstart
+#+END_SRC
+
+*** TODO Create private doom-config
 
 ** Create build artifact
 
@@ -1099,7 +1127,6 @@ We only need to do this if running on AppVeyor.
       7z a -t7z -m0=lzma2:d=1024m -mx=9 -aoa -mfb=64 -md=32m -ms=on C:\propositum\propositum.7z C:\propositum  # Additional options to increase compression ratio
   }
 #+END_SRC
-
 * Deploy
 
 Deploy the latest =propositum= release to GitHub.
@@ -1110,7 +1137,6 @@ Deploy the latest =propositum= release to GitHub.
   if ($buildPlatform -eq "appveyor") {$deploy = $true}
   else {$deploy = $false}
 #+END_SRC
-
 * Upgrade
 :PROPERTIES:
 :header-args: :tangle propositum-upgrade.ps1
@@ -1125,7 +1151,6 @@ Upgrade an existing instance of =propositum=
 - [ ] should be able to run as a local user (not an admin)
 - [ ] should be able to take the latest propositum artifact release from GitHub as an input
 - [ ] should have a separate function that just updates configs (or perhaps a separate github release that is just the config info? e.g. updated .doom.d config file)
-
 * Finish
 
 General clean-up and post-installation activities.
