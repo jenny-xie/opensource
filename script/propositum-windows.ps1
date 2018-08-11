@@ -99,6 +99,8 @@ Refresh-PathVariable
 
 doom quickstart
 
+Pop-Location
+
   if ($buildPlatform -eq "appveyor")
   {
       echo "Compressing files into release artifact..."
