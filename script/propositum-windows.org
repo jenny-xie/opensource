@@ -1037,6 +1037,13 @@ Add the scoop =propositum= bucket which contains the JSON manifest files for ins
 #+BEGIN_SRC powershell
   scoop bucket add propositum 'https://github.com/xeijin/propositum-bucket.git'
 #+END_SRC
+*** Add =aria2= for faster downloads
+
+Should be auto-detected and used by =scoop=
+
+#+BEGIN_SRC powershell
+scoop install aria2
+#+END_SRC
 *** Ensure =7zip= is available
 
 Required by scoop to extract files, and also required by git.
@@ -1107,7 +1114,6 @@ doom quickstart
 #+END_SRC
 
 *** TODO Create private doom-config
-
 ** Create build artifact
 
 Create the 7zip'd build artifact for later deployment to GitHub - this is the file unzipped on systems wich require an 'offline' install (i.e. no access to external package repositories).
