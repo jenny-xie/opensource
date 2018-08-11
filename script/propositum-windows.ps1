@@ -1,12 +1,6 @@
 ### --- NOTE: If you are reading from the PS1 script you will find documentation sparse - this script is accompanied by an org-mode file used to literately generate it --- ####
 ### --- Please see https://github.com/xeijin/propositum for the accompanying README.org --- ###
 
-$errorActionPreference = 'silentlyContinue'
-
-Set-Variable -Name "errorActionPreference" -Value "silentlyContinue" -Visibility "Public" -Scope "Global"
-
-Write-Host "*** ERROR ACTION VALUE IS $errorActionPreference ***"
-
 $env:APPVEYOR_BUILD_FOLDER
 
 cd $psScriptRoot
@@ -71,6 +65,8 @@ cd $propositum.root
 
 iex (new-object net.webclient).downloadstring('https://get.scoop.sh')
 
+$errorActionPreference = 'Continue'
+
 scoop bucket add extras
 
 scoop bucket add propositum 'https://github.com/xeijin/propositum-bucket.git'
@@ -90,7 +86,7 @@ $propositumRepo = [ordered]@{
 # Clone the repo (if not AppVeyor as it is already cloned for us)
 if(-not $buildPlatform -eq "appveyor"){Github-CloneRepo "" $propositumRepo $propositumLocation}
 
-scoop install superset-p #cmder autohotkey rawgraphs-p regfont-p emacs-p doom-emacs-develop-p texteditoranywhere-p superset-p # knime-p
+scoop install knime-p #cmder autohotkey knime-p rawgraphs-p regfont-p emacs-p doom-emacs-develop-p texteditoranywhere-p superset-p
 
 if ($buildPlatform -eq "appveyor")
 {
