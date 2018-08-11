@@ -2,10 +2,10 @@
 #+PROPERTY: header-args :tangle yes
 #+OPTIONS: prop:t
 
-[[https://img.shields.io/appveyor/ci/xeijin/propositum/master.svg?style=flat-square]]
+[[https://img.shields.io/appveyor/ci/xeijin/propositum/master.svg?style=flat-square?logo=appveyor]]
 
 
-[[https://img.shields.io/appveyor/ci/xeijin/propositum/master.svg]]
+[[https://img.shields.io/appveyor/ci/xeijin/propositum/master.svg?style=flat-square?logo=appveyor?label=AppVeyor]]
 
 This script can be used on any Windows PC, or in conjunction with AppVeyor to install propositum on the local machine, or create a new GitHub release respectively.
 
