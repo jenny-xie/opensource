@@ -904,6 +904,13 @@ Before installing, lets set the scoop install directory to be within the =\util\
   [environment]::setEnvironmentVariable('SCOOP',($propositum.root),'Machine')
 #+END_SRC
 
+Testing for AppVeyor env var setting
+
+#+BEGIN_SRC powershell
+$env:SCOOP = $propositum.root
+#+END_SRC
+
+
 Then install scoop (locally)
 
 #+BEGIN_SRC powershell
