@@ -7,8 +7,9 @@
 This script can be used on any Windows PC, or in conjunction with AppVeyor to install propositum on the local machine, or create a new GitHub release respectively.
 
 #+BEGIN_SRC powershell :exports code
-### --- NOTE: If you are reading from the PS1 script you will find documentation sparse - this script is accompanied by an org-mode file used to literately generate it --- ####
-### --- Please see https://github.com/xeijin/propositum for the accompanying README.org --- ###
+### --- NOTE: If you are reading from the PS1 script you will find documentation sparse, --- ###
+### --- this script is accompanied by an org-mode file used to literately generate it.   --- ###
+### --- Please see https://github.com/xeijin/propositum for the accompanying README.org  --- ###
 #+END_SRC
 
 * Define
