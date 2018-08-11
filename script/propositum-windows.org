@@ -1,4 +1,4 @@
-#+TITLE: propositum | =WIN= | Build & Deploy
+#+TITLE: propositum | =WINDOWS=
 #+PROPERTY: header-args :tangle yes
 #+OPTIONS: prop:t
 
@@ -600,24 +600,6 @@ Useful parts of the function that I began writing but later realised I didn't ne
       #        else {continue}
       #        }
 #+END_SRC
-
-*** COMMENT ~Refresh-PathVariable~: Refresh Path Variable
-
-Refresh path variable to reflect any executables added from a given installation
-
-#+BEGIN_SRC powershell
-  function Refresh-PathVariable {
-      foreach($level in "Machine","User") {
-      [Environment]::GetEnvironmentVariables($level).GetEnumerator() | % {
-          # For Path variables, append the new values, if they're not already in there
-          if($_.Name -match 'Path$') { 
-              $_.Value = ($((Get-Content "Env:$($_.Name)") + ";$($_.Value)") -split ';' | Select -unique) -join ';'
-          }
-          $_
-      } | Set-Content -Path { "Env:$($_.Name)" }
-  }
-  }
-#+END_SRC
 *** TODO COMMENT ~Write-InstallStatus~: Write & Log Install Status
 #+BEGIN_SRC powershell
   function Write-InstallStatus ($component, $arr, $status, $msg) {
@@ -760,6 +742,24 @@ Check if a dir exists, and if specified, create the directory (or symlink)
     
       return $result
 
+  }
+#+END_SRC
+
+*** ~Refresh-PathVariable~: Refresh Path Variable
+
+Refresh path variable to reflect any executables added from a given installation
+
+#+BEGIN_SRC powershell
+  function Refresh-PathVariable {
+      foreach($level in "Machine","User") {
+      [Environment]::GetEnvironmentVariables($level).GetEnumerator() | % {
+          # For Path variables, append the new values, if they're not already in there
+          if($_.Name -match 'Path$') { 
+              $_.Value = ($((Get-Content "Env:$($_.Name)") + ";$($_.Value)") -split ';' | Select -unique) -join ';'
+          }
+          $_
+      } | Set-Content -Path { "Env:$($_.Name)" }
+  }
   }
 #+END_SRC
 
@@ -1106,6 +1106,13 @@ Add the =doom-emacs= binaries folder to =path=
 $doomBin = "$propositum.home\.emacs.d\bin"
 [Environment]::SetEnvironmentVariable("Path", $env:Path + ";" + $doomBin, 'User')
 #+END_SRC
+
+Refresh the =path= variable using a custom function
+
+#+BEGIN_SRC powershell
+Refresh-PathVariable
+#+END_SRC
+
 
 Then =doom quickstart= to install packages for a basic configuration (at least until my custom one is ready)
 
