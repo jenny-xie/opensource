@@ -895,13 +895,13 @@ This stops WebClient and other processes that require a secure connection from c
 ** Install and configure =scoop=
 *** Install =scoop=
     
-    [[https://scoop.sh][scoop]] is a bit like [[https://chocolatey.org][chocolatey]] but focused more on open source tools, and importantly, allows you to install apps as self-contained 'units'.
-    
-    Before installing, lets set the scoop install directory to be within the =\util\bin= folder so that cmder can reference these later on.
+[[https://scoop.sh][scoop]] is a bit like [[https://chocolatey.org][chocolatey]] but focused more on open source tools, and importantly, allows you to install apps as self-contained 'units'.
+
+Before installing, lets set the scoop install directory to be within the =\util\bin= folder so that cmder can reference these later on.
     
 #+NAME: set-scoop-env-var
 #+BEGIN_SRC powershell
-  [environment]::setEnvironmentVariable('SCOOP',($propositum.root),'User')
+  [environment]::setEnvironmentVariable('SCOOP',($propositum.root),'Machine')
 #+END_SRC
 
 Then install scoop (locally)
