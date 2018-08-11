@@ -65,8 +65,6 @@
 
   iex (new-object net.webclient).downloadstring('https://get.scoop.sh')
 
-  $errorActionPreference = 'Continue'
-
   scoop bucket add extras
 
   scoop bucket add propositum 'https://github.com/xeijin/propositum-bucket.git'
