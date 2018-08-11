@@ -9,8 +9,10 @@ This script can be used on any Windows PC, or in conjunction with AppVeyor to in
 ### --- Please see https://github.com/xeijin/propositum for the accompanying README.org --- ###
 #+END_SRC
 
+Turn the PowerShell background color to Black to make blue output from commands easier to read
+
 #+BEGIN_SRC powershell
-$env:APPVEYOR_BUILD_FOLDER
+  $Host.UI.RawUI.BackgroundColor = ($bckgrnd = 'Black')
 #+END_SRC
 
 * Define

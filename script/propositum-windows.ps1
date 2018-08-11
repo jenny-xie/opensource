@@ -1,7 +1,7 @@
 ### --- NOTE: If you are reading from the PS1 script you will find documentation sparse - this script is accompanied by an org-mode file used to literately generate it --- ####
 ### --- Please see https://github.com/xeijin/propositum for the accompanying README.org --- ###
 
-$env:APPVEYOR_BUILD_FOLDER
+$Host.UI.RawUI.BackgroundColor = ($bckgrnd = 'Black')
 
 cd $psScriptRoot
 
