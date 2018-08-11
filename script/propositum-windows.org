@@ -1015,6 +1015,10 @@ Then install scoop (locally)
   iex (new-object net.webclient).downloadstring('https://get.scoop.sh')
 #+END_SRC
 
+*** Reset =$ErrorActionPreference= var
+#+BEGIN_SRC powershell
+  $errorActionPreference = 'Continue'
+#+END_SRC
 *** Add =extras= bucket
 
 Add the =extras= bucket which contains some additional open source applications outside of the scope of the =main= scoop repo
