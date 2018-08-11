@@ -188,19 +188,16 @@ Then lets define them in a simplified table
 
  #+NAME: vars-other-tbl
  #+RESULTS: vars-other-import
- | type    | exec    | var               | value                              | comment                                                    |
- |---------+---------+-------------------+------------------------------------+------------------------------------------------------------|
- | hashtbl | execute | propositum        | @{}                                | Initialises the hash table                                 |
- | path    | execute | root              | $propositum.root = $drv+"\"        |                                                            |
- | path    | execute | app               | $propositum.app = $drv+"\app"      |                                                            |
- | path    | execute | dl                | $propositum.dl = $drv+"\dl"        |                                                            |
- | path    | execute | home              | $propositum.home = $drv+"\home"    |                                                            |
- | path    | execute | font              | $propositum.font= $drv+"\font"     |                                                            |
- | path    | execute | util              | $propositum.util =  $drv+"\util"   |                                                            |
- | path    | execute | bin               | $propositum.bin = $drv+"\util\bin" |                                                            |
- | env-var | execute | env:HOME          | $propositum.home                   | Set user home as required for winpython install            |
- | env-var | execute | env:SCOOP         | $propositum.root                   | Place scoop app/shim parent directories in the root folder |
- | env-var | execute | env:SUPERSET_HOME | $propositum.home\.superset         | Superset home folder location (where db file is stored)    |
+ | type    | exec    | var               | value                             | comment                                                    |
+ |---------+---------+-------------------+-----------------------------------+------------------------------------------------------------|
+ | hashtbl | execute | propositum        | @{}                               | Initialises the hash table                                 |
+ | path    | execute | root              | $propositum.root = $drv+"\"       |                                                            |
+ | path    | execute | app               | $propositum.apps = $drv+"\apps"   |                                                            |
+ | path    | execute | home              | $propositum.home = $drv+"\home"   |                                                            |
+ | path    | execute | font              | $propositum.fonts= $drv+"\fonts"  |                                                            |
+ | env-var | execute | env:HOME          | $propositum.home                  | Set user home as required for winpython install            |
+ | env-var | execute | env:SCOOP         | $propositum.root                  | Place scoop app/shim parent directories in the root folder |
+ | env-var | execute | env:SUPERSET_HOME | ($propositum.home + "\.superset") | Superset home folder location (where db file is stored)    |
 
 And finally, export the table back to csv
 
@@ -744,7 +741,6 @@ Check if a dir exists, and if specified, create the directory (or symlink)
 
   }
 #+END_SRC
-
 *** ~Refresh-PathVariable~: Refresh Path Variable
 
 Refresh path variable to reflect any executables added from a given installation
@@ -762,7 +758,6 @@ Refresh path variable to reflect any executables added from a given installation
   }
   }
 #+END_SRC
-
 *** ~GitHub-CloneRepo~: Clone GitHub repo
 
 #+BEGIN_SRC powershell
@@ -783,7 +778,6 @@ Make sure we start in the script root to avoid issues with executing in the wron
 #+BEGIN_SRC powershell
   cd $PSScriptRoot
 #+END_SRC
-
 *** Set testing/development mode
 
 Add a variable to allow us to switch to testing / development mode - this will use the variable assignments in the "testing" column when we come to our [[Variables & Secrets]].
@@ -792,7 +786,6 @@ Add a variable to allow us to switch to testing / development mode - this will u
   # Testing / development mode  
   $testing = $false
 #+END_SRC
-
 *** Determine the build platform
 
 Figure out if the script is being run from a local machine, from gs machine or on appveyor, or if we're testing/debugging
@@ -861,7 +854,6 @@ A simplified version of the per-platform command is used to execute / assign as 
  #+BEGIN_SRC powershell
    $otherVars | Select "exec", "var", "value" | ForEach-Object { if ($_.exec -eq "execute") {New-Variable $_.var (iex $_.value) -Force} else {New-Variable $_.var $_.value -Force}}
  #+END_SRC
-
 *** Clear testing directory
 
 To save some time, let's also delete the contents of the testing directory when in testing mode. 
@@ -892,112 +884,11 @@ Note there's currently a powershell bug that prevents this from working if any s
   #+BEGIN_SRC powershell
     cd $propositum.root
   #+END_SRC
-
 *** Set TLS / SSL versions
 This stops WebClient and other processes that require a secure connection from complaining if the connection requires a version other than TLS v1.0
 
 #+BEGIN_SRC powershell
   [Net.ServicePointManager]::SecurityProtocol = "Tls12, Tls11, Tls, Ssl3"
-#+END_SRC
-
-*** COMMENT Install aria2c                                               :chocolatey:
-
-Seems to be the most versatile command-line download utility available, supports downloading with multiple connections, handles redirects, etc
-
-We install it locally with =scoop= so that =scoop= uses it going forwards for all of the downloads.
-
-#+BEGIN_SRC powershell
-  scoop install aria2
-#+END_SRC
-
-*** COMMENT Install GNU make
-
-    Needed for =doom-emacs= and not included in the minigw included with =cmder= 
-
-#+BEGIN_SRC powershell
-  scoop install make
-#+END_SRC
-
-*** COMMENT Install Chocolatey                                    :depreciated:admin:
-
-Chocolatey is the easiest way to install 7zip (& potentially other) required packages (although it's not always the most up-to-date source, particularly for less popular apps)
-
-#+BEGIN_SRC powershell
-  if (-not (Get-Command choco.exe)) {
-      Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-  }
-#+END_SRC
-
-7zip is a versatile tool for extracting from a variety of different formats
-
-*** COMMENT Install 7zip                                                 :chocolatey:
-
-#+BEGIN_SRC powershell
-  if (-not (Get-Command 7z.exe)) {choco install -y 7zip}
-  Refresh-PathVariable
-#+END_SRC
-*** COMMENT Install cURL                                                 :chocolatey:
-
-=Invoke-WebRequest= has been unreliable for me, there also seems to be no easy or reliable way to preserve the original filename. 
-
-The =cURL= command to preserve filename adds only two modifiers in addition to the URL and as a bonus will likely be alot easier to get working with GitHub authentication.
-
-Microsoft have, for some reason, inexplicably made ~curl~ an alias for ~Invoke-WebRequest~; so we need to get rid of that first
-
-#+BEGIN_SRC powershell
-  if($alias:curl) {remove-item alias:curl}
-#+END_SRC
-
-Then install with =Chocolatey= and update the PATH variable
-
-#+BEGIN_SRC powershell
-  if (-not (Get-Command curl.exe)) {choco install -y curl}
-  Refresh-PathVariable
-#+END_SRC
-
-*** COMMENT Install wget                                                 :chocolatey:
-
-Another backend for further optionality, also has the most compact, configurable progress display (try adding ~--progress=bar:force:noscroll~ to your command).
-
-Microsoft have, for some reason, inexplicably made ~wget~ an alias for ~Invoke-WebRequest~; so we need to get rid of that first
-
-#+BEGIN_SRC powershell
-  if($alias:wget) {remove-item alias:wget}
-#+END_SRC
-
-Then install with =Chocolatey= and update the PATH variable
-
-#+BEGIN_SRC powershell
-  if (-not (Get-Command curl.exe)) {choco install -y curl}
-  Refresh-PathVariable
-#+END_SRC
-
-*** COMMENT Fetch latest download URLs
-
- Traverse the list of components and download the latest version of any components offered as a Gitub release or through an Apache directory structure
-
- #+BEGIN_SRC powershell
-   foreach($component in $components)
-   {
-       if ($component.service -eq "github-release") {
-           Write-Host ("`n Finding ... "+$component.var+" :: [ "+$component.usage+" ] `n") -ForegroundColor Yellow -BackgroundColor Black
-           $component.dl = Get-GHLatestReleaseDl $component
-           continue
-       }
-       elseif ($component.service -eq "apache-dir-dl") {
-           Write-Host ("`n Finding ... "+$component.var+" :: [ "+$component.usage+" ] `n") -ForegroundColor Yellow -BackgroundColor Black
-           $component.dl = Get-LatestApacheDirDl $component.source $component.regex $component.var
-           continue
-       }
-       else {continue}
-   }
- #+END_SRC
-*** TODO COMMENT Create =$installResults= array
-
-Create an empty array to store the =PSCustomObject= of results from each installation
-
-#+BEGIN_SRC powershell
-  $installResults = @()
 #+END_SRC
 ** Install and configure =scoop=
 *** Install =scoop=
@@ -1015,13 +906,6 @@ Then install scoop (locally)
 
 #+BEGIN_SRC powershell
   iex (new-object net.webclient).downloadstring('https://get.scoop.sh')
-#+END_SRC
-*** COMMENT Reset =$errorActionPreference= var                           :workaround:
-
-Temporary workaround as =scoop= sets =$errorActionPreference= to =stop= during installation, and AppVeyor then seems to persist this causing the build to fail when scoop app installer executables put out errors.
-
-#+BEGIN_SRC powershell
-  $errorActionPreference = 'Continue'
 #+END_SRC
 *** Add =extras= bucket
 
@@ -1137,7 +1021,7 @@ We only need to do this if running on AppVeyor.
   if ($buildPlatform -eq "appveyor")
   {
       echo "Compressing files into release artifact..."
-      iex "7z a -t7z -m0=lzma2 -d=1024m -mx=9 -aoa -mfb=64 -md=32m -ms=on C:\propositum\propositum.7z C:\propositum"  # Additional options to increase compression ratio
+      iex "7z a -t7z -m0=lzma2:d=1024m -mx=9 -aoa -mfb=64 -md=32m -ms=on C:\propositum\propositum.7z C:\propositum"  # Additional options to increase compression ratio
   }
 #+END_SRC
 * Deploy
@@ -1168,7 +1052,6 @@ Upgrade an existing instance of =propositum=
 
 General clean-up and post-installation activities.
 
-** Delete =propositum.dl= folder
 ** Generate post-install script
 :PROPERTIES:
 :header-args: :tangle propositum-post-install.ps1
