@@ -1,1 +1,1 @@
-C:/propositum/script/propositum-windows.org
+./script/propositum-windows.org
