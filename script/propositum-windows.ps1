@@ -69,6 +69,8 @@
 
   scoop bucket add propositum 'https://github.com/xeijin/propositum-bucket.git'
 
+scoop install aria2
+
   # If git isn't installed, install it
   if (-not (Get-Command 7z.exe)) {scoop install 7zip --global}
 
@@ -92,6 +94,8 @@ git clone https://github.com/hlissner/doom-emacs .emacs.d; cd .emacs.d; git chec
 
 $doomBin = "$propositum.home\.emacs.d\bin"
 [Environment]::SetEnvironmentVariable("Path", $env:Path + ";" + $doomBin, 'User')
+
+Refresh-PathVariable
 
 doom quickstart
 
