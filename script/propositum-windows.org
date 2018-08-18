@@ -268,6 +268,24 @@ around issues with AppVeyor initializing environment variables in the build scri
 #+BEGIN_SRC powershell
 if ($buildPlatform -ne 'appveyor') {. ./propositum-prepare.ps1}
 #+END_SRC
+** AppVeyor
+*** COMMENT Enable RDP for Debugging
+
+Enables [[https://www.appveyor.com/docs/how-to/rdp-to-build-worker/][remote desktop connection to the AppVeyor build worker]] to debug issues.
+
+Connection details (including password) will be available in the ~CONSOLE~ tab
+on Appveyor. 
+
+When set to =$true= the variable =$blockRdp= will prevent the RDP connection
+from closing upon build finish.
+
+#+BEGIN_SRC powershell
+$blockRdp = $true
+iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+#+END_SRC
+
+Note that an RDP session is limited by the overall build time (60 min)
+
 ** Initialise Environment
 Ensure the necessary tooling is in place & prepare the build environment.
 
@@ -1075,7 +1093,6 @@ And =Invoke-Expression= to call the scoop installer with the array
 #+BEGIN_SRC powershell
 Invoke-Expression "scoop install $propositumScoop"
 #+END_SRC
-
 ** Install & setup =doom-emacs=
 :PROPERTIES:
 :ID:       4BCE227D-7309-4E0E-BF45-F00C0E4BD769
