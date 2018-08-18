@@ -237,8 +237,7 @@ And finally, export the table back to csv
 Add a variable to allow us to switch to testing / development mode - this will use the variable assignments in the "testing" column when we come to our [[Variables]].
 
 #+BEGIN_SRC powershell
-  # Testing / development mode  
-  $testing = $false
+$testing = $false
 #+END_SRC
 
 Figure out if the script is being run from a local machine, from gs machine or on appveyor, or if we're testing/debugging
@@ -307,7 +306,9 @@ Close the =if= script block.
 :header-args: :tangle propositum-prepare-init.ps1
 :END:
 Ensure the necessary tooling is in place & prepare the build environment.
-
+#+BEGIN_SRC powershell
+$buildPlatform
+#+END_SRC
 *** Start in the Script Root
 :PROPERTIES:
 :ID:       772511DD-7D6F-486F-9F2C-8BC128CDA391

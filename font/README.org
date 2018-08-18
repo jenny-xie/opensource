@@ -1,3 +1,0 @@
-#+Title: font | propositum
-
-Store fonts in this folder - note they will need to be manually installed on the system due to administrator privilege requirements.
