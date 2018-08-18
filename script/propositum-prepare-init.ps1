@@ -1,3 +1,5 @@
+$buildPlatform
+
 cd $PSScriptRoot
 
 $Host.UI.RawUI.BackgroundColor = ($bckgrnd = 'Black')

@@ -270,7 +270,7 @@ if ($env:APPVEYOR)
 {
 #+END_SRC
 
-*** Enable RDP for Debugging
+*** COMMENT Enable RDP for Debugging
 :PROPERTIES:
 :ID:       B29B0769-8AA0-42F0-B42C-7012FA31AD66
 :END:
@@ -304,6 +304,7 @@ Close the =if= script block.
 ** Initialise Environment
 :PROPERTIES:
 :header-args: :tangle propositum-prepare-init.ps1
+:ID:       917FED7C-58C3-400B-ADFC-30A8550AB92E
 :END:
 Ensure the necessary tooling is in place & prepare the build environment.
 #+BEGIN_SRC powershell

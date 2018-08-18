@@ -14,7 +14,6 @@ Catch
     $error[0]|format-list -force
 }
 
-# Testing / development mode  
 $testing = $false
 
 $buildPlatform = if ($env:APPVEYOR) {"appveyor"}
@@ -27,9 +26,6 @@ if (-not $env:APPVEYOR) {. ./propositum-prepare-init.ps1}
 
 if ($env:APPVEYOR) 
 {
-
-$blockRdp = $true
-iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 }
 
