@@ -13,7 +13,7 @@ This script can be used on any Windows PC, or in conjunction with AppVeyor to in
 #+END_SRC
 
 * Define
-  
+
 Some background on the literate functions used, as well as the tables used to maintain the user-defined [[Components]] and [[Variables]]
 
 ** Literate Functions
@@ -23,6 +23,9 @@ The list of [[Components]] and their attributes, as well as user-defined [[Varia
 This makes it easier to add new components and variables, as well as modify the existing attributes of these items. It also helps us segregate user-defined inputs from functions, making debugging easier and our code (hopefully) cleaner.
 
 *** Require elisp dependencies
+:PROPERTIES:
+:ID:       1124209E-CC37-405E-80A0-9466D7FA0FF9
+:END:
 
 First, let's ensure we get any required elisp dependencies
 
@@ -32,6 +35,9 @@ First, let's ensure we get any required elisp dependencies
 #+END_SRC
 
 *** Import from CSV
+:PROPERTIES:
+:ID:       BA24D132-E2E5-4603-B856-E804B744B5FE
+:END:
 
 Now define an org-babel source code block to /import/ variables from an existing =CSV= file, into an org-mode table. It takes a single argument, the path to the =CSV= file as a string.
 
@@ -45,6 +51,9 @@ Now define an org-babel source code block to /import/ variables from an existing
 #+END_SRC
 
 *** Export to CSV
+:PROPERTIES:
+:ID:       FC1EE611-609C-4AB4-9BFC-1B27898BCC88
+:END:
 
 We also need to define an org-babel source block to export an org-mode table back to a =CSV=.
 
@@ -59,6 +68,9 @@ It takes two arguments, the path to the =CSV= file, and also a name for the org-
 #+END_SRC
 
 ** Components
+:PROPERTIES:
+:ID:       741E70D9-49CC-4E90-89B0-8B30F110DB46
+:END:
   
 Components to be installed are maintained in a org-mode table and csv file which holds the metadata:
 
@@ -120,6 +132,9 @@ Then export to ~components.csv~
 : Export done.
 
 *** Import into PowerShell
+:PROPERTIES:
+:ID:       2D7E58E5-B0A0-45D0-ACAA-A3CB3973C285
+:END:
 
 We can now import the ~components.csv~ into PowerShell.
 
@@ -214,23 +229,71 @@ And finally, export the table back to csv
 *** Import into PowerShell
     As some of the variables are dependent on other build environment functions this section has been moved: [[Import functions & variables]]
 * Prepare
+** Start in the Script Root
+:PROPERTIES:
+:ID:       772511DD-7D6F-486F-9F2C-8BC128CDA391
+:END:
 
+Make sure we start in the script root to avoid issues with executing in the wrong directory & to ensure we can access any scripts or data structures that we need to import.
+
+#+BEGIN_SRC powershell
+  cd $PSScriptRoot
+#+END_SRC
+** Set mode & determine build platform
+:PROPERTIES:
+:ID:       18FAC438-1875-4EE9-96F2-39EB5D0C1B6E
+:END:
+
+Add a variable to allow us to switch to testing / development mode - this will use the variable assignments in the "testing" column when we come to our [[Variables]].
+
+#+BEGIN_SRC powershell
+  # Testing / development mode  
+  $testing = $false
+#+END_SRC
+
+Figure out if the script is being run from a local machine, from gs machine or on appveyor, or if we're testing/debugging
+
+#+BEGIN_SRC powershell
+  $buildPlatform = if ($env:APPVEYOR) {"appveyor"}
+  elseif ($testing) {"testing"} # For debugging locally
+  elseif ($env:computername -match "NDS.*") {"local-gs"} # Check for a GS NDS
+  else {"local"}
+#+END_SRC
+
+If running the script somewhere other than AppVeyor, run the prepare section.
+
+This is because we import the prepare script as an AppVeyor init script, to get
+around issues with AppVeyor initializing environment variables in the build script.
+
+#+BEGIN_SRC powershell
+if ($buildPlatform -ne 'appveyor') {. ./propositum-prepare.ps1}
+#+END_SRC
+** Initialise Environment
 Ensure the necessary tooling is in place & prepare the build environment.
-** Console formatting
+
+The order of these elements is quite tightly constrained so worth double checking if that is changed...
+
+:PROPERTIES:
+:header-args: :tangle propositum-prepare-init.ps1
+:END:
+*** Console formatting
+:PROPERTIES:
+:ID:       0372ECBA-729F-4B3D-961D-661B18CAC4C5
+:END:
 
 Turn the PowerShell background color to Black to make blue output from commands easier to read
 
 #+BEGIN_SRC powershell
   $Host.UI.RawUI.BackgroundColor = ($bckgrnd = 'Black')
 #+END_SRC
-** Helper functions
+*** Helper functions
 :PROPERTIES:
 :header-args: :tangle propositum-helper-fns.ps1
 :END:
 
 Define helper functions to perform repetitive activities
 
-*** COMMENT ~Get-GHLatestReleaseDl~: Get the download link for the latest GitHub release
+**** COMMENT ~Get-GHLatestReleaseDl~: Get the download link for the latest GitHub release
 
 Takes a component hash table as an input
 
@@ -263,8 +326,7 @@ Takes a component hash table as an input
   Else {return $downloadUrl}
   }
 #+END_SRC
-
-*** COMMENT ~Get-LatestApacheDirDl~: Get the download link for latest direct-dl release (Apache directory listing)
+**** COMMENT ~Get-LatestApacheDirDl~: Get the download link for latest direct-dl release (Apache directory listing)
 
 Takes a url to the apache directory, a regex for the file and the component's variable name from the table as inputs.
 
@@ -364,7 +426,7 @@ The function makes some basic attempts to try and dig into subdirectories if it 
       return $directoryUrl
   }
 #+END_SRC
-*** COMMENT ~Dl-ToDir~: Binary file download wrapper
+**** COMMENT ~Dl-ToDir~: Binary file download wrapper
 
 Since finding no single download tool satisfactorily met my needs, I decided to create a wrapper for them all (plus a relatively easy way to extend for any I may need in the future)
 
@@ -599,7 +661,7 @@ Useful parts of the function that I began writing but later realised I didn't ne
       #        else {continue}
       #        }
 #+END_SRC
-*** TODO COMMENT ~Write-InstallStatus~: Write & Log Install Status
+**** TODO COMMENT ~Write-InstallStatus~: Write & Log Install Status
 #+BEGIN_SRC powershell
   function Write-InstallStatus ($component, $arr, $status, $msg) {
     
@@ -650,7 +712,7 @@ Useful parts of the function that I began writing but later realised I didn't ne
       $arr += $result
   }
 #+END_SRC
-*** COMMENT ~Refresh-PathVariable~: Refresh Path Variable
+**** COMMENT ~Refresh-PathVariable~: Refresh Path Variable
 
 Refresh path variable to reflect any executables added from a given installation
 
@@ -667,7 +729,10 @@ Refresh path variable to reflect any executables added from a given installation
   }
   }
 #+END_SRC
-*** TODO ~Path-CheckOrCreate~: Check for path and optionally create dir or symlink
+**** TODO ~Path-CheckOrCreate~: Check for path and optionally create dir or symlink
+:PROPERTIES:
+:ID:       DA8B2429-3EB2-4784-81B1-F69152B9253A
+:END:
 
 Check if a dir exists, and if specified, create the directory (or symlink)
 
@@ -760,7 +825,10 @@ Check if a dir exists, and if specified, create the directory (or symlink)
 
   }
 #+END_SRC
-*** ~GitHub-CloneRepo~: Clone GitHub repo
+**** ~GitHub-CloneRepo~: Clone GitHub repo
+:PROPERTIES:
+:ID:       165F8517-95D6-47B1-BC20-61E92D0A004B
+:END:
 
 #+BEGIN_SRC powershell
   function Github-CloneRepo ($opts, $compValsArr, $cloneDir) {
@@ -769,37 +837,11 @@ Check if a dir exists, and if specified, create the directory (or symlink)
   iex "git clone $opts $cloneUrl $cloneDir"
   }
 #+END_SRC
-** Build envronment
-
-The order of these elements is quite tightly constrained so worth double checking if that is changed...
-
-*** Start in the Script Root
-
-Make sure we start in the script root to avoid issues with executing in the wrong directory & to ensure we can access any scripts or data structures that we need to import.
-
-#+BEGIN_SRC powershell
-  cd $PSScriptRoot
-#+END_SRC
-*** Set testing/development mode
-
-Add a variable to allow us to switch to testing / development mode - this will use the variable assignments in the "testing" column when we come to our [[Variables]].
-
-#+BEGIN_SRC powershell
-  # Testing / development mode  
-  $testing = $false
-#+END_SRC
-*** Determine the build platform
-
-Figure out if the script is being run from a local machine, from gs machine or on appveyor, or if we're testing/debugging
-
-#+BEGIN_SRC powershell
-  $buildPlatform = if ($env:APPVEYOR) {"appveyor"}
-  elseif ($testing) {"testing"} # For debugging locally
-  elseif ($env:computername -match "NDS.*") {"local-gs"} # Check for a GS NDS
-  else {"local"}
-#+END_SRC
 *** Import functions & variables
 **** Import functions
+:PROPERTIES:
+:ID:       25BEA543-0DB2-4DE4-B099-34333F24516A
+:END:
 
  Let's import the helper functions we defined earlier. Using the =.= notation means they will be imported with access to the variables in the current script scope.
 
@@ -807,6 +849,9 @@ Figure out if the script is being run from a local machine, from gs machine or o
    . ./propositum-helper-fns.ps1
  #+END_SRC
 **** Import platform-specific variables
+:PROPERTIES:
+:ID:       538BDD23-6F58-424E-AC99-AB361C7B45E7
+:END:
 
  We can now import ~vars-platform.csv~ we created earlier into PowerShell
 
@@ -832,6 +877,9 @@ Figure out if the script is being run from a local machine, from gs machine or o
    $environmentVars | Select "exec", "var", $buildPlatform | ForEach-Object { if ($_.exec -eq "execute") {New-Variable $_.var (iex $_.$buildPlatform) -Force} else {New-Variable $_.var $_.$buildPlatform -Force}}
  #+END_SRC
 **** Import other variables
+:PROPERTIES:
+:ID:       FE6574FA-0768-4A9E-826A-60EA8F8ECBD7
+:END:
      
  Let's import the ~vars-other.csv~ into PowerShell
 
@@ -855,6 +903,9 @@ A simplified version of the per-platform command is used to execute / assign as 
    $otherVars | Select "exec", "var", "value" | ForEach-Object { if ($_.exec -eq "execute") {New-Variable $_.var (iex $_.value) -Force} else {New-Variable $_.var $_.value -Force}}
  #+END_SRC
 *** Clear testing directory
+:PROPERTIES:
+:ID:       64FA9CC2-4B0E-436D-9EC4-E7E6B2BD50B7
+:END:
 
 To save some time, let's also delete the contents of the testing directory when in testing mode. 
 
@@ -866,6 +917,9 @@ Note there's currently a powershell bug that prevents this from working if any s
   if ($testing -and $propositumLocation) {Remove-Item ($propositumLocation+"\*") -Recurse -Force}
 #+END_SRC
 *** Map propositum drive letter & create folder structure
+:PROPERTIES:
+:ID:       6DE0B5D0-189B-44BB-B418-201E8D8BD081
+:END:
  
  Mapping the propositum folder to a drive letter creates a short, intuitive path to key directories
 
@@ -885,6 +939,9 @@ Note there's currently a powershell bug that prevents this from working if any s
     cd $propositum.root
   #+END_SRC
 *** Set TLS / SSL versions
+:PROPERTIES:
+:ID:       0356A598-F416-4B9E-AD32-DE71E9E0167B
+:END:
 This stops WebClient and other processes that require a secure connection from complaining if the connection requires a version other than TLS v1.0
 
 #+BEGIN_SRC powershell
@@ -892,6 +949,9 @@ This stops WebClient and other processes that require a secure connection from c
 #+END_SRC
 ** Install and configure =scoop=
 *** Install =scoop=
+:PROPERTIES:
+:ID:       AC6E8709-BED1-4C65-9290-1D631C0CA7B0
+:END:
     
 [[https://scoop.sh][scoop]] is a bit like [[https://chocolatey.org][chocolatey]] but focused more on open source tools, and importantly, allows you to install apps as self-contained 'units'.
 
@@ -908,6 +968,9 @@ Then install scoop (locally)
   iex (new-object net.webclient).downloadstring('https://get.scoop.sh')
 #+END_SRC
 *** Add =extras= bucket
+:PROPERTIES:
+:ID:       E9337FC2-A9DB-4F26-8108-C6C44CC66F85
+:END:
 
 Add the =extras= bucket which contains some additional open source applications outside of the scope of the =main= scoop repo
 
@@ -915,6 +978,9 @@ Add the =extras= bucket which contains some additional open source applications 
   scoop bucket add extras
 #+END_SRC
 *** Add =propositum= bucket
+:PROPERTIES:
+:ID:       074C0D8F-11F5-4C22-B992-422EA437C37D
+:END:
 
 Add the scoop =propositum= bucket which contains the JSON manifest files for installing and configuring the different propositum components.
 
@@ -922,6 +988,9 @@ Add the scoop =propositum= bucket which contains the JSON manifest files for ins
   scoop bucket add propositum 'https://github.com/xeijin/propositum-bucket.git'
 #+END_SRC
 *** Add =aria2= for faster downloads
+:PROPERTIES:
+:ID:       6EAA36AD-4CE2-4520-ABDA-DF591D7873A8
+:END:
 
 Should be auto-detected and used by =scoop=
 
@@ -929,6 +998,9 @@ Should be auto-detected and used by =scoop=
 scoop install aria2
 #+END_SRC
 *** Ensure =7zip= is available
+:PROPERTIES:
+:ID:       737F5333-F4D2-4C85-9051-CB54BAF6F1C2
+:END:
 
 Required by scoop to extract files, and also required by git.
 
@@ -937,6 +1009,9 @@ Required by scoop to extract files, and also required by git.
   if (-not (Get-Command 7z.exe)) {scoop install 7zip --global}
 #+END_SRC
 *** Ensure =git= is available
+:PROPERTIES:
+:ID:       ABF852A2-5F36-4892-9804-28614F5ED99F
+:END:
 
 Required to clone GitHub repos
 
@@ -945,6 +1020,9 @@ Required to clone GitHub repos
   if (-not (Get-Command git.exe)) {scoop install git --global}
 #+END_SRC
 ** Clone =propositum= repo
+:PROPERTIES:
+:ID:       7895CDF9-52B1-4040-9FEC-1B4EE178C3A9
+:END:
 
    A number of required or source-controlled artifacts, including fonts, scripts and configuration files are already located in the propositum Repo, let's fetch those first
 
@@ -963,6 +1041,9 @@ Required to clone GitHub repos
 Bring together the different components & create the final build artifact.
 
 ** Install components
+:PROPERTIES:
+:ID:       2B59D992-C445-439D-9C67-54554BBDBF7A
+:END:
 
 Use scoop to manage the installation of all components, including any
 dependencies as defined in the component's manifest JSON.
@@ -985,6 +1066,7 @@ $propositumScoop = @(
     'emacs-p',
     'texteditoranywhere-p',
     'superset-p'
+    'pandoc'
 )
 #+END_SRC
 
@@ -994,8 +1076,10 @@ And =Invoke-Expression= to call the scoop installer with the array
 Invoke-Expression "scoop install $propositumScoop"
 #+END_SRC
 
-
 ** Install & setup =doom-emacs=
+:PROPERTIES:
+:ID:       4BCE227D-7309-4E0E-BF45-F00C0E4BD769
+:END:
 
 Save the current path & navigate to the =$propositum.home= folder
 
@@ -1038,6 +1122,9 @@ Pop-Location
 
 *** TODO Create private doom-config
 ** Create build artifact
+:PROPERTIES:
+:ID:       0AC1E5F5-D4EE-40F5-ACF3-D7D6C26DC59E
+:END:
 
 Create the 7zip'd build artifact for later deployment to GitHub - this is the file unzipped on systems wich require an 'offline' install (i.e. no access to external package repositories).
 
@@ -1055,6 +1142,9 @@ We only need to do this if running on AppVeyor.
 Deploy the latest =propositum= release to GitHub.
 
 ** Only attempt to deploy if the ~$buildPlatform~ is AppVeyor
+:PROPERTIES:
+:ID:       1386CD2A-F620-4C8C-968A-EFD58840D0C4
+:END:
 
 #+BEGIN_SRC powershell
   if ($buildPlatform -eq "appveyor") {$deploy = $true}
@@ -1081,6 +1171,7 @@ General clean-up and post-installation activities.
 ** Generate post-install script
 :PROPERTIES:
 :header-args: :tangle propositum-post-install.ps1
+:ID:       92FEC991-0504-4E1D-8407-F22D12791562
 :END:
 
 These are variables or commands that need to be set again post-installation. Note that we use org-babel's =<<NOWEB>>= syntax here to import the variables from wherever they are defined.
