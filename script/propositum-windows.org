@@ -271,6 +271,9 @@ if (-not $env:APPVEYOR) {. ./propositum-prepare-init.ps1}
 #+END_SRC
 ** Run AppVeyor specific commands
 *** Only run if on AppVeyor
+:PROPERTIES:
+:ID:       069E1082-069E-4EF9-B45F-4B8DB61E2211
+:END:
 If we are running on AppVeyor
 
 #+BEGIN_SRC powershell
@@ -296,6 +299,9 @@ iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.co
 Note that an RDP session is limited by the overall build time (60 min)
 
 *** End of AppVeyor-specific commands
+:PROPERTIES:
+:ID:       4248BB54-346A-484B-9CBC-7EF3678D78D6
+:END:
 
 Close the =if= script block.
 
@@ -304,6 +310,9 @@ Close the =if= script block.
 #+END_SRC
 
 ** Initialise Environment
+:PROPERTIES:
+:header-args: :tangle propositum-prepare-init.ps1
+:END:
 Ensure the necessary tooling is in place & prepare the build environment.
 
 *** Console formatting
