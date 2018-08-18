@@ -1118,7 +1118,7 @@ Let the user know which components are being installed
 
 #+BEGIN_SRC powershell
 $componentsToInstall = $propositumScoop -join "`r`n" | Out-String
-Write-Host "The following components will be installed:`r`n`r`n$componentsToInstall" -ForegroundColor Black -BackgroundColor Yellow
+Write-Host "`r`nThe following components will be installed:`r`n`r`n$componentsToInstall" -ForegroundColor Black -BackgroundColor Yellow
 #+END_SRC
 
 And =Invoke-Expression= to call the scoop installer with the array
