@@ -67,7 +67,7 @@ $propositumScoop = @(
     'pandoc'
 )
 
-$componentsToInstall = $propositumScoop -join "`r`n-->" | Out-String
+$componentsToInstall = $propositumScoop -join "`r`n=> " | Out-String
 Write-Host "`r`nThe following components will be installed:`r`n`r`n$componentsToInstall" -ForegroundColor Black -BackgroundColor Yellow
 
 Invoke-Expression "scoop install $propositumScoop"
