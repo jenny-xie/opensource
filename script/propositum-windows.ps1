@@ -63,7 +63,7 @@ $propositumScoop = @(
     'regfont-p',
     'emacs-p',
     'texteditoranywhere-p',
-    'superset-p'
+    'superset-p',
     'pandoc'
 )
 
