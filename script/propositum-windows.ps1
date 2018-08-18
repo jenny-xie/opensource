@@ -70,7 +70,7 @@ $propositumScoop = @(
 )
 
 $componentsToInstall = $propositumScoop -join "`r`n" | Out-String
-Write-Host "The following components will be installed:`r`n$componentsToInstall" -ForegroundColor Black -BackgroundColor Yellow
+Write-Host "The following components will be installed:`r`n`r`n$componentsToInstall" -ForegroundColor Black -BackgroundColor Yellow
 
 Invoke-Expression "scoop install $propositumScoop"
 
