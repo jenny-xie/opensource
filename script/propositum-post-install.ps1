@@ -31,7 +31,7 @@ ForEach ($var in $platformVars | Select 'var', $buildPlatform, 'exec') { # Narro
        $error[0]|format-list -force
    }
 ForEach ($var in $otherVars) {
-    if (($var.var -like "env:*")) -or ($var.type -eq 'env-var') { # If variable name contains 'env:', or is type 'env-var'
+    if (($var.var -like "env:*")) -or ($var.type -eq 'env-var')) { # If variable name contains 'env:', or is type 'env-var'
         if ($var.exec -eq "execute") {Set-Item -Verbose -Path $var.var -Value (iex $var.value)} # If we need to 'execute'
         else {Set-Item -Verbose -Path $var.var -Value $var.value} # Else just assign
     }
