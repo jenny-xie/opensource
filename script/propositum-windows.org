@@ -229,6 +229,7 @@ And finally, export the table back to csv
 *** Import into PowerShell
     As some of the variables are dependent on other build environment functions this section has been moved: [[Import functions & variables]]
 * Prepare
+
 ** Start in the Script Root
 :PROPERTIES:
 :ID:       772511DD-7D6F-486F-9F2C-8BC128CDA391
@@ -260,15 +261,23 @@ Figure out if the script is being run from a local machine, from gs machine or o
   else {"local"}
 #+END_SRC
 
-If running the script somewhere other than AppVeyor, run the prepare section.
+If running the script somewhere other than AppVeyor, run the [[Initialise Environment]] section.
 
 This is because we import the prepare script as an AppVeyor init script, to get
 around issues with AppVeyor initializing environment variables in the build script.
 
 #+BEGIN_SRC powershell
-if ($buildPlatform -ne 'appveyor') {. ./propositum-prepare.ps1}
+if (-not $env:APPVEYOR) {. ./propositum-prepare-init.ps1}
 #+END_SRC
-** AppVeyor
+** Run AppVeyor specific commands
+*** Only run if on AppVeyor
+If we are running on AppVeyor
+
+#+BEGIN_SRC powershell
+if ($env:APPVEYOR) 
+{
+#+END_SRC
+
 *** COMMENT Enable RDP for Debugging
 
 Enables [[https://www.appveyor.com/docs/how-to/rdp-to-build-worker/][remote desktop connection to the AppVeyor build worker]] to debug issues.
@@ -286,14 +295,17 @@ iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.co
 
 Note that an RDP session is limited by the overall build time (60 min)
 
+*** End of AppVeyor-specific commands
+
+Close the =if= script block.
+
+#+BEGIN_SRC powershell
+}
+#+END_SRC
+
 ** Initialise Environment
 Ensure the necessary tooling is in place & prepare the build environment.
 
-The order of these elements is quite tightly constrained so worth double checking if that is changed...
-
-:PROPERTIES:
-:header-args: :tangle propositum-prepare-init.ps1
-:END:
 *** Console formatting
 :PROPERTIES:
 :ID:       0372ECBA-729F-4B3D-961D-661B18CAC4C5
