@@ -259,48 +259,6 @@ around issues with AppVeyor initializing environment variables in the build scri
 cd $PSScriptRoot
 if (-not $env:APPVEYOR) {. ./propositum-prepare-init.ps1}
 #+END_SRC
-** Run AppVeyor specific commands
-*** Only run if on AppVeyor
-:PROPERTIES:
-:ID:       069E1082-069E-4EF9-B45F-4B8DB61E2211
-:END:
-If we are running on AppVeyor
-
-#+BEGIN_SRC powershell
-if ($env:APPVEYOR) 
-{
-#+END_SRC
-
-*** COMMENT Enable RDP for Debugging
-:PROPERTIES:
-:ID:       B29B0769-8AA0-42F0-B42C-7012FA31AD66
-:END:
-
-Enables [[https://www.appveyor.com/docs/how-to/rdp-to-build-worker/][remote desktop connection to the AppVeyor build worker]] to debug issues.
-
-Connection details (including password) will be available in the ~CONSOLE~ tab
-on Appveyor. 
-
-When set to =$true= the variable =$blockRdp= will prevent the RDP connection
-from closing upon build finish.
-
-#+BEGIN_SRC powershell
-$blockRdp = $true
-iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
-#+END_SRC
-
-Note that an RDP session is limited by the overall build time (60 min)
-
-*** End of AppVeyor-specific commands
-:PROPERTIES:
-:ID:       4248BB54-346A-484B-9CBC-7EF3678D78D6
-:END:
-
-Close the =if= script block.
-
-#+BEGIN_SRC powershell
-}
-#+END_SRC
 ** Initialise Environment
 :PROPERTIES:
 :header-args: :tangle propositum-prepare-init.ps1
@@ -1003,7 +961,7 @@ Before installing, lets set the scoop install directory to be within the =\util\
 
 #+NAME: set-scoop-env-var
 #+BEGIN_SRC powershell
-  [environment]::setEnvironmentVariable('SCOOP',($propositum.root),'Machine')
+  [environment]::setEnvironmentVariable('SCOOP',($propositum.root),'User')
 #+END_SRC
 
 Then install scoop (locally)

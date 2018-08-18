@@ -24,12 +24,7 @@ else {"local"}
 cd $PSScriptRoot
 if (-not $env:APPVEYOR) {. ./propositum-prepare-init.ps1}
 
-if ($env:APPVEYOR) 
-{
-
-}
-
-[environment]::setEnvironmentVariable('SCOOP',($propositum.root),'Machine')
+[environment]::setEnvironmentVariable('SCOOP',($propositum.root),'User')
 
 iex (new-object net.webclient).downloadstring('https://get.scoop.sh')
 
