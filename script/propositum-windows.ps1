@@ -1,5 +1,6 @@
-### --- NOTE: If you are reading from the PS1 script you will find documentation sparse - this script is accompanied by an org-mode file used to literately generate it --- ####
-### --- Please see https://github.com/xeijin/propositum for the accompanying README.org --- ###
+### --- NOTE: If you are reading from the PS1 script you will find documentation sparse, --- ###
+### --- this script is accompanied by an org-mode file used to literately generate it.   --- ###
+### --- Please see https://github.com/xeijin/propositum for the accompanying README.org  --- ###
 
   cd $psScriptRoot
 
@@ -61,7 +62,7 @@
 
   [Net.ServicePointManager]::SecurityProtocol = "Tls12, Tls11, Tls, Ssl3"
 
-  [environment]::setEnvironmentVariable('SCOOP',($propositum.root),'User')
+  [environment]::setEnvironmentVariable('SCOOP',($propositum.root),'Machine')
 
   iex (new-object net.webclient).downloadstring('https://get.scoop.sh')
 
@@ -86,7 +87,21 @@ scoop install aria2
   # Clone the repo (if not AppVeyor as it is already cloned for us)
   if(-not $buildPlatform -eq "appveyor"){Github-CloneRepo "" $propositumRepo $propositumLocation}
 
-  scoop install cmder autohotkey knime-p rawgraphs-p regfont-p emacs-p texteditoranywhere-p superset-p
+$propositumScoop = @(
+    'cmder',
+    'lunacy',
+    'autohotkey',
+    'miniconda3',
+    'imagemagick',
+    'knime-p',
+    'rawgraphs-p',
+    'regfont-p',
+    'emacs-p',
+    'texteditoranywhere-p',
+    'superset-p'
+)
+
+Invoke-Expression "scoop install $propositumScoop"
 
 Push-Location $propositum.home
 

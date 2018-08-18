@@ -650,6 +650,23 @@ Useful parts of the function that I began writing but later realised I didn't ne
       $arr += $result
   }
 #+END_SRC
+*** COMMENT ~Refresh-PathVariable~: Refresh Path Variable
+
+Refresh path variable to reflect any executables added from a given installation
+
+#+BEGIN_SRC powershell
+  function Refresh-PathVariable {
+      foreach($level in "Machine","User") {
+      [Environment]::GetEnvironmentVariables($level).GetEnumerator() | % {
+          # For Path variables, append the new values, if they're not already in there
+          if($_.Name -match 'Path$') { 
+              $_.Value = ($((Get-Content "Env:$($_.Name)") + ";$($_.Value)") -split ';' | Select -unique) -join ';'
+          }
+          $_
+      } | Set-Content -Path { "Env:$($_.Name)" }
+  }
+  }
+#+END_SRC
 *** TODO ~Path-CheckOrCreate~: Check for path and optionally create dir or symlink
 
 Check if a dir exists, and if specified, create the directory (or symlink)
@@ -743,23 +760,6 @@ Check if a dir exists, and if specified, create the directory (or symlink)
 
   }
 #+END_SRC
-*** ~Refresh-PathVariable~: Refresh Path Variable
-
-Refresh path variable to reflect any executables added from a given installation
-
-#+BEGIN_SRC powershell
-  function Refresh-PathVariable {
-      foreach($level in "Machine","User") {
-      [Environment]::GetEnvironmentVariables($level).GetEnumerator() | % {
-          # For Path variables, append the new values, if they're not already in there
-          if($_.Name -match 'Path$') { 
-              $_.Value = ($((Get-Content "Env:$($_.Name)") + ";$($_.Value)") -split ';' | Select -unique) -join ';'
-          }
-          $_
-      } | Set-Content -Path { "Env:$($_.Name)" }
-  }
-  }
-#+END_SRC
 *** ~GitHub-CloneRepo~: Clone GitHub repo
 
 #+BEGIN_SRC powershell
@@ -769,7 +769,7 @@ Refresh path variable to reflect any executables added from a given installation
   iex "git clone $opts $cloneUrl $cloneDir"
   }
 #+END_SRC
-** Build environment
+** Build envronment
 
 The order of these elements is quite tightly constrained so worth double checking if that is changed...
 
@@ -806,7 +806,6 @@ Figure out if the script is being run from a local machine, from gs machine or o
  #+BEGIN_SRC powershell
    . ./propositum-helper-fns.ps1
  #+END_SRC
-
 **** Import platform-specific variables
 
  We can now import ~vars-platform.csv~ we created earlier into PowerShell
@@ -832,7 +831,6 @@ Figure out if the script is being run from a local machine, from gs machine or o
  #+BEGIN_SRC powershell
    $environmentVars | Select "exec", "var", $buildPlatform | ForEach-Object { if ($_.exec -eq "execute") {New-Variable $_.var (iex $_.$buildPlatform) -Force} else {New-Variable $_.var $_.$buildPlatform -Force}}
  #+END_SRC
-
 **** Import other variables
      
  Let's import the ~vars-other.csv~ into PowerShell
@@ -898,18 +896,11 @@ This stops WebClient and other processes that require a secure connection from c
 [[https://scoop.sh][scoop]] is a bit like [[https://chocolatey.org][chocolatey]] but focused more on open source tools, and importantly, allows you to install apps as self-contained 'units'.
 
 Before installing, lets set the scoop install directory to be within the =\util\bin= folder so that cmder can reference these later on.
-    
+
 #+NAME: set-scoop-env-var
 #+BEGIN_SRC powershell
   [environment]::setEnvironmentVariable('SCOOP',($propositum.root),'Machine')
 #+END_SRC
-
-Testing for AppVeyor env var setting
-
-#+BEGIN_SRC powershell
-$env:SCOOP = $propositum.root
-#+END_SRC
-
 
 Then install scoop (locally)
 
@@ -973,11 +964,37 @@ Bring together the different components & create the final build artifact.
 
 ** Install components
 
-Use scoop to manage the installation of all components, including any dependencies as defined in the component's manifest JSON.
+Use scoop to manage the installation of all components, including any
+dependencies as defined in the component's manifest JSON.
+
+Anything suffixed with a =-p= (for =propositum=) indicates a customised
+manifest, likely doing something fairly specialised.
+
+Use a powershell array to define the components to install (and for better readability)
 
 #+BEGIN_SRC powershell
-  scoop install cmder autohotkey knime-p rawgraphs-p regfont-p emacs-p texteditoranywhere-p superset-p
+$propositumScoop = @(
+    'cmder',
+    'lunacy',
+    'autohotkey',
+    'miniconda3',
+    'imagemagick',
+    'knime-p',
+    'rawgraphs-p',
+    'regfont-p',
+    'emacs-p',
+    'texteditoranywhere-p',
+    'superset-p'
+)
 #+END_SRC
+
+And =Invoke-Expression= to call the scoop installer with the array
+
+#+BEGIN_SRC powershell
+Invoke-Expression "scoop install $propositumScoop"
+#+END_SRC
+
+
 ** Install & setup =doom-emacs=
 
 Save the current path & navigate to the =$propositum.home= folder
