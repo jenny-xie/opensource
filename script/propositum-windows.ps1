@@ -14,8 +14,6 @@ Catch
     $error[0]|format-list -force
 }
 
-cd $PSScriptRoot
-
 # Testing / development mode  
 $testing = $false
 
@@ -24,6 +22,7 @@ elseif ($testing) {"testing"} # For debugging locally
 elseif ($env:computername -match "NDS.*") {"local-gs"} # Check for a GS NDS
 else {"local"}
 
+cd $PSScriptRoot
 if (-not $env:APPVEYOR) {. ./propositum-prepare-init.ps1}
 
 if ($env:APPVEYOR) 

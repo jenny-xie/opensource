@@ -230,16 +230,6 @@ And finally, export the table back to csv
     As some of the variables are dependent on other build environment functions this section has been moved: [[Import functions & variables]]
 * Prepare
 
-** Start in the Script Root
-:PROPERTIES:
-:ID:       772511DD-7D6F-486F-9F2C-8BC128CDA391
-:END:
-
-Make sure we start in the script root to avoid issues with executing in the wrong directory & to ensure we can access any scripts or data structures that we need to import.
-
-#+BEGIN_SRC powershell
-  cd $PSScriptRoot
-#+END_SRC
 ** Set mode & determine build platform
 :PROPERTIES:
 :ID:       18FAC438-1875-4EE9-96F2-39EB5D0C1B6E
@@ -267,6 +257,7 @@ This is because we import the prepare script as an AppVeyor init script, to get
 around issues with AppVeyor initializing environment variables in the build script.
 
 #+BEGIN_SRC powershell
+cd $PSScriptRoot
 if (-not $env:APPVEYOR) {. ./propositum-prepare-init.ps1}
 #+END_SRC
 ** Run AppVeyor specific commands
@@ -315,6 +306,16 @@ Close the =if= script block.
 :END:
 Ensure the necessary tooling is in place & prepare the build environment.
 
+*** Start in the Script Root
+:PROPERTIES:
+:ID:       772511DD-7D6F-486F-9F2C-8BC128CDA391
+:END:
+
+Make sure we start in the script root to avoid issues with executing in the wrong directory & to ensure we can access any scripts or data structures that we need to import.
+
+#+BEGIN_SRC powershell
+  cd $PSScriptRoot
+#+END_SRC
 *** Console formatting
 :PROPERTIES:
 :ID:       0372ECBA-729F-4B3D-961D-661B18CAC4C5

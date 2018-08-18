@@ -1,3 +1,5 @@
+cd $PSScriptRoot
+
 $Host.UI.RawUI.BackgroundColor = ($bckgrnd = 'Black')
 
 . ./propositum-helper-fns.ps1
