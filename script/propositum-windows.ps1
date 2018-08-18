@@ -37,8 +37,6 @@ scoop bucket add extras
 
 scoop bucket add propositum 'https://github.com/xeijin/propositum-bucket.git'
 
-scoop install aria2
-
 # If git isn't installed, install it
 if (-not (Get-Command 7z.exe)) {scoop install 7zip --global}
 

@@ -1031,7 +1031,7 @@ Add the scoop =propositum= bucket which contains the JSON manifest files for ins
 #+BEGIN_SRC powershell
   scoop bucket add propositum 'https://github.com/xeijin/propositum-bucket.git'
 #+END_SRC
-*** Add =aria2= for faster downloads
+*** COMMENT Add =aria2= for faster downloads
 :PROPERTIES:
 :ID:       6EAA36AD-4CE2-4520-ABDA-DF591D7873A8
 :END:
