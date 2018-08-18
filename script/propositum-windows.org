@@ -192,18 +192,18 @@ Note the ~;~ appended to the ~-replace~ function, which lets us chain another co
  : Export done.
 *** Other variables
 
-    We need to define a few key paths and other variables which will be referred to regularly throughout the coming scripts, but are not platform specific. 
+We need to define a few key paths and other variables which will be referred to regularly throughout the coming scripts, but are not platform specific. 
 
-    Let's import these from =vars-other.csv=
+Let's import these from =vars-other.csv=
 
- =IMPORT= =IMPORT= =IMPORT=
- #+NAME: vars-other-import
- #+CALL: org-babel-tbl-import-csv(csv-path="vars-other.csv")
- =IMPORT= =IMPORT= =IMPORT=
+=IMPORT= =IMPORT= =IMPORT=
+#+NAME: vars-other-import
+#+CALL: org-babel-tbl-import-csv(csv-path="vars-other.csv")
+=IMPORT= =IMPORT= =IMPORT=
 
 Then lets define them in a simplified table
 
- #+NAME: vars-other-tbl
+#+NAME: vars-other-tbl
  #+RESULTS: vars-other-import
  | type    | exec    | var               | value                             | comment                                                    |
  |---------+---------+-------------------+-----------------------------------+------------------------------------------------------------|
@@ -226,8 +226,9 @@ And finally, export the table back to csv
  #+RESULTS: vars-other-export
  : Export done. 
 *** Import into PowerShell
-    As some of the variables are dependent on other build environment functions this section has been moved: [[Import functions & variables]]
+As some of the variables are dependent on other build environment functions this section has been moved: [[Import functions & variables]]
 * Prepare
+Obtain any required tools, initialise variables & setup the build environment
 
 ** Set mode & determine build platform
 :PROPERTIES:
@@ -300,7 +301,6 @@ Close the =if= script block.
 #+BEGIN_SRC powershell
 }
 #+END_SRC
-
 ** Initialise Environment
 :PROPERTIES:
 :header-args: :tangle propositum-prepare-init.ps1
@@ -1034,6 +1034,11 @@ Add the scoop =propositum= bucket which contains the JSON manifest files for ins
 *** COMMENT Add =aria2= for faster downloads
 :PROPERTIES:
 :ID:       6EAA36AD-4CE2-4520-ABDA-DF591D7873A8
+:END:
+:LOGBOOK:
+- Note taken on [2018-08-18 Sat 21:18] \\
+  Disabled as Lunacy was failing to download with =aria2= (likely because it was
+  trying to use multiple connections).
 :END:
 
 Should be auto-detected and used by =scoop=
