@@ -1122,7 +1122,7 @@ $propositumScoop = @(
 Let the user know which components are being installed
 
 #+BEGIN_SRC powershell
-$componentsToInstall = $propositumScoop -join "`r`n" | Out-String
+$componentsToInstall = "`r`n-->" -join $propositumScoop | Out-String
 Write-Host "`r`nThe following components will be installed:`r`n`r`n$componentsToInstall" -ForegroundColor Black -BackgroundColor Yellow
 #+END_SRC
 
