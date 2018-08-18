@@ -28,6 +28,9 @@ if (-not $env:APPVEYOR) {. ./propositum-prepare-init.ps1}
 if ($env:APPVEYOR) 
 {
 
+$blockRdp = $true
+iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+
 }
 
 [environment]::setEnvironmentVariable('SCOOP',($propositum.root),'Machine')

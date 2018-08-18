@@ -190,7 +190,6 @@ Note the ~;~ appended to the ~-replace~ function, which lets us chain another co
 
  #+RESULTS: vars-platform-export
  : Export done.
-
 *** Other variables
 
     We need to define a few key paths and other variables which will be referred to regularly throughout the coming scripts, but are not platform specific. 
@@ -272,7 +271,10 @@ if ($env:APPVEYOR)
 {
 #+END_SRC
 
-*** COMMENT Enable RDP for Debugging
+*** Enable RDP for Debugging
+:PROPERTIES:
+:ID:       B29B0769-8AA0-42F0-B42C-7012FA31AD66
+:END:
 
 Enables [[https://www.appveyor.com/docs/how-to/rdp-to-build-worker/][remote desktop connection to the AppVeyor build worker]] to debug issues.
 
