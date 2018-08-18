@@ -1186,11 +1186,13 @@ Create the 7zip'd build artifact for later deployment to GitHub - this is the fi
 We only need to do this if running on AppVeyor.
 
 #+BEGIN_SRC powershell
-  if ($buildPlatform -eq "appveyor")
-  {
-      echo "Compressing files into release artifact..."
-      iex "7z a -t7z -m0=lzma2:d=1024m -mx=9 -aoa -mfb=64 -md=32m -ms=on C:\propositum\propositum.7z C:\propositum"  # Additional options to increase compression ratio
-  }
+if ($buildPlatform -eq "appveyor")
+{
+    echo "Compressing files into release artifact..."
+
+    # iex "7z a -t7z -m0=lzma2:d=1024m -mx=9 -aoa -mfb=64 -md=32m -ms=on C:\propositum\propositum.7z C:\propositum"  # Additional options to increase compression ratio
+    iex 7z a -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on propositum.7z C:\propositum
+}
 #+END_SRC
 * Deploy
 
