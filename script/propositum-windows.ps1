@@ -83,7 +83,7 @@ Throw "Break for Debug"
 
     $createdDirs = Path-CheckOrCreate -Paths $propositum.values -CreateDir
 
-    cd $propositum.root
+    cd $env:propositum.root
 
   [Net.ServicePointManager]::SecurityProtocol = "Tls12, Tls11, Tls, Ssl3"
 
@@ -122,11 +122,11 @@ Write-Host "`r`nThe following components will be installed:`r`n`r`n=> $component
 
 Invoke-Expression "scoop install $propositumScoop"
 
-Push-Location $propositum.home
+Push-Location $env:propositum.home
 
 git clone https://github.com/hlissner/doom-emacs .emacs.d; cd .emacs.d; git checkout develop
 
-$doomBin = $propositum.home + "\.emacs.d\bin"
+$doomBin = $env:propositum.home + "\.emacs.d\bin"
 $env:Path = $env:Path + ";" + $doomBin
 
 Refresh-PathVariable
