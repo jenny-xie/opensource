@@ -77,7 +77,7 @@ ForEach ($var in $otherVars) {
 
   if ($testing -and $propositumLocation) {Remove-Item ($propositumLocation+"\*") -Recurse -Force}
 
-    subst $drv $propositumLocation
+    subst $env:propositumDrv $env:propositumLocation
 
     $createdDirs = Path-CheckOrCreate -Paths $propositum.values -CreateDir
 
@@ -98,7 +98,7 @@ ForEach ($var in $otherVars) {
   }
 
   # Clone the repo (if not AppVeyor as it is already cloned for us)
-  if(-not $buildPlatform -eq "appveyor"){Github-CloneRepo "" $propositumRepo $propositumLocation}
+  if(-not $buildPlatform -eq "appveyor"){Github-CloneRepo "" $propositumRepo $env:propositumLocation}
 
 $propositumScoop = @(
     'cmder',

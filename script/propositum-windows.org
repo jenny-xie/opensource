@@ -229,15 +229,15 @@ Then lets define them in a simplified table
 
 #+NAME: vars-other-tbl
  #+RESULTS: vars-other-import
- | type    | exec    | var             | value            | comment                                                        |
- |---------+---------+-----------------+------------------+----------------------------------------------------------------|
- | hashtbl | execute | propositum      | @{}              | Initialises the hash table                                     |
- | path    | execute | propositum.root | $drv+"\"         | Propositum root folder                                         |
- | path    | execute | propositum.apps | $drv+"\apps"     | Propositum apps folder (scoop root)                            |
- | path    | execute | propositum.home | $drv+"\home"     | Propositum home folder (dotfiles & projects)                   |
- | path    | execute | propositum.font | $drv+"\fonts"    | Propositum fonts folder                                        |
- | env-var | execute | env:HOME        | $propositum.home | Sets env-var home to propositum home                           |
- | env-var | execute | env:SCOOP       | $propositum.root | Sets scoop home to the propositum root (creates 'apps' folder) |
+ | type    | exec    | var             | value                       | comment                                                        |
+ |---------+---------+-----------------+-----------------------------+----------------------------------------------------------------|
+ | hashtbl | execute | propositum      | @{}                         | Initialises the hash table                                     |
+ | path    | execute | propositum.root | $env:propositumDrv+"\"      | Propositum root folder                                         |
+ | path    | execute | propositum.apps | $env:propositumDrv+"\apps"  | Propositum apps folder (scoop root)                            |
+ | path    | execute | propositum.home | $env:propositumDrv+"\home"  | Propositum home folder (dotfiles & projects)                   |
+ | path    | execute | propositum.font | $env:propositumDrv+"\fonts" | Propositum fonts folder                                        |
+ | env-var | execute | env:HOME        | $propositum.home            | Sets env-var home to propositum home                           |
+ | env-var | execute | env:SCOOP       | $propositum.root            | Sets scoop home to the propositum root (creates 'apps' folder) |
 
 And finally, export the table back to csv
 
@@ -978,7 +978,7 @@ Note there's currently a powershell bug that prevents this from working if any s
 
  #+NAME: map-propositum-drv
   #+BEGIN_SRC powershell
-    subst $drv $propositumLocation
+    subst $env:propositumDrv $env:propositumLocation
   #+END_SRC
 
   Now let's use the hash table we defined earlier in [[Other variables]], and loop through the paths; creating the directories where they don't already exist
@@ -1091,7 +1091,7 @@ Required to clone GitHub repos
   }
 
   # Clone the repo (if not AppVeyor as it is already cloned for us)
-  if(-not $buildPlatform -eq "appveyor"){Github-CloneRepo "" $propositumRepo $propositumLocation}
+  if(-not $buildPlatform -eq "appveyor"){Github-CloneRepo "" $propositumRepo $env:propositumLocation}
 #+END_SRC
 * Build 
 
@@ -1261,6 +1261,6 @@ iex "scoop cleanup **"; iex "scoop reset **"
 For completeness, here is a script to remove the reigstry key added for mapping
 the propositum drive on startup
 
-#+BEGIN_SRC powershell :tangle propositum-remove-propositum-drv-startup.ps1
+#+BEGIN_SRC powershell :tangle propositum-remove-drv-startup.ps1
 reg delete HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run /f /v "Propositum" # Removes the registry entry to map propositum drive on startup
 #+END_SRC
