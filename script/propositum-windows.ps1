@@ -75,11 +75,11 @@ ForEach ($var in $otherVars) {
     }
 }
 
-$env:propositum
+Write-Host $env:propositum
  
-$propositum.home
+Write-Host $propositum.home
 
-$env:home
+Write-Host $env:home
 
 
 Set-Item -Verbose -Path env:HOME -Value $propositum.home
