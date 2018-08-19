@@ -894,15 +894,15 @@ ForEach ($var in $platformVars | Select "var", $buildPlatform, "exec") { # Narro
     if ($var.var -like "env:*") # If variable name contains 'env:'
     {
         if ($var.exec -eq "execute") { # If we need to 'execute'
-            Set-Item -Path $var.var -Value (iex $var.$buildPlatform)} 
+            Set-Item -Verbose -Path $var.var -Value (iex $var.$buildPlatform)} 
         else { # Else just assign
-            Set-Item -Path $var.var -Value $var.$buildPlatform}
+            Set-Item -Verbose -Path $var.var -Value $var.$buildPlatform}
     }
     else { # Logic for non-environment variables
         if ($var.exec -eq "execute") {
-            New-Variable $var.var (iex $var.$buildPlatform) -Force} 
+            New-Variable -Verbose $var.var (iex $var.$buildPlatform) -Force} 
         else {
-            New-Variable $var.var $var.$buildPlatform -Force}
+            New-Variable -Verbose $var.var $var.$buildPlatform -Force}
     }
 }
  #+END_SRC
@@ -941,15 +941,15 @@ ForEach ($var in $otherVars) {
     if ($var.var -like "env:*") # If variable name contains 'env:'
     {
         if ($var.exec -eq "execute") { # If we need to 'execute'
-            Set-Item -Path $var.var -Value (iex $var.value)} 
+            Set-Item -Verbose -Path $var.var -Value (iex $var.value)} 
         else { # Else just assign
             Set-Item -Verbose -Path $var.var -Value $var.value}
     }
     else { # Logic for non-environment variables
         if ($var.exec -eq "execute") {
-            New-Variable $var.var (iex $var.value) -Force} 
+            New-Variable -Verbose $var.var (iex $var.value) -Force} 
         else {
-            New-Variable $var.var $var.value -Force}
+            New-Variable -Verbose $var.var $var.value -Force}
     }
 }
 #+END_SRC 
