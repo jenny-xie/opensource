@@ -229,15 +229,15 @@ Then lets define them in a simplified table
 
 #+NAME: vars-other-tbl
  #+RESULTS: vars-other-import
- | type    | exec    | var             | value                       | comment                                                        |
- |---------+---------+-----------------+-----------------------------+----------------------------------------------------------------|
- | hashtbl | execute | propositum      | @{}                         | Initialises the hash table                                     |
- | path    | execute | propositum.root | $env:propositumDrv+"\"      | Propositum root folder                                         |
- | path    | execute | propositum.apps | $env:propositumDrv+"\apps"  | Propositum apps folder (scoop root)                            |
- | path    | execute | propositum.home | $env:propositumDrv+"\home"  | Propositum home folder (dotfiles & projects)                   |
- | path    | execute | propositum.font | $env:propositumDrv+"\fonts" | Propositum fonts folder                                        |
- | env-var | assign  | env:HOME        | $propositum.home            | Sets env-var home to propositum home                           |
- | env-var | assign  | env:SCOOP       | $propositum.root            | Sets scoop home to the propositum root (creates 'apps' folder) |
+ | type    | exec    | var             | value                      | comment                                                        |
+ |---------+---------+-----------------+----------------------------+----------------------------------------------------------------|
+ | hshtbl  | execute | propositum      | @{}                        | Initialises the hash table                                     |
+ | hshitem | execute | propositum.root | $env:propositumDrv+"\"     | Propositum root folder                                         |
+ | hshitem | execute | propositum.apps | $env:propositumDrv+"\apps" | Propositum apps folder (scoop root)                            |
+ | hshitem | execute | propositum.home | $env:propositumDrv+"\home" | Propositum home folder (dotfiles & projects)                   |
+ | hshitem | execute | propositum.font | $env:propositumDrv+"\font" | Propositum fonts folder                                        |
+ | env-var | execute | env:HOME        | $propositum.home           | Sets env-var home to propositum home                           |
+ | env-var | execute | env:SCOOP       | $propositum.root           | Sets scoop home to the propositum root (creates 'apps' folder) |
 
 And finally, export the table back to csv
 
@@ -889,13 +889,13 @@ Check if a dir exists, and if specified, create the directory (or symlink)
 
 #+NAME: set-platform-vars
  #+BEGIN_SRC powershell
-ForEach ($var in $platformVars | Select "var", $buildPlatform, "exec") { # Narrow to required columns & $buildPlatform
+ForEach ($var in $platformVars | Select 'var', $buildPlatform, 'exec') { # Narrow to required columns & $buildPlatform
     if ($var.var -like "env:*") { # If variable name contains 'env:'
-        if ($var.exec -eq "execute") {Set-Item -Verbose -Path $var.var -Value (iex $var.$buildPlatform)}  # If we need to 'execute'
+        if ($var.exec -eq 'execute') {Set-Item -Verbose -Path $var.var -Value (iex $var.$buildPlatform)}  # If we need to 'execute'
         else {Set-Item -Verbose -Path $var.var -Value $var.$buildPlatform} # Else just assign
     }
     else { # Logic for non-environment variables
-        if ($var.exec -eq "execute") {New-Variable -Verbose $var.var (iex $var.$buildPlatform) -Force}
+        if ($var.exec -eq 'execute') {New-Variable -Verbose $var.var (iex $var.$buildPlatform) -Force}
         else {New-Variable -Verbose $var.var $var.$buildPlatform -Force}
     }
 }
@@ -922,17 +922,23 @@ ForEach ($var in $platformVars | Select "var", $buildPlatform, "exec") { # Narro
 
 
 =$env:= or environment variables are set in a different way to regular
-variables, therefore we need some additional logic to handle those:
+variable, therefore we need some additional logic to handle those.
+
+*Note:* The ~type~ column here is important, 
 
 #+NAME: set-other-vars
 #+BEGIN_SRC powershell
 ForEach ($var in $otherVars) {
-    if ($var.var -like "env:*") { # If variable name contains 'env:'
+    if (($var.var -like "env:*")) -or ($var.type -eq 'env-var') { # If variable name contains 'env:', or is type 'env-var'
         if ($var.exec -eq "execute") {Set-Item -Verbose -Path $var.var -Value (iex $var.value)} # If we need to 'execute'
         else {Set-Item -Verbose -Path $var.var -Value $var.value} # Else just assign
     }
-    else { # Logic for non-environment variables
-        if ($var.exec -eq "execute") {New-Variable -Verbose $var.var (iex $var.value) -Force} 
+    elseif ($var.type -eq 'hsh-itm') { # Logic for hash table items
+        $hsh = $var.var -split '.' # Split the hash table item into a two-member array (note all hash table items must follow a hashtbl.keyname format)
+        if ($var.exec -eq 'execute') {$hsh[0].add($hsh[1], (iex $var.value)}  # Add the key-value entry top the hash table: The first array entry is the hash table name, the second the name of the key
+        else {$hsh[0].add($hsh[1], $var.value}  # Same as above, but assign rather than invoke/execute the $var.value
+    else { # Logic for everything else (i.e. a regular variable)
+        if ($var.exec -eq 'execute') {New-Variable -Verbose $var.var (iex $var.value) -Force} 
         else {New-Variable -Verbose $var.var $var.value -Force}
     }
 }

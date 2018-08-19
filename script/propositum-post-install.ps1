@@ -11,13 +11,13 @@
        Throw "Check the CSV file actually exists and is formatted correctly before proceeding."
        $error[0]|format-list -force
    }
-ForEach ($var in $platformVars | Select "var", $buildPlatform, "exec") { # Narrow to required columns & $buildPlatform
+ForEach ($var in $platformVars | Select 'var', $buildPlatform, 'exec') { # Narrow to required columns & $buildPlatform
     if ($var.var -like "env:*") { # If variable name contains 'env:'
-        if ($var.exec -eq "execute") {Set-Item -Verbose -Path $var.var -Value (iex $var.$buildPlatform)}  # If we need to 'execute'
+        if ($var.exec -eq 'execute') {Set-Item -Verbose -Path $var.var -Value (iex $var.$buildPlatform)}  # If we need to 'execute'
         else {Set-Item -Verbose -Path $var.var -Value $var.$buildPlatform} # Else just assign
     }
     else { # Logic for non-environment variables
-        if ($var.exec -eq "execute") {New-Variable -Verbose $var.var (iex $var.$buildPlatform) -Force}
+        if ($var.exec -eq 'execute') {New-Variable -Verbose $var.var (iex $var.$buildPlatform) -Force}
         else {New-Variable -Verbose $var.var $var.$buildPlatform -Force}
     }
 }
@@ -31,12 +31,16 @@ ForEach ($var in $platformVars | Select "var", $buildPlatform, "exec") { # Narro
        $error[0]|format-list -force
    }
 ForEach ($var in $otherVars) {
-    if ($var.var -like "env:*") { # If variable name contains 'env:'
+    if (($var.var -like "env:*")) -or ($var.type -eq 'env-var') { # If variable name contains 'env:', or is type 'env-var'
         if ($var.exec -eq "execute") {Set-Item -Verbose -Path $var.var -Value (iex $var.value)} # If we need to 'execute'
         else {Set-Item -Verbose -Path $var.var -Value $var.value} # Else just assign
     }
-    else { # Logic for non-environment variables
-        if ($var.exec -eq "execute") {New-Variable -Verbose $var.var (iex $var.value) -Force} 
+    elseif ($var.type -eq 'hsh-itm') { # Logic for hash table items
+        $hsh = $var.var -split '.' # Split the hash table item into a two-member array (note all hash table items must follow a hashtbl.keyname format)
+        if ($var.exec -eq 'execute') {$hsh[0].add($hsh[1], (iex $var.value)}  # Add the key-value entry top the hash table: The first array entry is the hash table name, the second the name of the key
+        else {$hsh[0].add($hsh[1], $var.value}  # Same as above, but assign rather than invoke/execute the $var.value
+    else { # Logic for everything else (i.e. a regular variable)
+        if ($var.exec -eq 'execute') {New-Variable -Verbose $var.var (iex $var.value) -Force} 
         else {New-Variable -Verbose $var.var $var.value -Force}
     }
 }
