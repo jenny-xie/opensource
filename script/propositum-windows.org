@@ -249,21 +249,7 @@ Figure out if the script is being run from a local machine, from gs machine or o
   elseif ($env:computername -match "NDS.*") {"local-gs"} # Check for a GS NDS
   else {"local"}
 #+END_SRC
-
-If running the script somewhere other than AppVeyor, run the [[Initialise Environment]] section.
-
-This is because we import the prepare script as an AppVeyor init script, to get
-around issues with AppVeyor initializing environment variables in the build script.
-
-#+BEGIN_SRC powershell
-cd $PSScriptRoot
-if (-not $env:APPVEYOR) {. ./propositum-prepare-init.ps1}
-#+END_SRC
 ** Initialise Environment
-:PROPERTIES:
-:header-args: :tangle propositum-prepare-init.ps1
-:ID:       917FED7C-58C3-400B-ADFC-30A8550AB92E
-:END:
 Ensure the necessary tooling is in place & prepare the build environment.
 #+BEGIN_SRC powershell
 $buildPlatform
@@ -1060,6 +1046,7 @@ manifest, likely doing something fairly specialised.
 
 Use a powershell array to define the components to install (and for better readability)
 
+#+NAME: propositum-components-list
 #+BEGIN_SRC powershell
 $propositumScoop = @(
     'cmder',
@@ -1197,7 +1184,8 @@ This section has a =:PROPERTIES:= section that tangles to =propositum-post-insta
 <<collect-other-vars>>
 <<set-other-vars>>
 <<set-scoop-env-var>>
-
+<<propositum-components-list>> 
+$propositumScoop | % { iex "scoop reset $_" }
 #+END_SRC
 
 - [ ] Should we also be adding an include for the shims here?
