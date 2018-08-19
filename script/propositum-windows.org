@@ -4,7 +4,9 @@
 
 [[https://img.shields.io/github/tag/xeijin/propositum.svg?label=release&style=flat-square]] [[https://ci.appveyor.com/project/xeijin/propositum][https://img.shields.io/appveyor/ci/xeijin/propositum.svg?style=flat-square&logo=appveyor&label=build]] [[https://img.shields.io/badge/license-GPLv3-red.svg?style=flat-square]]
 
-This script can be used on any Windows PC, or in conjunction with AppVeyor to install propositum on the local machine, or create a new GitHub release respectively.
+A collection of free and open-source, portable tools to facilitate task & information management, automation, data manipulation and analytics.
+
+_*Installation & Usage:*_ /See the *[[https://github.com/xeijin/propositum/releases][Releases]]* for the latest binary distribution./
 
 #+BEGIN_SRC powershell :exports code
 ### --- NOTE: If you are reading from the PS1 script you will find documentation sparse, --- ###
@@ -1255,7 +1257,15 @@ This section has a =:PROPERTIES:= section that tangles to =propositum-post-insta
 <<set-other-vars>>
 <<set-scoop-env-var>>
 <<map-propositum-drv>>
+reg add HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run /f /v "Propositum" /d "subst $propositumDrv $propositumLocation" # Add registry entry to map on startup
 <<propositum-components-list>> 
 <<doom-bin-to-path>>
 iex "scoop cleanup **"; iex "scoop reset **"
+#+END_SRC
+
+For completeness, here is a script to remove the reigstry key added for mapping
+the propositum drive on startup
+
+#+BEGIN_SRC powershell :tangle propositum-remove-propositum-drv-startup.ps1
+reg delete HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run /f /v "Propositum" # Removes the registry entry to map propositum drive on startup
 #+END_SRC
