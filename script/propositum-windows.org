@@ -236,8 +236,8 @@ Then lets define them in a simplified table
  | path    | execute | propositum.apps | $env:propositumDrv+"\apps"  | Propositum apps folder (scoop root)                            |
  | path    | execute | propositum.home | $env:propositumDrv+"\home"  | Propositum home folder (dotfiles & projects)                   |
  | path    | execute | propositum.font | $env:propositumDrv+"\fonts" | Propositum fonts folder                                        |
- | env-var | execute | env:HOME        | $propositum.home            | Sets env-var home to propositum home                           |
- | env-var | execute | env:SCOOP       | $propositum.root            | Sets scoop home to the propositum root (creates 'apps' folder) |
+ | env-var | assign  | env:HOME        | $propositum.home            | Sets env-var home to propositum home                           |
+ | env-var | assign  | env:SCOOP       | $propositum.root            | Sets scoop home to the propositum root (creates 'apps' folder) |
 
 And finally, export the table back to csv
 
@@ -890,19 +890,13 @@ Check if a dir exists, and if specified, create the directory (or symlink)
 #+NAME: set-platform-vars
  #+BEGIN_SRC powershell
 ForEach ($var in $platformVars | Select "var", $buildPlatform, "exec") { # Narrow to required columns & $buildPlatform
-
-    if ($var.var -like "env:*") # If variable name contains 'env:'
-    {
-        if ($var.exec -eq "execute") { # If we need to 'execute'
-            Set-Item -Verbose -Path $var.var -Value (iex $var.$buildPlatform)} 
-        else { # Else just assign
-            Set-Item -Verbose -Path $var.var -Value $var.$buildPlatform}
+    if ($var.var -like "env:*") { # If variable name contains 'env:'
+        if ($var.exec -eq "execute") {Set-Item -Verbose -Path $var.var -Value (iex $var.$buildPlatform)}  # If we need to 'execute'
+        else {Set-Item -Verbose -Path $var.var -Value $var.$buildPlatform} # Else just assign
     }
-    else { # Logic for non-environment variables
-        if ($var.exec -eq "execute") {
-            New-Variable -Verbose $var.var (iex $var.$buildPlatform) -Force} 
-        else {
-            New-Variable -Verbose $var.var $var.$buildPlatform -Force}
+    else # Logic for non-environment variables
+        if ($var.exec -eq "execute") {New-Variable -Verbose $var.var (iex $var.$buildPlatform) -Force}
+        else {New-Variable -Verbose $var.var $var.$buildPlatform -Force}
     }
 }
  #+END_SRC
@@ -933,19 +927,13 @@ variables, therefore we need some additional logic to handle those:
 #+NAME: set-other-vars
 #+BEGIN_SRC powershell
 ForEach ($var in $otherVars) {
-
-    if ($var.var -like "env:*") # If variable name contains 'env:'
-    {
-        if ($var.exec -eq "execute") { # If we need to 'execute'
-            Set-Item -Verbose -Path $var.var -Value (iex $var.value)} 
-        else { # Else just assign
-            Set-Item -Verbose -Path $var.var -Value $var.value}
+    if ($var.var -like "env:*") { # If variable name contains 'env:'
+        if ($var.exec -eq "execute") {Set-Item -Verbose -Path $var.var -Value (iex $var.value)} # If we need to 'execute'
+        else {Set-Item -Verbose -Path $var.var -Value $var.value} # Else just assign
     }
     else { # Logic for non-environment variables
-        if ($var.exec -eq "execute") {
-            New-Variable -Verbose $var.var (iex $var.value) -Force} 
-        else {
-            New-Variable -Verbose $var.var $var.value -Force}
+        if ($var.exec -eq "execute") {New-Variable -Verbose $var.var (iex $var.value) -Force} 
+        else {New-Variable -Verbose $var.var $var.value -Force}
     }
 }
 #+END_SRC 
@@ -953,7 +941,7 @@ ForEach ($var in $otherVars) {
 **** TESTING
 
 #+BEGIN_SRC powershell
-Write-Host $env:propositum
+Write-Host $propositum
  
 Write-Host $propositum.home
 

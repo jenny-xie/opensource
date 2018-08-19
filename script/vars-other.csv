@@ -4,5 +4,5 @@ path,execute,propositum.root,"$env:propositumDrv+""\""",Propositum root folder
 path,execute,propositum.apps,"$env:propositumDrv+""\apps""",Propositum apps folder (scoop root)
 path,execute,propositum.home,"$env:propositumDrv+""\home""",Propositum home folder (dotfiles & projects)
 path,execute,propositum.font,"$env:propositumDrv+""\fonts""",Propositum fonts folder
-env-var,execute,env:HOME,$propositum.home,Sets env-var home to propositum home
-env-var,execute,env:SCOOP,$propositum.root,Sets scoop home to the propositum root (creates 'apps' folder)
+env-var,assign,env:HOME,$propositum.home,Sets env-var home to propositum home
+env-var,assign,env:SCOOP,$propositum.root,Sets scoop home to the propositum root (creates 'apps' folder)
