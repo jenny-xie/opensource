@@ -253,8 +253,7 @@ Figure out if the script is being run from a local machine, from gs machine or o
 :ID:       84C36059-E29F-439D-AF82-732D3146F219
 :END:
 Ensure the necessary tooling is in place & prepare the build environment.
-#+BEGIN_SRC powershell
-#+END_SRC
+
 *** Start in the Script Root
 :PROPERTIES:
 :ID:       772511DD-7D6F-486F-9F2C-8BC128CDA391
@@ -866,6 +865,7 @@ Check if a dir exists, and if specified, create the directory (or symlink)
    $environmentVars | Select "exec", "var", $buildPlatform | ForEach-Object { if ($_.exec -eq "execute") {New-Variable $_.var (iex $_.$buildPlatform) -Force} else {New-Variable $_.var $_.$buildPlatform -Force}}
  #+END_SRC
 **** Import other variables
+
 :PROPERTIES:
 :ID:       FE6574FA-0768-4A9E-826A-60EA8F8ECBD7
 :END:
@@ -891,6 +891,17 @@ A simplified version of the per-platform command is used to execute / assign as 
  #+BEGIN_SRC powershell
    $otherVars | Select "exec", "var", "value" | ForEach-Object { if ($_.exec -eq "execute") {New-Variable $_.var (iex $_.value) -Force} else {New-Variable $_.var $_.value -Force}}
  #+END_SRC
+ 
+*** Vars Test 
+
+#+BEGIN_SRC powershell
+Write-Host "Var Test" -BackgroundColor Red
+$env:HOME
+$env:SCOOP
+$env:HOME = "$propositum.home"
+$env:SCOOP = "$propositum.root"
+#+END_SRC
+ 
 *** Clear testing directory
 :PROPERTIES:
 :ID:       64FA9CC2-4B0E-436D-9EC4-E7E6B2BD50B7
