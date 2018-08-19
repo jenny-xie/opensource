@@ -52,7 +52,7 @@ ForEach ($var in $otherVars) {
             New-Variable $var.var $var.value -Force}
     }
 }
-  #[environment]::setEnvironmentVariable('SCOOP',($propositum.root),'User')
+
     subst $drv $propositumLocation
 reg add HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run /f /v "Propositum" /d "subst $propositumDrv $propositumLocation" # Add registry entry to map on startup
 $propositumScoop = @(

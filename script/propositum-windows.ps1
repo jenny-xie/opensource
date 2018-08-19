@@ -85,19 +85,11 @@ ForEach ($var in $otherVars) {
 
   [Net.ServicePointManager]::SecurityProtocol = "Tls12, Tls11, Tls, Ssl3"
 
-  #[environment]::setEnvironmentVariable('SCOOP',($propositum.root),'User')
-
   iex (new-object net.webclient).downloadstring('https://get.scoop.sh')
 
   scoop bucket add extras
 
   scoop bucket add propositum 'https://github.com/xeijin/propositum-bucket.git'
-
-  # If git isn't installed, install it
-  if (-not (Get-Command 7z.exe)) {scoop install 7zip --global}
-
-  # If git isn't installed, install it
-  if (-not (Get-Command git.exe)) {scoop install git --global}
 
   # Hash table with necessary details for the clone command
   $propositumRepo = [ordered]@{

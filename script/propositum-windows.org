@@ -955,19 +955,6 @@ ForEach ($var in $otherVars) {
 #+END_SRC 
  
  
-*** COMMENT Vars  Test 
-:PROPERTIES:
-:ID:       AF0BBBC9-6359-4E38-9F82-12DE41B0334F
-:END:
-
-#+BEGIN_SRC powershell
-Write-Host "Var Test" -BackgroundColor Red
-$env:HOME
-$env:SCOOP
-$env:HOME = $propositum.home
-$env:SCOOP = $propositum.root
-#+END_SRC
- 
 *** Clear testing directory
 :PROPERTIES:
 :ID:       64FA9CC2-4B0E-436D-9EC4-E7E6B2BD50B7
@@ -1020,16 +1007,12 @@ This stops WebClient and other processes that require a secure connection from c
 :ID:       AC6E8709-BED1-4C65-9290-1D631C0CA7B0
 :END:
     
-[[https://scoop.sh][scoop]] is a bit like [[https://chocolatey.org][chocolatey]] but focused more on open source tools, and importantly, allows you to install apps as self-contained 'units'.
+[[https://scoop.sh][scoop]] is a bit like [[https://chocolatey.org][chocolatey]] but focused more on open source tools, and
+importantly, allows you to install apps as self-contained 'units', as well as
+creating handy manifests for your own apps / customm installs.
 
-Before installing, lets set the scoop install directory to be within the =\util\bin= folder so that cmder can reference these later on.
-
-#+NAME: set-scoop-env-var
-#+BEGIN_SRC powershell
-  #[environment]::setEnvironmentVariable('SCOOP',($propositum.root),'User')
-#+END_SRC
-
-Then install scoop (locally)
+We already set the =$env:SCOOP= earlier in [[Other Variables]] so we can go ahead
+and install scoop to that path
 
 #+BEGIN_SRC powershell
   iex (new-object net.webclient).downloadstring('https://get.scoop.sh')
@@ -1039,7 +1022,7 @@ Then install scoop (locally)
 :ID:       E9337FC2-A9DB-4F26-8108-C6C44CC66F85
 :END:
 
-Add the =extras= bucket which contains some additional open source applications outside of the scope of the =main= scoop repo
+Add the =extras= bucket which contains some additional free or open source applications outside of the scope of the =main= scoop repo
 
 #+BEGIN_SRC powershell
   scoop bucket add extras
@@ -1064,12 +1047,14 @@ Add the scoop =propositum= bucket which contains the JSON manifest files for ins
   trying to use multiple connections).
 :END:
 
+*commented out as aria2 currently breaking some downloads due to multiple connections*
+
 Should be auto-detected and used by =scoop=
 
 #+BEGIN_SRC powershell
 scoop install aria2
 #+END_SRC
-*** Ensure =7zip= is available
+*** COMMENT Ensure =7zip= is available
 :PROPERTIES:
 :ID:       737F5333-F4D2-4C85-9051-CB54BAF6F1C2
 :END:
@@ -1080,7 +1065,7 @@ Required by scoop to extract files, and also required by git.
   # If git isn't installed, install it
   if (-not (Get-Command 7z.exe)) {scoop install 7zip --global}
 #+END_SRC
-*** Ensure =git= is available
+*** COMMENT Ensure =git= is available
 :PROPERTIES:
 :ID:       ABF852A2-5F36-4892-9804-28614F5ED99F
 :END:
