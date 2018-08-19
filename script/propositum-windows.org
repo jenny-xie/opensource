@@ -231,11 +231,11 @@ Then lets define them in a simplified table
  #+RESULTS: vars-other-import
  | type    | exec    | var                  | value                       | comment                                                        |
  |---------+---------+----------------------+-----------------------------+----------------------------------------------------------------|
- | hashtbl | execute | $env:propositum      | @{}                         | Initialises the hash table                                     |
- | path    | execute | $env:propositum.root | $env:propositumDrv+"\"      | Propositum root folder                                         |
- | path    | execute | $env:propositum.apps | $env:propositumDrv+"\apps"  | Propositum apps folder (scoop root)                            |
- | path    | execute | $env:propositum.home | $env:propositumDrv+"\home"  | Propositum home folder (dotfiles & projects)                   |
- | path    | execute | $env:propositum.font | $env:propositumDrv+"\fonts" | Propositum fonts folder                                        |
+ | hashtbl | execute | env:propositum       | @{}                         | Initialises the hash table                                     |
+ | path    | execute | env:propositum.root  | $env:propositumDrv+"\"      | Propositum root folder                                         |
+ | path    | execute | env:propositum.apps  | $env:propositumDrv+"\apps"  | Propositum apps folder (scoop root)                            |
+ | path    | execute | env:propositum.home  | $env:propositumDrv+"\home"  | Propositum home folder (dotfiles & projects)                   |
+ | path    | execute | env:propositum.font  | $env:propositumDrv+"\fonts" | Propositum fonts folder                                        |
  | env-var | execute | env:HOME             | $env:propositum.home        | Sets env-var home to propositum home                           |
  | env-var | execute | env:SCOOP            | $env:propositum.root        | Sets scoop home to the propositum root (creates 'apps' folder) |
 
@@ -950,12 +950,6 @@ ForEach ($var in $otherVars) {
 }
 #+END_SRC 
 
-**** TESTING
-
-#+BEGIN_SRC powershell
-Throw "Break for Debug"
-#+END_SRC
- 
 *** Clear testing directory
 :PROPERTIES:
 :ID:       64FA9CC2-4B0E-436D-9EC4-E7E6B2BD50B7

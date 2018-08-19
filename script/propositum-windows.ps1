@@ -75,8 +75,6 @@ ForEach ($var in $otherVars) {
     }
 }
 
-Throw "Break for Debug"
-
   if ($testing -and $propositumLocation) {Remove-Item ($propositumLocation+"\*") -Recurse -Force}
 
     subst $env:propositumDrv $env:propositumLocation
