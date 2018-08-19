@@ -6,7 +6,9 @@
 
 A collection of free and open-source, portable tools to facilitate task & information management, automation, data manipulation and analytics.
 
+#+BEGIN_QUOTE
 *Installation & Usage: See the [[https://github.com/xeijin/propositum/releases][Releases]] for the latest binary distribution.*
+#+END_QUOTE
 
 #+BEGIN_SRC powershell :exports code
 ### --- NOTE: If you are reading from the PS1 script you will find documentation sparse, --- ###
