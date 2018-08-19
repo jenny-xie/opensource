@@ -229,15 +229,15 @@ Then lets define them in a simplified table
 
 #+NAME: vars-other-tbl
  #+RESULTS: vars-other-import
- | type    | exec    | var                 | value                       | comment                                                        |
- |---------+---------+---------------------+-----------------------------+----------------------------------------------------------------|
- | hashtbl | execute | env:propositum      | @{}                         | Initialises the hash table                                     |
- | path    | execute | env:propositum.root | $env:propositumDrv+"\"      | Propositum root folder                                         |
- | path    | execute | env:propositum.apps | $env:propositumDrv+"\apps"  | Propositum apps folder (scoop root)                            |
- | path    | execute | env:propositum.home | $env:propositumDrv+"\home"  | Propositum home folder (dotfiles & projects)                   |
- | path    | execute | env:propositum.font | $env:propositumDrv+"\fonts" | Propositum fonts folder                                        |
- | env-var | execute | env:HOME            | $env:propositum.home        | Sets env-var home to propositum home                           |
- | env-var | execute | env:SCOOP           | $env:propositum.root        | Sets scoop home to the propositum root (creates 'apps' folder) |
+ | type    | exec    | var             | value                       | comment                                                        |
+ |---------+---------+-----------------+-----------------------------+----------------------------------------------------------------|
+ | hashtbl | execute | propositum      | @{}                         | Initialises the hash table                                     |
+ | path    | execute | propositum.root | $env:propositumDrv+"\"      | Propositum root folder                                         |
+ | path    | execute | propositum.apps | $env:propositumDrv+"\apps"  | Propositum apps folder (scoop root)                            |
+ | path    | execute | propositum.home | $env:propositumDrv+"\home"  | Propositum home folder (dotfiles & projects)                   |
+ | path    | execute | propositum.font | $env:propositumDrv+"\fonts" | Propositum fonts folder                                        |
+ | env-var | execute | env:HOME        | $propositum.home            | Sets env-var home to propositum home                           |
+ | env-var | execute | env:SCOOP       | $propositum.root            | Sets scoop home to the propositum root (creates 'apps' folder) |
 
 And finally, export the table back to csv
 
@@ -955,12 +955,12 @@ ForEach ($var in $otherVars) {
 #+BEGIN_SRC powershell
 $env:propositum
  
-$env:propositum.home
+$propositum.home
 
 $env:home
 
 
-Set-Item -Verbose -Path env:HOME -Value $env:propositum.home
+Set-Item -Verbose -Path env:HOME -Value $propositum.home
 #+END_SRC
 
 *** Clear testing directory
@@ -975,7 +975,7 @@ We also add an additional condition to ensure that =$propositumLocation= has bee
 Note there's currently a powershell bug that prevents this from working if any symlinks are contained within the directories.
 
 #+BEGIN_SRC powershell
-  if ($testing -and $propositumLocation) {Remove-Item ($propositumLocation+"\*") -Recurse -Force}
+  if ($testing -and $env:propositumLocation) {Remove-Item ($env:propositumLocation+"\*") -Recurse -Force}
 #+END_SRC
 *** Map propositum drive letter & create folder structure
 :PROPERTIES:
@@ -998,7 +998,7 @@ Note there's currently a powershell bug that prevents this from working if any s
   Using the hash table of directories, we can now navigate to a given folder in the following manner
 
   #+BEGIN_SRC powershell
-    cd $env:propositum.root
+    cd $propositum.root
   #+END_SRC
 *** Set TLS / SSL versions
 :PROPERTIES:
@@ -1153,10 +1153,10 @@ Invoke-Expression "scoop install $propositumScoop"
 :ID:       4BCE227D-7309-4E0E-BF45-F00C0E4BD769
 :END:
 
-Save the current path & navigate to the =$env:propositum.home= folder
+Save the current path & navigate to the =$propositum.home= folder
 
 #+BEGIN_SRC powershell
-Push-Location $env:propositum.home
+Push-Location $propositum.home
 #+END_SRC
 
 Clone the =doom-emacs= repo as our =.emacs.d= folder and switch to the =develop= branch (=master= is out-of-date)
@@ -1169,7 +1169,7 @@ Add the =doom-emacs= binaries folder to =path=
 
 #+NAME: doom-bin-to-path
 #+BEGIN_SRC powershell
-$doomBin = $env:propositum.home + "\.emacs.d\bin"
+$doomBin = $propositum.home + "\.emacs.d\bin"
 $env:Path = $env:Path + ";" + $doomBin
 #+END_SRC
 

@@ -77,20 +77,20 @@ ForEach ($var in $otherVars) {
 
 $env:propositum
  
-$env:propositum.home
+$propositum.home
 
 $env:home
 
 
-Set-Item -Verbose -Path env:HOME -Value $env:propositum.home
+Set-Item -Verbose -Path env:HOME -Value $propositum.home
 
-  if ($testing -and $propositumLocation) {Remove-Item ($propositumLocation+"\*") -Recurse -Force}
+  if ($testing -and $env:propositumLocation) {Remove-Item ($env:propositumLocation+"\*") -Recurse -Force}
 
     subst $env:propositumDrv $env:propositumLocation
 
     $createdDirs = Path-CheckOrCreate -Paths $propositum.values -CreateDir
 
-    cd $env:propositum.root
+    cd $propositum.root
 
   [Net.ServicePointManager]::SecurityProtocol = "Tls12, Tls11, Tls, Ssl3"
 
@@ -129,11 +129,11 @@ Write-Host "`r`nThe following components will be installed:`r`n`r`n=> $component
 
 Invoke-Expression "scoop install $propositumScoop"
 
-Push-Location $env:propositum.home
+Push-Location $propositum.home
 
 git clone https://github.com/hlissner/doom-emacs .emacs.d; cd .emacs.d; git checkout develop
 
-$doomBin = $env:propositum.home + "\.emacs.d\bin"
+$doomBin = $propositum.home + "\.emacs.d\bin"
 $env:Path = $env:Path + ";" + $doomBin
 
 Refresh-PathVariable

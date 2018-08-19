@@ -69,6 +69,6 @@ $propositumScoop = @(
     'superset-p',
     'pandoc'
 ) 
-$doomBin = $env:propositum.home + "\.emacs.d\bin"
+$doomBin = $propositum.home + "\.emacs.d\bin"
 $env:Path = $env:Path + ";" + $doomBin
 iex "scoop cleanup **"; iex "scoop reset **"
