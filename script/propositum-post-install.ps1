@@ -16,7 +16,7 @@ ForEach ($var in $platformVars | Select "var", $buildPlatform, "exec") { # Narro
         if ($var.exec -eq "execute") {Set-Item -Verbose -Path $var.var -Value (iex $var.$buildPlatform)}  # If we need to 'execute'
         else {Set-Item -Verbose -Path $var.var -Value $var.$buildPlatform} # Else just assign
     }
-    else # Logic for non-environment variables
+    else { # Logic for non-environment variables
         if ($var.exec -eq "execute") {New-Variable -Verbose $var.var (iex $var.$buildPlatform) -Force}
         else {New-Variable -Verbose $var.var $var.$buildPlatform -Force}
     }
