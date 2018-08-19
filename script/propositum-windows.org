@@ -4,19 +4,27 @@
 
 [[https://img.shields.io/github/tag/xeijin/propositum.svg?label=release&style=flat-square]] [[https://ci.appveyor.com/project/xeijin/propositum][https://img.shields.io/appveyor/ci/xeijin/propositum.svg?style=flat-square&logo=appveyor&label=build]] [[https://img.shields.io/badge/license-GPLv3-red.svg?style=flat-square]]
 
-A collection of free and open-source, portable tools to facilitate task & information management, automation, data manipulation and analytics.
 
 #+BEGIN_QUOTE
-*Installation & Usage: See the [[https://github.com/xeijin/propositum/releases][Releases]] for the latest binary distribution.*
+A collection of free and open-source, portable tools to facilitate task & information management, automation, data manipulation and analytics.
 #+END_QUOTE
+
+
+* Usage
+
+Installation via the [[https://github.com/xeijin/propositum/releases][Releases]] for the latest binary distribution. Unzip, then ensure you run
+the [[Finish]] script.
+
+The next few sections (and this repo) are dedicated to the Literate documentation of the
+orchestration script which installs the various components.
+
+* Define
 
 #+BEGIN_SRC powershell :exports code
 ### --- NOTE: If you are reading from the PS1 script you will find documentation sparse, --- ###
 ### --- this script is accompanied by an org-mode file used to literately generate it.   --- ###
 ### --- Please see https://github.com/xeijin/propositum for the accompanying README.org  --- ###
 #+END_SRC
-
-* Define
 
 Some background on the literate functions used, as well as the tables used to maintain the user-defined [[Components]] and [[Variables]]
 
