@@ -11,7 +11,7 @@
        Throw "Check the CSV file actually exists and is formatted correctly before proceeding."
        $error[0]|format-list -force
    }
-ForEach ($var in $platformVars) {
+ForEach ($var in $platformVars | Where {$_.$buildPlatform}) { # Narrow to current $buildPlatform
 
     if ($var.var -like "env:*") # If variable name contains 'env:'
     {

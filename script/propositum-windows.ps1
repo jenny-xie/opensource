@@ -4,7 +4,7 @@
 
   cd $psScriptRoot
 
-$promptPropositumDrv = if(($result=Read-Host -Prompt "Please provide a letter for the Propositum root drive (default is 'P').") -eq ""){("P").Trim(":")+":"}else{$result.Trim(":")+":"} 
+$promptPropositumDrv = if(($result = Read-Host -Prompt "Please provide a letter for the Propositum root drive (default is 'P').") -eq ""){("P").Trim(":")+":"}else{$result.Trim(":")+":"} 
 $promptGitHubAPIToken = Read-Host -AsSecureString -Prompt "Please provide your GitHub token." 
 $promptSupersetPassword = Read-Host -AsSecureString -Prompt "Please provide a password for the Superset user 'Propositum'."
 
@@ -31,7 +31,7 @@ $testing = $false
        $error[0]|format-list -force
    }
 
-ForEach ($var in $platformVars) {
+ForEach ($var in $platformVars | Where {$_.$buildPlatform}) { # Narrow to current $buildPlatform
 
     if ($var.var -like "env:*") # If variable name contains 'env:'
     {
