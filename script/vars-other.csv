@@ -1,8 +1,8 @@
 type,exec,var,value,comment
 hashtbl,execute,propositum,@{},Initialises the hash table
-path,execute,root,"$propositum.root = $drv+""\""",
-path,execute,apps,"$propositum.apps = $drv+""\apps""",
-path,execute,home,"$propositum.home = $drv+""\home""",
-path,execute,font,"$propositum.fonts= $drv+""\fonts""",
-env-var,execute,env:HOME,$propositum.home,Set user home as required for winpython install
-env-var,execute,env:SCOOP,$propositum.root,Place scoop app/shim parent directories in the root folder
+path,execute,propositum.root,"$drv+""\""",Propositum root folder
+path,execute,propositum.apps,"$drv+""\apps""",Propositum apps folder (scoop root)
+path,execute,propositum.home,"$drv+""\home""",Propositum home folder (dotfiles & projects)
+path,execute,propositum.font,"$drv+""\fonts""",Propositum fonts folder
+env-var,execute,env:HOME,$propositum.home,Sets env-var home to propositum home
+env-var,execute,env:SCOOP,$propositum.root,Sets scoop home to the propositum root (creates 'apps' folder)

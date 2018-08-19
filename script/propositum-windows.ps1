@@ -4,11 +4,15 @@
 
   cd $psScriptRoot
 
+$promptPropositumDrv = if(($result=Read-Host -Prompt "Please provide a letter for the Propositum root drive (default is 'P').") -eq ""){("P").Trim(":")+":"}else{$result.Trim(":")+":"} 
+$promptGitHubAPIToken = Read-Host -AsSecureString -Prompt "Please provide your GitHub token." 
+$promptSupersetPassword = Read-Host -AsSecureString -Prompt "Please provide a password for the Superset user 'Propositum'."
+
 $testing = $false
 
   $buildPlatform = if ($env:APPVEYOR) {"appveyor"}
   elseif ($testing) {"testing"} # For debugging locally
-  elseif ($env:computername -match "NDS.*") {"local-gs"} # Check for a GS NDS
+  elseif ($env:computername -match "NDS.*") {"local-gs"} # Check for NDS
   else {"local"}
 
   cd $PSScriptRoot
@@ -128,8 +132,8 @@ Push-Location $propositum.home
 
 git clone https://github.com/hlissner/doom-emacs .emacs.d; cd .emacs.d; git checkout develop
 
-$doomBin = "$propositum.home\.emacs.d\bin"
-[Environment]::SetEnvironmentVariable("Path", $env:Path + ";" + $doomBin, 'User')
+$doomBin = $propositum.home + "\.emacs.d\bin"
+$env:Path = $env:Path + ";" + $doomBin
 
 Refresh-PathVariable
 
