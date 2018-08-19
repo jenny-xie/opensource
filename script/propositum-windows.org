@@ -953,7 +953,12 @@ ForEach ($var in $otherVars) {
     }
 }
 #+END_SRC 
- 
+
+**** TESTING
+
+#+BEGIN_SRC powershell
+Throw "Break for Debug"
+#+END_SRC
  
 *** Clear testing directory
 :PROPERTIES:
