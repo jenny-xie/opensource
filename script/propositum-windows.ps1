@@ -31,7 +31,7 @@ $testing = $false
        $error[0]|format-list -force
    }
 
-FForEach ($var in $platformVars | Select "var", $buildPlatform, "exec") { # Narrow to required columns & $buildPlatform
+ForEach ($var in $platformVars | Select "var", $buildPlatform, "exec") { # Narrow to required columns & $buildPlatform
 
     if ($var.var -like "env:*") # If variable name contains 'env:'
     {
