@@ -44,8 +44,8 @@ $otherVars | Select "exec", "var", "value" | ForEach-Object { if ($_.exec -eq "e
 Write-Host "Var Test" -BackgroundColor Red
 $env:HOME
 $env:SCOOP
-$env:HOME = "$propositum.home"
-$env:SCOOP = "$propositum.root"
+$env:HOME = $propositum.home
+$env:SCOOP = $propositum.root
 
 if ($testing -and $propositumLocation) {Remove-Item ($propositumLocation+"\*") -Recurse -Force}
 
