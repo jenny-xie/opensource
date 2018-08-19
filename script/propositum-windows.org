@@ -950,6 +950,19 @@ ForEach ($var in $otherVars) {
 }
 #+END_SRC 
 
+**** TESTING
+
+#+BEGIN_SRC powershell
+$env:propositum
+ 
+$env:propositum.home
+
+$env:home
+
+
+Set-Item -Verbose -Path env:HOME -Value $env:propositum.home
+#+END_SRC
+
 *** Clear testing directory
 :PROPERTIES:
 :ID:       64FA9CC2-4B0E-436D-9EC4-E7E6B2BD50B7

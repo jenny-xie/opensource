@@ -75,6 +75,15 @@ ForEach ($var in $otherVars) {
     }
 }
 
+$env:propositum
+ 
+$env:propositum.home
+
+$env:home
+
+
+Set-Item -Verbose -Path env:HOME -Value $env:propositum.home
+
   if ($testing -and $propositumLocation) {Remove-Item ($propositumLocation+"\*") -Recurse -Force}
 
     subst $env:propositumDrv $env:propositumLocation
