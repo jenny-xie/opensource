@@ -37,6 +37,7 @@ ForEach ($var in $otherVars) {
     }
     elseif ($var.type -eq 'hsh-itm') { # Logic for hash table items
         $hsh = $var.var -split '.' # Split the hash table item into a two-member array (note all hash table items must follow a hashtbl.keyname format)
+        $hsh[0] = iex ('$' -join $hsh[0]) # Add '$' and invoke as variable value
         if ($var.exec -eq 'execute') {$hsh[0].add($hsh[1], (iex $var.value))}  # Add the key-value entry top the hash table: The first array entry is the hash table name, the second the name of the key
         else {$hsh[0].add($hsh[1], $var.value)}  # Same as above, but assign rather than invoke/execute the $var.value
     }
