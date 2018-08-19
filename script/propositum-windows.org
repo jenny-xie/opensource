@@ -231,15 +231,18 @@ Then lets define them in a simplified table
  #+RESULTS: vars-other-import
  | type    | exec    | var             | value                      | comment                                                        |
  |---------+---------+-----------------+----------------------------+----------------------------------------------------------------|
- | hshtbl  | execute | propositum      | @{}                        | Initialises the hash table                                     |
- | hshitem | execute | propositum.root | $env:propositumDrv+"\"     | Propositum root folder                                         |
- | hshitem | execute | propositum.apps | $env:propositumDrv+"\apps" | Propositum apps folder (scoop root)                            |
- | hshitem | execute | propositum.home | $env:propositumDrv+"\home" | Propositum home folder (dotfiles & projects)                   |
- | hshitem | execute | propositum.font | $env:propositumDrv+"\font" | Propositum fonts folder                                        |
+ | hsh-tbl | execute | propositum      | @{}                        | Initialises the hash table                                     |
+ | hsh-itm | execute | propositum.root | $env:propositumDrv+"\"     | Propositum root folder                                         |
+ | hsh-itm | execute | propositum.apps | $env:propositumDrv+"\apps" | Propositum apps folder (scoop root)                            |
+ | hsh-itm | execute | propositum.home | $env:propositumDrv+"\home" | Propositum home folder (dotfiles & projects)                   |
+ | hsh-itm | execute | propositum.font | $env:propositumDrv+"\font" | Propositum fonts folder                                        |
  | env-var | execute | env:HOME        | $propositum.home           | Sets env-var home to propositum home                           |
  | env-var | execute | env:SCOOP       | $propositum.root           | Sets scoop home to the propositum root (creates 'apps' folder) |
 
-And finally, export the table back to csv
+
+*Note:* The ~type~ column here is important, particularly =hsh-itm= & =env-var=.
+
+Finally, export the table back to csv
 
  =EXPORT= =EXPORT= =EXPORT=
  #+NAME: vars-other-export
@@ -922,9 +925,10 @@ ForEach ($var in $platformVars | Select 'var', $buildPlatform, 'exec') { # Narro
 
 
 =$env:= or environment variables are set in a different way to regular
-variable, therefore we need some additional logic to handle those.
+variable, therefore we need some additional logic to handle those. Similarly for
+=hsh-itm= entries, we don't want to try to assign as variables but actually add
+the value to the corresponding hash table.
 
-*Note:* The ~type~ column here is important, 
 
 #+NAME: set-other-vars
 #+BEGIN_SRC powershell
