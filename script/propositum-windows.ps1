@@ -19,7 +19,7 @@ $testing = $false
 
    Try
    {
-       $environmentVars = Import-CSV "vars-platform.csv"
+       $platformVars = Import-CSV "vars-platform.csv"
    }
    Catch
    {
@@ -27,7 +27,22 @@ $testing = $false
        $error[0]|format-list -force
    }
 
-   $environmentVars | Select "exec", "var", $buildPlatform | ForEach-Object { if ($_.exec -eq "execute") {New-Variable $_.var (iex $_.$buildPlatform) -Force} else {New-Variable $_.var $_.$buildPlatform -Force}}
+ForEach ($var in $platformVars) {
+
+    if ($var.var -like "env:*") # If variable name contains 'env:'
+    {
+        if ($var.exec -eq "execute") { # If we need to 'execute'
+            Set-Item -Verbose -Path $var.var -Value (iex $var.$buildPlatform)} 
+        else { # Else just assign
+            Set-Item -Verbose -Path $var.var -Value $var.$buildPlatform}
+    }
+    else { # Logic for non-environment variables
+        if ($var.exec -eq "execute") {
+            New-Variable -Verbose $var.var (iex $var.$buildPlatform) -Force} 
+        else {
+            New-Variable -Verbose $var.var $var.$buildPlatform -Force}
+    }
+}
 
    Try
    {
@@ -39,7 +54,22 @@ $testing = $false
        $error[0]|format-list -force
    }
 
-   $otherVars | Select "exec", "var", "value" | ForEach-Object { if ($_.exec -eq "execute") {New-Variable $_.var (iex $_.value) -Force -Scope Global} else {New-Variable $_.var $_.value -Force -Scope Global}}
+ForEach ($var in $otherVars) {
+
+    if ($var.var -like "env:*") # If variable name contains 'env:'
+    {
+        if ($var.exec -eq "execute") { # If we need to 'execute'
+            Set-Item -Verbose -Path $var.var -Value (iex $var.value)} 
+        else { # Else just assign
+            Set-Item -Verbose -Path $var.var -Value $var.value}
+    }
+    else { # Logic for non-environment variables
+        if ($var.exec -eq "execute") {
+            New-Variable -Verbose $var.var (iex $var.value) -Force} 
+        else {
+            New-Variable -Verbose $var.var $var.value -Force}
+    }
+}
 
   if ($testing -and $propositumLocation) {Remove-Item ($propositumLocation+"\*") -Recurse -Force}
 

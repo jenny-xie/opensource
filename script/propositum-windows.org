@@ -205,15 +205,15 @@ Then lets define them in a simplified table
 
 #+NAME: vars-other-tbl
  #+RESULTS: vars-other-import
- | type    | exec    | var        | value                            | comment                                                    |
- |---------+---------+------------+----------------------------------+------------------------------------------------------------|
- | hashtbl | execute | propositum | @{}                              | Initialises the hash table                                 |
- | path    | execute | root       | $propositum.root = $drv+"\"      |                                                            |
- | path    | execute | apps       | $propositum.apps = $drv+"\apps"  |                                                            |
- | path    | execute | home       | $propositum.home = $drv+"\home"  |                                                            |
- | path    | execute | font       | $propositum.fonts= $drv+"\fonts" |                                                            |
- | env-var | execute | HOME       | $propositum.home                 | Set user home as required for winpython install            |
- | env-var | execute | SCOOP      | $propositum.root                 | Place scoop app/shim parent directories in the root folder |
+ | type    | exec    | var         | value                            | comment                                                    |
+ |---------+---------+-------------+----------------------------------+------------------------------------------------------------|
+ | hashtbl | execute | propositum  | @{}                              | Initialises the hash table                                 |
+ | path    | execute | root        | $propositum.root = $drv+"\"      |                                                            |
+ | path    | execute | apps        | $propositum.apps = $drv+"\apps"  |                                                            |
+ | path    | execute | home        | $propositum.home = $drv+"\home"  |                                                            |
+ | path    | execute | font        | $propositum.fonts= $drv+"\fonts" |                                                            |
+ | env-var | execute | env:HOME    | $propositum.home                 | Set user home as required for winpython install            |
+ | env-var | execute | env:SCOOP   | $propositum.root                 | Place scoop app/shim parent directories in the root folder |
 
 And finally, export the table back to csv
 
@@ -846,7 +846,7 @@ Check if a dir exists, and if specified, create the directory (or symlink)
  #+BEGIN_SRC powershell
    Try
    {
-       $environmentVars = Import-CSV "vars-platform.csv"
+       $platformVars = Import-CSV "vars-platform.csv"
    }
    Catch
    {
@@ -855,14 +855,29 @@ Check if a dir exists, and if specified, create the directory (or symlink)
    }
  #+END_SRC
 
- Finally, set each of the environment variables according to ~$buildPlatform~
+ Finally, set each of the platform variables according to ~$buildPlatform~
 
  - ~Select~ is used to first narrow the ~PSObject~ to the column containing the variable name, and the column matching our buildPlatform
  - ~iex~ ensures that the value of each variable gets executed upon assignment, rather than being stored as a string
  - the ~if~ statement is used in conjunction with the =exec= column as mentioned earlier to avoid incorrectly executing a value that should be assigned
 
  #+BEGIN_SRC powershell
-   $environmentVars | Select "exec", "var", $buildPlatform | ForEach-Object { if ($_.exec -eq "execute") {New-Variable $_.var (iex $_.$buildPlatform) -Force} else {New-Variable $_.var $_.$buildPlatform -Force}}
+ForEach ($var in $platformVars) {
+
+    if ($var.var -like "env:*") # If variable name contains 'env:'
+    {
+        if ($var.exec -eq "execute") { # If we need to 'execute'
+            Set-Item -Verbose -Path $var.var -Value (iex $var.$buildPlatform)} 
+        else { # Else just assign
+            Set-Item -Verbose -Path $var.var -Value $var.$buildPlatform}
+    }
+    else { # Logic for non-environment variables
+        if ($var.exec -eq "execute") {
+            New-Variable -Verbose $var.var (iex $var.$buildPlatform) -Force} 
+        else {
+            New-Variable -Verbose $var.var $var.$buildPlatform -Force}
+    }
+}
  #+END_SRC
 **** Import other variables
 :PROPERTIES:
@@ -888,12 +903,29 @@ Check if a dir exists, and if specified, create the directory (or symlink)
    }
  #+END_SRC
 
-A simplified version of the per-platform command is used to execute / assign as necessary
 
-#+NAME: set-other-vars
- #+BEGIN_SRC powershell
-   $otherVars | Select "exec", "var", "value" | ForEach-Object { if ($_.exec -eq "execute") {New-Variable $_.var (iex $_.value) -Force -Scope Global} else {New-Variable $_.var $_.value -Force -Scope Global}}
- #+END_SRC
+=$env:= or environment variables are set in a different way to regular
+variables, therefore we need some additional logic to handle those:
+
+#+BEGIN_SRC powershell
+ForEach ($var in $otherVars) {
+
+    if ($var.var -like "env:*") # If variable name contains 'env:'
+    {
+        if ($var.exec -eq "execute") { # If we need to 'execute'
+            Set-Item -Verbose -Path $var.var -Value (iex $var.value)} 
+        else { # Else just assign
+            Set-Item -Verbose -Path $var.var -Value $var.value}
+    }
+    else { # Logic for non-environment variables
+        if ($var.exec -eq "execute") {
+            New-Variable -Verbose $var.var (iex $var.value) -Force} 
+        else {
+            New-Variable -Verbose $var.var $var.value -Force}
+    }
+}
+#+END_SRC 
+ 
  
 *** COMMENT Vars  Test 
 :PROPERTIES:

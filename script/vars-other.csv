@@ -4,5 +4,7 @@ path,execute,root,"$propositum.root = $drv+""\""",
 path,execute,apps,"$propositum.apps = $drv+""\apps""",
 path,execute,home,"$propositum.home = $drv+""\home""",
 path,execute,font,"$propositum.fonts= $drv+""\fonts""",
-env-var,execute,HOME,$propositum.home,Set user home as required for winpython install
-env-var,execute,SCOOP,$propositum.root,Place scoop app/shim parent directories in the root folder
+env-var,execute,env:HOME,$propositum.home,Set user home as required for winpython install
+env-var,execute,env:SCOOP,$propositum.root,Place scoop app/shim parent directories in the root folder
+env-var,assign,env:testenv,test value,
+env-var,assign,testenv2,This is a value,
