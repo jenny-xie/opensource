@@ -889,7 +889,7 @@ Check if a dir exists, and if specified, create the directory (or symlink)
 
 #+NAME: set-platform-vars
  #+BEGIN_SRC powershell
-ForEach ($var in $platformVars | Where {$_.$buildPlatform}) { # Narrow to current $buildPlatform
+FForEach ($var in $platformVars | Select "var", $buildPlatform, "exec") { # Narrow to required columns & $buildPlatform
 
     if ($var.var -like "env:*") # If variable name contains 'env:'
     {
@@ -904,7 +904,6 @@ ForEach ($var in $platformVars | Where {$_.$buildPlatform}) { # Narrow to curren
         else {
             New-Variable $var.var $var.$buildPlatform -Force}
     }
-}
  #+END_SRC
 **** Import other variables
 :PROPERTIES:

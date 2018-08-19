@@ -31,7 +31,7 @@ $testing = $false
        $error[0]|format-list -force
    }
 
-ForEach ($var in $platformVars | Where {$_.$buildPlatform}) { # Narrow to current $buildPlatform
+FForEach ($var in $platformVars | Select "var", $buildPlatform, "exec") { # Narrow to required columns & $buildPlatform
 
     if ($var.var -like "env:*") # If variable name contains 'env:'
     {
@@ -46,7 +46,6 @@ ForEach ($var in $platformVars | Where {$_.$buildPlatform}) { # Narrow to curren
         else {
             New-Variable $var.var $var.$buildPlatform -Force}
     }
-}
 
    Try
    {
