@@ -26,6 +26,7 @@ ForEach ($var in $platformVars | Select "var", $buildPlatform, "exec") { # Narro
         else {
             New-Variable $var.var $var.$buildPlatform -Force}
     }
+}
    Try
    {
        $otherVars = Import-CSV "vars-other.csv"
