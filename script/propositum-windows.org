@@ -212,8 +212,8 @@ Then lets define them in a simplified table
  | path    | execute | apps       | $propositum.apps = $drv+"\apps"  |                                                            |
  | path    | execute | home       | $propositum.home = $drv+"\home"  |                                                            |
  | path    | execute | font       | $propositum.fonts= $drv+"\fonts" |                                                            |
- | env-var | assign  | env:HOME   | $propositum.home                 | Set user home as required for winpython install            |
- | env-var | assign  | env:SCOOP  | $propositum.root                 | Place scoop app/shim parent directories in the root folder |
+ | env-var | execute | HOME       | $propositum.home                 | Set user home as required for winpython install            |
+ | env-var | execute | SCOOP      | $propositum.root                 | Place scoop app/shim parent directories in the root folder |
 
 And finally, export the table back to csv
 
