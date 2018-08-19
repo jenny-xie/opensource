@@ -892,7 +892,7 @@ A simplified version of the per-platform command is used to execute / assign as 
 
 #+NAME: set-other-vars
  #+BEGIN_SRC powershell
-   $otherVars | Select "exec", "var", "value" | ForEach-Object { if ($_.exec -eq "execute") {New-Variable $_.var (iex $_.value) -Force} else {New-Variable $_.var $_.value -Force}}
+   $otherVars | Select "exec", "var", "value" | ForEach-Object { if ($_.exec -eq "execute") {New-Variable $_.var (iex $_.value) -Force -Scope Global} else {New-Variable $_.var $_.value -Force -Scope Global}}
  #+END_SRC
  
 *** COMMENT Vars  Test 
