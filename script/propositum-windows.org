@@ -205,16 +205,15 @@ Then lets define them in a simplified table
 
 #+NAME: vars-other-tbl
  #+RESULTS: vars-other-import
- | type    | exec    | var               | value                             | comment                                                    |
- |---------+---------+-------------------+-----------------------------------+------------------------------------------------------------|
- | hashtbl | execute | propositum        | @{}                               | Initialises the hash table                                 |
- | path    | execute | root              | $propositum.root = $drv+"\"       |                                                            |
- | path    | execute | app               | $propositum.apps = $drv+"\apps"   |                                                            |
- | path    | execute | home              | $propositum.home = $drv+"\home"   |                                                            |
- | path    | execute | font              | $propositum.fonts= $drv+"\fonts"  |                                                            |
- | env-var | execute | env:HOME          | $propositum.home                  | Set user home as required for winpython install            |
- | env-var | execute | env:SCOOP         | $propositum.root                  | Place scoop app/shim parent directories in the root folder |
- | env-var | execute | env:SUPERSET_HOME | ($propositum.home + "\.superset") | Superset home folder location (where db file is stored)    |
+ | type    | exec    | var        | value                            | comment                                                    |
+ |---------+---------+------------+----------------------------------+------------------------------------------------------------|
+ | hashtbl | execute | propositum | @{}                              | Initialises the hash table                                 |
+ | path    | execute | root       | $propositum.root = $drv+"\"      |                                                            |
+ | path    | execute | app        | $propositum.apps = $drv+"\apps"  |                                                            |
+ | path    | execute | home       | $propositum.home = $drv+"\home"  |                                                            |
+ | path    | execute | font       | $propositum.fonts= $drv+"\fonts" |                                                            |
+ | env-var | execute | env:HOME   | $propositum.home                 | Set user home as required for winpython install            |
+ | env-var | execute | env:SCOOP  | $propositum.root                 | Place scoop app/shim parent directories in the root folder |
 
 And finally, export the table back to csv
 
@@ -224,7 +223,7 @@ And finally, export the table back to csv
  =EXPORT= =EXPORT= =EXPORT=
 
  #+RESULTS: vars-other-export
- : Export done. 
+ : Export done.
 *** Import into PowerShell
 As some of the variables are dependent on other build environment functions this section has been moved: [[Import functions & variables]]
 * Prepare
@@ -250,6 +249,9 @@ Figure out if the script is being run from a local machine, from gs machine or o
   else {"local"}
 #+END_SRC
 ** Initialise Environment
+:PROPERTIES:
+:ID:       84C36059-E29F-439D-AF82-732D3146F219
+:END:
 Ensure the necessary tooling is in place & prepare the build environment.
 #+BEGIN_SRC powershell
 $buildPlatform
@@ -947,7 +949,7 @@ Before installing, lets set the scoop install directory to be within the =\util\
 
 #+NAME: set-scoop-env-var
 #+BEGIN_SRC powershell
-  [environment]::setEnvironmentVariable('SCOOP',($propositum.root),'User')
+  #[environment]::setEnvironmentVariable('SCOOP',($propositum.root),'User')
 #+END_SRC
 
 Then install scoop (locally)

@@ -6,4 +6,3 @@ path,execute,home,"$propositum.home = $drv+""\home""",
 path,execute,font,"$propositum.fonts= $drv+""\fonts""",
 env-var,execute,env:HOME,$propositum.home,Set user home as required for winpython install
 env-var,execute,env:SCOOP,$propositum.root,Place scoop app/shim parent directories in the root folder
-env-var,execute,env:SUPERSET_HOME,"($propositum.home + ""\.superset"")",Superset home folder location (where db file is stored)
