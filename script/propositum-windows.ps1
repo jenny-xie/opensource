@@ -4,16 +4,6 @@
 
 cd $psScriptRoot
 
-Try
-{
-    $components = Import-CSV "components.csv" | ?{ $_.status -ne "disabled" } | %{ $_.var = $_.var.Trim("[]"); $_}
-}
-Catch
-{
-    Throw "Check the CSV file actually exists and is formatted correctly before proceeding."
-    $error[0]|format-list -force
-}
-
 $testing = $false
 
 $buildPlatform = if ($env:APPVEYOR) {"appveyor"}
@@ -21,9 +11,7 @@ elseif ($testing) {"testing"} # For debugging locally
 elseif ($env:computername -match "NDS.*") {"local-gs"} # Check for a GS NDS
 else {"local"}
 
-$buildPlatform
 
-$buildPlatform
 
 cd $PSScriptRoot
 

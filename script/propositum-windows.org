@@ -131,7 +131,7 @@ Then export to ~components.csv~
 #+RESULTS: components-export
 : Export done.
 
-*** Import into PowerShell
+*** COMMENT Import into PowerShell
 :PROPERTIES:
 :ID:       2D7E58E5-B0A0-45D0-ACAA-A3CB3973C285
 :END:
@@ -254,7 +254,6 @@ Figure out if the script is being run from a local machine, from gs machine or o
 :END:
 Ensure the necessary tooling is in place & prepare the build environment.
 #+BEGIN_SRC powershell
-$buildPlatform
 #+END_SRC
 *** Start in the Script Root
 :PROPERTIES:
