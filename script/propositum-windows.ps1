@@ -41,12 +41,6 @@ Catch
 
 $otherVars | Select "exec", "var", "value" | ForEach-Object { if ($_.exec -eq "execute") {New-Variable $_.var (iex $_.value) -Force} else {New-Variable $_.var $_.value -Force}}
 
-Write-Host "Var Test" -BackgroundColor Red
-$env:HOME
-$env:SCOOP
-$env:HOME = $propositum.home
-$env:SCOOP = $propositum.root
-
 if ($testing -and $propositumLocation) {Remove-Item ($propositumLocation+"\*") -Recurse -Force}
 
 subst $drv $propositumLocation

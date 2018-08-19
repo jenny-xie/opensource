@@ -209,11 +209,11 @@ Then lets define them in a simplified table
  |---------+---------+------------+----------------------------------+------------------------------------------------------------|
  | hashtbl | execute | propositum | @{}                              | Initialises the hash table                                 |
  | path    | execute | root       | $propositum.root = $drv+"\"      |                                                            |
- | path    | execute | app        | $propositum.apps = $drv+"\apps"  |                                                            |
+ | path    | execute | apps       | $propositum.apps = $drv+"\apps"  |                                                            |
  | path    | execute | home       | $propositum.home = $drv+"\home"  |                                                            |
  | path    | execute | font       | $propositum.fonts= $drv+"\fonts" |                                                            |
- | env-var | execute | env:HOME   | $propositum.home                 | Set user home as required for winpython install            |
- | env-var | execute | env:SCOOP  | $propositum.root                 | Place scoop app/shim parent directories in the root folder |
+ | env-var | assign  | env:HOME   | $propositum.home                 | Set user home as required for winpython install            |
+ | env-var | assign  | env:SCOOP  | $propositum.root                 | Place scoop app/shim parent directories in the root folder |
 
 And finally, export the table back to csv
 
@@ -895,7 +895,7 @@ A simplified version of the per-platform command is used to execute / assign as 
    $otherVars | Select "exec", "var", "value" | ForEach-Object { if ($_.exec -eq "execute") {New-Variable $_.var (iex $_.value) -Force} else {New-Variable $_.var $_.value -Force}}
  #+END_SRC
  
-*** Vars Test 
+*** COMMENT Vars  Test 
 :PROPERTIES:
 :ID:       AF0BBBC9-6359-4E38-9F82-12DE41B0334F
 :END:
