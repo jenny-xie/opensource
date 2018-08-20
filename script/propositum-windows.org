@@ -9,7 +9,6 @@
 A collection of free and open-source, portable tools to facilitate task & information management, automation, data manipulation and analytics.
 #+END_QUOTE
 
-
 * Usage
 
 Installation via the [[https://github.com/xeijin/propositum/releases][Releases]] for the latest binary distribution. Unzip, then ensure you run
@@ -23,7 +22,6 @@ orchestration script which installs the various components.
 ### --- this script is accompanied by an org-mode file used to literately generate it.   --- ###
 ### --- Please see https://github.com/xeijin/propositum for the accompanying README.org  --- ###
 #+END_SRC
-
 * Define
 
 Some background on the literate functions used, as well as the tables used to maintain the user-defined [[Components]] and [[Variables]]
@@ -1166,17 +1164,13 @@ $doomBin = $propositum.home + "\.emacs.d\bin"
 $env:Path = $env:Path + ";" + $doomBin
 #+END_SRC
 
-Refresh the =path= variable using a custom function
+Then =doom quickstart= to install packages for a basic configuration (at least
+until my custom one is ready).
+
+=-y= accepts all prompts to prevent AppVeyor build from hanging.
 
 #+BEGIN_SRC powershell
-Refresh-PathVariable
-#+END_SRC
-
-
-Then =doom quickstart= to install packages for a basic configuration (at least until my custom one is ready)
-
-#+BEGIN_SRC powershell
-doom quickstart
+doom -y quickstart
 #+END_SRC
 
 Return to the original path

@@ -1,16 +1,16 @@
-  $buildPlatform = if ($env:APPVEYOR) {"appveyor"}
-  elseif ($testing) {"testing"} # For debugging locally
-  elseif ($env:computername -match "NDS.*") {"local-gs"} # Check for NDS
-  else {"local"}
-   Try
-   {
-       $platformVars = Import-CSV "vars-platform.csv"
-   }
-   Catch
-   {
-       Throw "Check the CSV file actually exists and is formatted correctly before proceeding."
-       $error[0]|format-list -force
-   }
+$buildPlatform = if ($env:APPVEYOR) {"appveyor"}
+elseif ($testing) {"testing"} # For debugging locally
+elseif ($env:computername -match "NDS.*") {"local-gs"} # Check for NDS
+else {"local"}
+Try
+{
+    $platformVars = Import-CSV "vars-platform.csv"
+}
+Catch
+{
+    Throw "Check the CSV file actually exists and is formatted correctly before proceeding."
+    $error[0]|format-list -force
+}
 ForEach ($var in $platformVars | Select 'var', $buildPlatform, 'exec') { # Narrow to required columns & $buildPlatform
     if ($var.var -like "env:*") { # If variable name contains 'env:'
         if ($var.exec -eq 'execute') {Set-Item -Verbose -Path $var.var -Value (iex $var.$buildPlatform)}  # If we need to 'execute'
@@ -21,15 +21,15 @@ ForEach ($var in $platformVars | Select 'var', $buildPlatform, 'exec') { # Narro
         else {New-Variable -Verbose $var.var $var.$buildPlatform -Force}
     }
 }
-   Try
-   {
-       $otherVars = Import-CSV "vars-other.csv"
-   }
-   Catch
-   {
-       Throw "Check the CSV file actually exists and is formatted correctly before proceeding."
-       $error[0]|format-list -force
-   }
+Try
+{
+    $otherVars = Import-CSV "vars-other.csv"
+}
+Catch
+{
+    Throw "Check the CSV file actually exists and is formatted correctly before proceeding."
+    $error[0]|format-list -force
+}
 ForEach ($var in $otherVars) {
     if (($var.var -like "env:*") -or ($var.type -eq 'env-var')) { # If variable name contains 'env:', or is type 'env-var'
         if ($var.exec -eq "execute") {Set-Item -Verbose -Path $var.var -Value (iex $var.value)} # If we need to 'execute'
@@ -47,7 +47,7 @@ ForEach ($var in $otherVars) {
     }
 }
 
-    subst $env:propositumDrv $env:propositumLocation
+subst $env:propositumDrv $env:propositumLocation
 reg add HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run /f /v "Propositum" /d "subst $propositumDrv $propositumLocation" # Add registry entry to map on startup
 $propositumScoop = @(
     'cmder',
