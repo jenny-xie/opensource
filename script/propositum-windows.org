@@ -1185,7 +1185,7 @@ Pop-Location
 :ID:       0AC1E5F5-D4EE-40F5-ACF3-D7D6C26DC59E
 :END:
 
-Create the 7zip'd build artifact for later deployment to GitHub - this is the file unzipped on systems wich require an 'offline' install (i.e. no access to external package repositories).
+Create the 7zip'd build artifact for later deployment to GitHub - this is the file unzipped on systems which require an 'offline' install (i.e. no access to external package repositories).
 
 We only need to do this if running on AppVeyor.
 
@@ -1195,7 +1195,7 @@ if ($buildPlatform -eq "appveyor")
     echo "Compressing files into release artifact..."
 
     # iex "7z a -t7z -m0=lzma2:d=1024m -mx=9 -aoa -mfb=64 -md=32m -ms=on C:\propositum\propositum.7z C:\propositum"  # Additional options to increase compression ratio
-    iex "7z a -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on propositum.7z C:\propositum"
+    iex "7z a -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on C:\propositum\propositum.7z C:\propositum"
 }
 #+END_SRC
 * Deploy
