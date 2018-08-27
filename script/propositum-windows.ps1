@@ -133,6 +133,7 @@ if ($buildPlatform -eq "appveyor")
 
     # iex "7z a -t7z -m0=lzma2:d=1024m -mx=9 -aoa -mfb=64 -md=32m -ms=on C:\propositum\propositum.7z C:\propositum"  # Additional options to increase compression ratio
     iex "7z a -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on C:\propositum\propositum.7z C:\propositum"
+    Get-ChildItem -Path C:\propositum -Exclude 'propositum.7z' | Remove-Item -Recurse -Force
 }
 
 if ($buildPlatform -eq "appveyor") {$deploy = $true}
