@@ -137,7 +137,7 @@ if ($buildPlatform -eq "appveyor")
 {
     echo "Compressing files into release artifact..."
     cd $propositum.root # cd to root, as 7z -v switch does not support specifying end file and directory 
-    iex "7z a -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on -v2g P:\propositum.7z"
+    iex "7z a -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on -v1500m P:\propositum.7z"
 }
 
 if ($buildPlatform -eq "appveyor") {$deploy = $true}
