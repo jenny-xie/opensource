@@ -892,12 +892,12 @@ Check if a dir exists, and if specified, create the directory (or symlink)
  #+BEGIN_SRC powershell
 ForEach ($var in $platformVars | Select 'var', $buildPlatform, 'exec') { # Narrow to required columns & $buildPlatform
     if ($var.var -like "env:*") { # If variable name contains 'env:'
-        if ($var.exec -eq 'execute') {Set-Item -Verbose -Path $var.var -Value (iex $var.$buildPlatform)}  # If we need to 'execute'
-        else {Set-Item -Verbose -Path $var.var -Value $var.$buildPlatform} # Else just assign
+        if ($var.exec -eq 'execute') {Set-Item -Path $var.var -Value (iex $var.$buildPlatform)}  # If we need to 'execute'
+        else {Set-Item -Path $var.var -Value $var.$buildPlatform} # Else just assign
     }
     else { # Logic for non-environment variables
-        if ($var.exec -eq 'execute') {New-Variable -Verbose $var.var (iex $var.$buildPlatform) -Force}
-        else {New-Variable -Verbose $var.var $var.$buildPlatform -Force}
+        if ($var.exec -eq 'execute') {New-Variable $var.var (iex $var.$buildPlatform) -Force}
+        else {New-Variable $var.var $var.$buildPlatform -Force}
     }
 }
  #+END_SRC
@@ -932,8 +932,8 @@ the value to the corresponding hash table.
 #+BEGIN_SRC powershell
 ForEach ($var in $otherVars) {
     if (($var.var -like "env:*") -or ($var.type -eq 'env-var')) { # If variable name contains 'env:', or is type 'env-var'
-        if ($var.exec -eq "execute") {Set-Item -Verbose -Path $var.var -Value (iex $var.value)} # If we need to 'execute'
-        else {Set-Item -Verbose -Path $var.var -Value $var.value} # Else just assign
+        if ($var.exec -eq "execute") {Set-Item -Path $var.var -Value (iex $var.value)} # If we need to 'execute'
+        else {Set-Item -Path $var.var -Value $var.value} # Else just assign
     }
     elseif ($var.type -eq 'hsh-itm') { # Logic for hash table items
         $hsh = $var.var -split '\.' # Split the hash table item into a two-member array (note all hash table items must follow a hashtbl.keyname format)
@@ -942,8 +942,8 @@ ForEach ($var in $otherVars) {
         else {$hshtbl.add($hsh[1], $var.value)}  # Same as above, but assign rather than invoke/execute the $var.value
     }
     else { # Logic for everything else (i.e. a regular variable)
-        if ($var.exec -eq 'execute') {New-Variable -Verbose $var.var (iex $var.value) -Force} 
-        else {New-Variable -Verbose $var.var $var.value -Force}
+        if ($var.exec -eq 'execute') {New-Variable $var.var (iex $var.value) -Force} 
+        else {New-Variable $var.var $var.value -Force}
     }
 }
 #+END_SRC 
