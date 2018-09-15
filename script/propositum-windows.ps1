@@ -127,12 +127,17 @@ doom -y quickstart
 
 Pop-Location
 
+scoop list | Write-Host
+
+Push-Location $propositum.apps
+scoop export | Out-String > install-info.txt
+Pop-Location
+
 if ($buildPlatform -eq "appveyor")
 {
     echo "Compressing files into release artifact..."
-
-    # iex "7z a -t7z -m0=lzma2:d=1024m -mx=9 -aoa -mfb=64 -md=32m -ms=on C:\propositum\propositum.7z C:\propositum"  # Additional options to increase compression ratio
-    iex "7z a -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on -v2g C:\propositum\propositum.7z C:\propositum"
+    cd $propositum.root # cd to root, as 7z -v switch does not support specifying end file and directory 
+    iex "7z a -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on -v2g P:\propositum.7z"
 }
 
 if ($buildPlatform -eq "appveyor") {$deploy = $true}

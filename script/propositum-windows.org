@@ -1180,6 +1180,22 @@ Pop-Location
 #+END_SRC
 
 *** TODO Create private doom-config
+** Summarise Installation
+
+Provide the user a summary of what was installed (including any dependencies installed automatically)
+
+#+BEGIN_SRC powershell
+scoop list | Write-Host
+#+END_SRC
+
+Generate a list of the applications & versions installed and store in a text file. This can be used as a reference of what was installed & also as an importable 'install' file for Scoop.
+
+#+BEGIN_SRC powershell
+  Push-Location $propositum.apps
+  scoop export | Out-String > install-info.txt
+  Pop-Location
+#+END_SRC
+
 ** Create build artifact
 :PROPERTIES:
 :ID:       0AC1E5F5-D4EE-40F5-ACF3-D7D6C26DC59E
@@ -1190,13 +1206,12 @@ Create the 7zip'd build artifact for later deployment to GitHub - this is the fi
 We only need to do this if running on AppVeyor.
 
 #+BEGIN_SRC powershell
-if ($buildPlatform -eq "appveyor")
-{
-    echo "Compressing files into release artifact..."
-
-    # iex "7z a -t7z -m0=lzma2:d=1024m -mx=9 -aoa -mfb=64 -md=32m -ms=on C:\propositum\propositum.7z C:\propositum"  # Additional options to increase compression ratio
-    iex "7z a -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on -v2g C:\propositum\propositum.7z C:\propositum"
-}
+  if ($buildPlatform -eq "appveyor")
+  {
+      echo "Compressing files into release artifact..."
+      cd $propositum.root # cd to root, as 7z -v switch does not support specifying end file and directory 
+      iex "7z a -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on -v2g P:\propositum.7z"
+  }
 #+END_SRC
 * Deploy
 
