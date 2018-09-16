@@ -92,7 +92,7 @@ $propositumRepo = [ordered]@{
 # Clone the repo (if not AppVeyor as it is already cloned for us)
 if(-not $buildPlatform -eq "appveyor"){Github-CloneRepo "" $propositumRepo $env:propositumLocation}
 
-$propositumScoop = @(
+$propositumComponents = @(
     'cmder',
     'lunacy',
     'autohotkey',
@@ -108,10 +108,10 @@ $propositumScoop = @(
     'latex'
 )
 
-$componentsToInstall = $propositumScoop -join "`r`n=> " | Out-String
+$componentsToInstall = $propositumComponents -join "`r`n=> " | Out-String
 Write-Host "`r`nThe following components will be installed:`r`n`r`n=> $componentsToInstall" -ForegroundColor Black -BackgroundColor Yellow
 
-Invoke-Expression "scoop install $propositumScoop"
+Invoke-Expression "scoop install $propositumComponents"
 
 Push-Location $propositum.home
 
@@ -123,6 +123,8 @@ $env:Path = $env:Path + ";" + $doomBin
 doom -y quickstart
 
 Pop-Location
+
+scoop cache rm *
 
 scoop list | Write-Host
 

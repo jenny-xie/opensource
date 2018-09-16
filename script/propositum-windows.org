@@ -1172,6 +1172,16 @@ Pop-Location
 #+END_SRC
 
 *** TODO Create private doom-config
+** Clean-up
+
+Post-installation clean-up, primarily to reduce the overall size of the final
+build artifact.
+
+*** Delete scoop cache
+
+#+BEGIN_SRC powershell
+scoop cache rm *
+#+END_SRC
 ** Summarise Installation
 *** COMMENT Generate list of components & metadata
 :PROPERTIES:
