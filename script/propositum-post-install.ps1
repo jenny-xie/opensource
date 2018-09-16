@@ -61,7 +61,8 @@ $propositumScoop = @(
     'emacs-p',
     'texteditoranywhere-p',
     'superset-p',
-    'pandoc'
+    'pandoc',
+    'latex'
 ) 
 $doomBin = $propositum.home + "\.emacs.d\bin"
 $env:Path = $env:Path + ";" + $doomBin

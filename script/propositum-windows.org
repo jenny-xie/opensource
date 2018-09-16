@@ -182,26 +182,17 @@ Note the ~;~ appended to the ~-replace~ function, which lets us chain another co
  - Remember *not* to include a ~$~ before the variable name in the =var= column of the table. The ~New-Variable~ command will add this in upon execution
  - Important to specify =assign= or =execute= values, otherwise =iex= can cause undesired behaviour (e.g. trying to evaluate a path that doesn't exist instead of assigning)
 
-To make the table neater, we define a few ofthe repeated commands outside of the
-table, as variables.
-   
-#+BEGIN_SRC powershell
-$promptPropositumDrv = if(($result = Read-Host -Prompt "Please provide a letter for the Propositum root drive (default is 'P').") -eq ""){("P").Trim(":")+":"}else{$result.Trim(":")+":"} 
-$promptGitHubAPIToken = Read-Host -AsSecureString -Prompt "Please provide your GitHub token." 
-$promptSupersetPassword = Read-Host -AsSecureString -Prompt "Please provide a password for the Superset user 'Propositum'."  
-#+END_SRC
-   
 Then populate with the variable names, which will be executed by
 =Invoke-Expression= (aka =iex=).
 
  #+NAME: vars-platform-tbl
  #+RESULTS: vars-platform-import
- | type   | exec    | var                    | appveyor              | local                   | local-gs                | testing                 | comment                                                                       |
- |--------+---------+------------------------+-----------------------+-------------------------+-------------------------+-------------------------+-------------------------------------------------------------------------------|
- | normal | assign  | env:propositumLocation | C:\propositum         | C:\propositum           | H:\propositum           | C:\propositum-test      | The =git clone= location of the propositum repo                               |
- | normal | execute | env:propositumDrv      | $env:propositumDrv    | $promptPropositumDrv    | $promptPropositumDrv    | $promptPropositumDrv    | The drive letter =$propositumLocation= will map to                            |
- | secure | execute | env:githubApiToken     | $env:githubApiToken   | $promptGitHubAPIToken   | $promptGitHubAPIToken   | $promptGitHubAPIToken   | API Token for interaction with GH (not currently used in non-AppVeyor builds) |
- | secure | execute | env:supersetPassword   | $env:supersetPassword | $promptSupersetPassword | $promptSupersetPassword | $promptSupersetPassword | The password for the =propositum= user for the =superset= application         |
+ | type   | exec    | var                    | appveyor              | local                                                                                                                                                                                     | local-gs                                                                                                                                                                                  | testing                                                                                                                                                                                   | comment                                                                       |
+ |--------+---------+------------------------+-----------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------|
+ | normal | assign  | env:propositumLocation | C:\propositum         | C:\propositum                                                                                                                                                                             | H:\propositum                                                                                                                                                                             | C:\propositum-test                                                                                                                                                                        | The =git clone= location of the propositum repo                               |
+ | normal | execute | env:propositumDrv      | $env:propositumDrv    | $promptPropositumDrv = if(($result = Read-Host -Prompt "Please provide a letter for the Propositum root drive (default is 'P').") -eq ""){("P").Trim(":")+":"}else{$result.Trim(":")+":"} | $promptPropositumDrv = if(($result = Read-Host -Prompt "Please provide a letter for the Propositum root drive (default is 'P').") -eq ""){("P").Trim(":")+":"}else{$result.Trim(":")+":"} | $promptPropositumDrv = if(($result = Read-Host -Prompt "Please provide a letter for the Propositum root drive (default is 'P').") -eq ""){("P").Trim(":")+":"}else{$result.Trim(":")+":"} | The drive letter =$propositumLocation= will map to                            |
+ | secure | execute | env:githubApiToken     | $env:githubApiToken   | $promptGitHubAPIToken = Read-Host -AsSecureString -Prompt "Please provide your GitHub token."                                                                                             | $promptGitHubAPIToken = Read-Host -AsSecureString -Prompt "Please provide your GitHub token."                                                                                             | $promptGitHubAPIToken = Read-Host -AsSecureString -Prompt "Please provide your GitHub token."                                                                                             | API Token for interaction with GH (not currently used in non-AppVeyor builds) |
+ | secure | execute | env:supersetPassword   | $env:supersetPassword | $promptSupersetPassword = Read-Host -AsSecureString -Prompt "Please provide a password for the Superset user 'Propositum'."                                                               | $promptSupersetPassword = Read-Host -AsSecureString -Prompt "Please provide a password for the Superset user 'Propositum'."                                                               | $promptSupersetPassword = Read-Host -AsSecureString -Prompt "Please provide a password for the Superset user 'Propositum'."                                                               | The password for the =propositum= user for the =superset= application         |
 
  Then export to ~vars-platform.csv~
 
@@ -1111,20 +1102,21 @@ Use a powershell array to define the components to install (and for better reada
 
 #+NAME: propositum-components-list
 #+BEGIN_SRC powershell
-$propositumScoop = @(
-    'cmder',
-    'lunacy',
-    'autohotkey',
-    'miniconda3',
-    'imagemagick',
-    'knime-p',
-    'rawgraphs-p',
-    'regfont-p',
-    'emacs-p',
-    'texteditoranywhere-p',
-    'superset-p',
-    'pandoc'
-)
+  $propositumScoop = @(
+      'cmder',
+      'lunacy',
+      'autohotkey',
+      'miniconda3',
+      'imagemagick',
+      'knime-p',
+      'rawgraphs-p',
+      'regfont-p',
+      'emacs-p',
+      'texteditoranywhere-p',
+      'superset-p',
+      'pandoc',
+      'latex'
+  )
 #+END_SRC
 
 Let the user know which components are being installed

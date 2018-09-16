@@ -4,10 +4,6 @@
 
 cd $psScriptRoot
 
-$promptPropositumDrv = if(($result = Read-Host -Prompt "Please provide a letter for the Propositum root drive (default is 'P').") -eq ""){("P").Trim(":")+":"}else{$result.Trim(":")+":"} 
-$promptGitHubAPIToken = Read-Host -AsSecureString -Prompt "Please provide your GitHub token." 
-$promptSupersetPassword = Read-Host -AsSecureString -Prompt "Please provide a password for the Superset user 'Propositum'."
-
 $testing = $false
 
 $buildPlatform = if ($env:APPVEYOR) {"appveyor"}
@@ -108,7 +104,8 @@ $propositumScoop = @(
     'emacs-p',
     'texteditoranywhere-p',
     'superset-p',
-    'pandoc'
+    'pandoc',
+    'latex'
 )
 
 $componentsToInstall = $propositumScoop -join "`r`n=> " | Out-String
