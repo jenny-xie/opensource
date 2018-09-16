@@ -1102,7 +1102,7 @@ Use a powershell array to define the components to install (and for better reada
 
 #+NAME: propositum-components-list
 #+BEGIN_SRC powershell
-  $propositumScoop = @(
+  $propositumComponents = @(
       'cmder',
       'lunacy',
       'autohotkey',
@@ -1122,14 +1122,14 @@ Use a powershell array to define the components to install (and for better reada
 Let the user know which components are being installed
 
 #+BEGIN_SRC powershell
-$componentsToInstall = $propositumScoop -join "`r`n=> " | Out-String
+$componentsToInstall = $propositumComponents -join "`r`n=> " | Out-String
 Write-Host "`r`nThe following components will be installed:`r`n`r`n=> $componentsToInstall" -ForegroundColor Black -BackgroundColor Yellow
 #+END_SRC
 
 And =Invoke-Expression= to call the scoop installer with the array
 
 #+BEGIN_SRC powershell
-Invoke-Expression "scoop install $propositumScoop"
+Invoke-Expression "scoop install $propositumComponents"
 #+END_SRC
 ** Install & setup =doom-emacs=
 :PROPERTIES:
@@ -1173,6 +1173,59 @@ Pop-Location
 
 *** TODO Create private doom-config
 ** Summarise Installation
+*** COMMENT Generate list of components & metadata
+:PROPERTIES:
+:header-args: :tangle propositum-components-list.ps1
+:END:
+#+BEGIN_SRC powershell
+  # Derive bucket paths
+  $localBuckets = $env:SCOOP+'buckets'
+  $mainBucket = $env:SCOOP+'apps\scoop\current\bucket'
+  $extrasBucket = $localBuckets+'\extras'
+  $propositumBucket = $localBuckets+'\propositum'
+  $buckets = @($mainBucket, $extrasBucket, $propositumBucket)
+
+  # Create a list of all apps in each bucket
+  $allApps = $buckets.ForEach({$bucketPath = $_; Get-ChildItem $_ | Where 'Extension' -eq '.json' | Select 'BaseName', 'Extension', @{l="Path";e={$bucketPath+'\'+$_}}})
+
+  # Create an object of scoop apps currently installed
+  $installedApps = $propositumComponents
+
+  # Filter all apps by installed
+  $appList = $allApps | Where 'BaseName' -In $installedApps
+
+
+  $Testing = $appList.ForEach({$appName = $_.BaseName; Get-Content -Raw -Path $_.Path | ConvertFrom-Json | Select @{l='app';e={$appName.Replace('-p','')}}, *})
+
+  # Convert to JSON & extract required fields
+  $componentsTable = $appList.ForEach({$appName = $_.BaseName; Get-Content -Raw -Path $_.Path | ConvertFrom-Json | Select @{l='app';e={$appName.Replace('-p','')}}, @{l='manifest';e={$appName}}, @{l='license';e={$_.license.Replace('-or-later','')}}, 'homepage', 'description', '_comment'})
+#+END_SRC
+
+**** COMMENT Scoop-driven version
+#+BEGIN_SRC powershell
+  # Derive bucket paths
+  $localBuckets = $env:SCOOP+'buckets'
+  $mainBucket = $env:SCOOP+'apps\scoop\current\bucket'
+  $extrasBucket = $localBuckets+'\extras'
+  $propositumBucket = $localBuckets+'\propositum'
+  $buckets = @($mainBucket, $extrasBucket, $propositumBucket)
+
+  # Create a list of all apps in each bucket
+  $allApps = $buckets.ForEach({$bucketPath = $_; Get-ChildItem $_ | Where 'Extension' -eq '.json' | Select 'BaseName', 'Extension', @{l="Path";e={$bucketPath+'\'+$_}}})
+
+  # Create an object of scoop apps currently installed
+  $installedApps = scoop export | ConvertFrom-String -PropertyNames 'app', 'version', 'bucket'
+
+  # Filter all apps by installed
+  $appList = $allApps | Where 'BaseName' -In $installedApps.app
+
+
+  $Testing = $appList.ForEach({$appName = $_.BaseName; Get-Content -Raw -Path $_.Path | ConvertFrom-Json | Select @{l='app';e={$appName.Replace('-p','')}}, *})
+
+  # Convert to JSON & extract required fields
+  $componentsTable = $appList.ForEach({$appName = $_.BaseName; Get-Content -Raw -Path $_.Path | ConvertFrom-Json | Select @{l='app';e={$appName.Replace('-p','')}}, @{l='manifest';e={$appName}}, @{l='license';e={$_.license.Replace('-or-later','')}}, 'homepage', 'description', '_comment'})
+#+END_SRC
+*** Summarise via Scoop
 
 Provide the user a summary of what was installed (including any dependencies installed automatically)
 
