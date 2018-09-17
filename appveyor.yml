@@ -1,0 +1,43 @@
+version: 1.0.{build}
+branches:
+  only:
+  - master
+image: Visual Studio 2017
+clone_folder: c:\propositum
+init:
+- ps: '# $blockRdp = $true'
+environment:
+  supersetpassword:
+    secure: 6ldsCuuJVKGYr44vbdnjSw==
+  githubapitoken:
+    secure: nST1cukl1Jl5NpnP53P7y2SOFs4dYTbhVFu9r8vBL/c/xSsUVHRxhMJqpou4qUtQ
+  propositumDrv: 'P:'
+build_script:
+- ps: . ./script/propositum-windows.ps1
+test: off
+artifacts:
+- path: propositum.7z*
+  name: propositum
+deploy:
+- provider: GitHub
+  auth_token:
+    secure: nST1cukl1Jl5NpnP53P7y2SOFs4dYTbhVFu9r8vBL/c/xSsUVHRxhMJqpou4qUtQ
+  artifact: propositum
+  force_update: false
+notifications:
+- provider: Slack
+  incoming_webhook: https://hooks.slack.com/services/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
+  channel: propositum
+  template: <{{buildUrl}}|⚙️ → ✅ Build Success {{buildVersion}} {{status}}>
+  on_build_success: true
+  on_build_failure: false
+  on_build_status_changed: false
+- provider: Slack
+  incoming_webhook: https://hooks.slack.com/services/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
+  channel: propositum
+  template: <{{buildUrl}}|⚙️ → ❌ Build Failed {{buildVersion}} {{status}}>
+  on_build_success: false
+  on_build_failure: true
+  on_build_status_changed: false
+on_finish:
+- ps: "# iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))"
