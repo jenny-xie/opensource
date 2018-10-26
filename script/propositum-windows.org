@@ -190,12 +190,12 @@ Then populate with the variable names, which will be executed by
 
  #+NAME: vars-platform-tbl
  #+RESULTS: vars-platform-import
- | type   | exec    | var                    | appveyor              | local                                                                                                                                            | local-gs                                                                                                                                         | testing                                                                                                                                          | comment                                                                       |
- |--------+---------+------------------------+-----------------------+--------------------------------------------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------|
- | normal | assign  | env:propositumLocation | C:\propositum         | C:\propositum                                                                                                                                    | H:\propositum                                                                                                                                    | C:\propositum-test                                                                                                                               | The =git clone= location of the propositum repo                               |
- | normal | execute | env:propositumDrv      | $env:propositumDrv    | (& {if(($result = Read-Host 'Please provide a letter for the Propositum root drive (default is ‘P').') -eq ‘’){‘P:’}else{$result.Trim(‘;’)+’:’}) | (& {if(($result = Read-Host 'Please provide a letter for the Propositum root drive (default is ‘P').') -eq ‘’){‘P:’}else{$result.Trim(‘;’)+’:’}) | (& {if(($result = Read-Host 'Please provide a letter for the Propositum root drive (default is ‘P').') -eq ‘’){‘P:’}else{$result.Trim(‘;’)+’:’}) | The drive letter =$propositumLocation= will map to                            |
- | secure | execute | env:githubApiToken     | $env:githubApiToken   | (& {Read-Host -AsSecureString ‘Please provide your GitHub token.’})                                                                              | (& {Read-Host -AsSecureString ‘Please provide your GitHub token.’})                                                                              | (& {Read-Host -AsSecureString ‘Please provide your GitHub token.’})                                                                              | API Token for interaction with GH (not currently used in non-AppVeyor builds) |
- | secure | execute | env:supersetPassword   | $env:supersetPassword | (& {Read-Host -AsSecureString 'Please provide a password for the Superset user ‘Propositum’.’})                                                  | (& {Read-Host -AsSecureString 'Please provide a password for the Superset user ‘Propositum’.’})                                                  | (& {Read-Host -AsSecureString 'Please provide a password for the Superset user ‘Propositum’.’})                                                  | The password for the =propositum= user for the =superset= application         |
+ | type   | exec    | var                    | appveyor              | local                                                                                                                                             | local-gs                                                                                                                                          | testing                                                                                                                                           | comment                                                                       |
+ |--------+---------+------------------------+-----------------------+---------------------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------|
+ | normal | assign  | env:propositumLocation | C:\propositum         | C:\propositum                                                                                                                                     | H:\propositum                                                                                                                                     | C:\propositum-test                                                                                                                                | The =git clone= location of the propositum repo                               |
+ | normal | execute | env:propositumDrv      | $env:propositumDrv    | (& {if(($result = Read-Host 'Please provide a letter for the Propositum root drive (default is ‘P').') -eq ‘’){‘P:’}else{$result.Trim(‘;’)+’:’}}) | (& {if(($result = Read-Host 'Please provide a letter for the Propositum root drive (default is ‘P').') -eq ‘’){‘P:’}else{$result.Trim(‘;’)+’:’}}) | (& {if(($result = Read-Host 'Please provide a letter for the Propositum root drive (default is ‘P').') -eq ‘’){‘P:’}else{$result.Trim(‘;’)+’:’}}) | The drive letter =$propositumLocation= will map to                            |
+ | secure | execute | env:githubApiToken     | $env:githubApiToken   | (& {Read-Host -AsSecureString ‘Please provide your GitHub token.’})                                                                               | (& {Read-Host -AsSecureString ‘Please provide your GitHub token.’})                                                                               | (& {Read-Host -AsSecureString ‘Please provide your GitHub token.’})                                                                               | API Token for interaction with GH (not currently used in non-AppVeyor builds) |
+ | secure | execute | env:supersetPassword   | $env:supersetPassword | (& {Read-Host -AsSecureString 'Please provide a password for the Superset user ‘Propositum’.’})                                                   | (& {Read-Host -AsSecureString 'Please provide a password for the Superset user ‘Propositum’.’})                                                   | (& {Read-Host -AsSecureString 'Please provide a password for the Superset user ‘Propositum’.’})                                                   | The password for the =propositum= user for the =superset= application         |
 
  Then export to ~vars-platform.csv~
 
@@ -221,15 +221,15 @@ Then lets define them in a simplified table
 
 #+NAME: vars-other-tbl
  #+RESULTS: vars-other-import
- | type    | exec    | var             | value                      | comment                                                        |
- |---------+---------+-----------------+----------------------------+----------------------------------------------------------------|
- | hsh-tbl | execute | propositum      | @{}                        | Initialises the hash table                                     |
- | hsh-itm | execute | propositum.root | $env:propositumDrv+"\"     | Propositum root folder                                         |
- | hsh-itm | execute | propositum.apps | $env:propositumDrv+"\apps" | Propositum apps folder (scoop root)                            |
- | hsh-itm | execute | propositum.home | $env:propositumDrv+"\home" | Propositum home folder (dotfiles & projects)                   |
- | hsh-itm | execute | propositum.font | $env:propositumDrv+"\font" | Propositum fonts folder                                        |
- | env-var | execute | env:HOME        | $propositum.home           | Sets env-var home to propositum home                           |
- | env-var | execute | env:SCOOP       | $propositum.root           | Sets scoop home to the propositum root (creates 'apps' folder) |
+ | type    | exec    | var                    | value                      | comment                                                        |
+ |---------+---------+------------------------+----------------------------+----------------------------------------------------------------|
+ | hsh-tbl | execute | global:propositum      | @{}                        | Initialises the hash table                                     |
+ | hsh-itm | execute | global:propositum.root | $env:propositumDrv+"\"     | Propositum root folder                                         |
+ | hsh-itm | execute | global:propositum.apps | $env:propositumDrv+"\apps" | Propositum apps folder (scoop root)                            |
+ | hsh-itm | execute | global:propositum.home | $env:propositumDrv+"\home" | Propositum home folder (dotfiles & projects)                   |
+ | hsh-itm | execute | global:propositum.font | $env:propositumDrv+"\font" | Propositum fonts folder                                        |
+ | env-var | execute | env:HOME               | $propositum.home           | Sets env-var home to propositum home                           |
+ | env-var | execute | env:SCOOP              | $propositum.root           | Sets scoop home to the propositum root (creates 'apps' folder) |
 
 
 *Note:* The ~type~ column here is important, particularly =hsh-itm= & =env-var=.
@@ -1274,7 +1274,9 @@ if ($buildPlatform -eq "appveyor")
 {
     echo "Compressing files into release artifact..."
     cd $propositum.root # cd to root, as 7z -v switch does not support specifying end file and directory 
+    echo "Creating TAR archive..."
     iex "7z a -ttar -snl propositum.tar P:\" # Create tar archvie to preserve symlinks
+    echo "Compressing TAR into 7z archive..."
     iex "7z a -t7z propositum.tar.7z propositum.tar -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on -v1500m" # Compress tar into 7z archive 
 }
 #+END_SRC
@@ -1329,9 +1331,9 @@ This section has a =:PROPERTIES:= section that tangles to =propositum-post-insta
 <<map-propositum-drv>>
 reg add HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run /f /v "Propositum" /d "subst $propositumDrv $propositumLocation" # Add registry entry to map on startup
 <<propositum-components-list>> 
-$env:Path = $env:Path + ";" + "$propositum.root\shims"  # Add shims to path so scoop & other commands available on command line
+$env:Path = $env:Path + ";" + "$propositum.root\shims"  # Add shims to path again so scoop & other commands available on command line
 <<doom-bin-to-path>>
-iex "scoop cleanup *"; iex "scoop reset *"
+iex "scoop reset *" # Re-enables all scoop apps
 #+END_SRC
 
 For completeness, here is a script to remove the reigstry key added for mapping
