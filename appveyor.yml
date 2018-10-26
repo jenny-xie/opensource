@@ -12,11 +12,13 @@ environment:
   githubapitoken:
     secure: nST1cukl1Jl5NpnP53P7y2SOFs4dYTbhVFu9r8vBL/c/xSsUVHRxhMJqpou4qUtQ
   propositumDrv: 'P:'
+  bintrayDeploy: Yes
+  githubDeploy: No
 build_script:
 - ps: . ./script/propositum-windows.ps1
 test: off
 artifacts:
-- path: propositum.7z*
+- path: propositum.tar.7z*
   name: propositum
 deploy:
 - provider: GitHub
@@ -24,6 +26,18 @@ deploy:
     secure: nST1cukl1Jl5NpnP53P7y2SOFs4dYTbhVFu9r8vBL/c/xSsUVHRxhMJqpou4qUtQ
   artifact: propositum
   force_update: false
+  on:
+    githubDeploy: Yes
+- provider: BinTray
+  username: xeijin
+  api_key:
+    secure: O0DhLTtmK77asEUTQzGE+6rO0ANBZEA1AUnH9rR4FpwgIUBwSE7Eh4L0dUJexsU9
+  subject: xeijin
+  repo: propositum
+  package: propositum
+  artifact: propositum
+  on:
+    bintrayDeploy: Yes
 notifications:
 - provider: Slack
   incoming_webhook: https://hooks.slack.com/services/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
