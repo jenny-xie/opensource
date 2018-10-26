@@ -64,7 +64,7 @@ $propositumComponents = @(
     'pandoc',
     'latex'
 ) 
-$env:Path = $env:Path + ";" + "$propositum.root\shims"  # Add shims to path so scoop & other commands available on command line
+$env:Path = $env:Path + ";" + "$propositum.root\shims"  # Add shims to path again so scoop & other commands available on command line
 $doomBin = $propositum.home + "\.emacs.d\bin"
 $env:Path = $env:Path + ";" + $doomBin
-iex "scoop cleanup *"; iex "scoop reset *"
+iex "scoop reset *" # Re-enables all scoop apps
