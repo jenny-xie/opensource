@@ -1329,8 +1329,9 @@ This section has a =:PROPERTIES:= section that tangles to =propositum-post-insta
 <<map-propositum-drv>>
 reg add HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run /f /v "Propositum" /d "subst $propositumDrv $propositumLocation" # Add registry entry to map on startup
 <<propositum-components-list>> 
+$env:Path = $env:Path + ";" + "$propositum.root\shims"  # Add shims to path so scoop & other commands available on command line
 <<doom-bin-to-path>>
-iex "scoop cleanup **"; iex "scoop reset **"
+iex "scoop cleanup *"; iex "scoop reset *"
 #+END_SRC
 
 For completeness, here is a script to remove the reigstry key added for mapping
