@@ -10,6 +10,9 @@ A collection of free and open-source, portable tools to facilitate task & inform
 #+END_QUOTE
 
 * Usage
+:PROPERTIES:
+:ID:       91341445-2039-42FC-9E73-9996D38AC962
+:END:
 
 Installation via the [[https://github.com/xeijin/propositum/releases][Releases]] for the latest binary distribution. Unzip, then ensure you run
 the [[Finish]] script.
@@ -1178,6 +1181,9 @@ Post-installation clean-up, primarily to reduce the overall size of the final
 build artifact.
 
 *** Delete scoop cache
+:PROPERTIES:
+:ID:       37614274-E067-4FFA-9BD0-83FFB0264075
+:END:
 
 #+BEGIN_SRC powershell
 scoop cache rm *
@@ -1236,6 +1242,9 @@ scoop cache rm *
   $componentsTable = $appList.ForEach({$appName = $_.BaseName; Get-Content -Raw -Path $_.Path | ConvertFrom-Json | Select @{l='app';e={$appName.Replace('-p','')}}, @{l='manifest';e={$appName}}, @{l='license';e={$_.license.Replace('-or-later','')}}, 'homepage', 'description', '_comment'})
 #+END_SRC
 *** Summarise via Scoop
+:PROPERTIES:
+:ID:       AB7C1777-8F53-41DF-A99E-E5285BB36D68
+:END:
 
 Provide the user a summary of what was installed (including any dependencies installed automatically)
 
