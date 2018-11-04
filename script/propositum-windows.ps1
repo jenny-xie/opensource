@@ -2,30 +2,30 @@
 ### --- this script is accompanied by an org-mode file used to literately generate it.   --- ###
 ### --- Please see https://github.com/xeijin/propositum for the accompanying README.org  --- ###
 
-cd $psScriptRoot
+  cd $psScriptRoot
 
 $testing = $false
 
-$buildPlatform = if ($env:APPVEYOR) {"appveyor"}
-elseif ($testing) {"testing"} # For debugging locally
-elseif ($env:computername -match "NDS.*") {"local-gs"} # Check for NDS
-else {"local"}
+  $buildPlatform = if ($env:APPVEYOR) {"appveyor"}
+  elseif ($testing) {"testing"} # For debugging locally
+  elseif ($env:computername -match "NDS.*") {"local-gs"} # Check for NDS
+  else {"local"}
 
-cd $PSScriptRoot
+  cd $PSScriptRoot
 
-$Host.UI.RawUI.BackgroundColor = ($bckgrnd = 'Black')
+  $Host.UI.RawUI.BackgroundColor = ($bckgrnd = 'Black')
 
-. ./propositum-helper-fns.ps1
+   . ./propositum-helper-fns.ps1
 
-Try
-{
-    $platformVars = Import-CSV "vars-platform.csv"
-}
-Catch
-{
-    Throw "Check the CSV file actually exists and is formatted correctly before proceeding."
-    $error[0]|format-list -force
-}
+   Try
+   {
+       $platformVars = Import-CSV "vars-platform.csv"
+   }
+   Catch
+   {
+       Throw "Check the CSV file actually exists and is formatted correctly before proceeding."
+       $error[0]|format-list -force
+   }
 
 ForEach ($var in $platformVars | Select 'var', $buildPlatform, 'exec') { # Narrow to required columns & $buildPlatform
     if ($var.var -like "env:*") { # If variable name contains 'env:'
@@ -38,15 +38,15 @@ ForEach ($var in $platformVars | Select 'var', $buildPlatform, 'exec') { # Narro
     }
 }
 
-Try
-{
-    $otherVars = Import-CSV "vars-other.csv"
-}
-Catch
-{
-    Throw "Check the CSV file actually exists and is formatted correctly before proceeding."
-    $error[0]|format-list -force
-}
+   Try
+   {
+       $otherVars = Import-CSV "vars-other.csv"
+   }
+   Catch
+   {
+       Throw "Check the CSV file actually exists and is formatted correctly before proceeding."
+       $error[0]|format-list -force
+   }
 
 ForEach ($var in $otherVars) {
     if (($var.var -like "env:*") -or ($var.type -eq 'env-var')) { # If variable name contains 'env:', or is type 'env-var'
@@ -67,46 +67,47 @@ ForEach ($var in $otherVars) {
 
 $propositum | Format-Table | Out-String | Write-Host
 
-if ($testing -and $env:propositumLocation) {Remove-Item ($env:propositumLocation+"\*") -Recurse -Force}
+  if ($testing -and $env:propositumLocation) {Remove-Item ($env:propositumLocation+"\*") -Recurse -Force}
 
-subst $env:propositumDrv $env:propositumLocation
+    subst $env:propositumDrv $env:propositumLocation
 
-$createdDirs = Path-CheckOrCreate -Paths $propositum.values -CreateDir
+    $createdDirs = Path-CheckOrCreate -Paths $propositum.values -CreateDir
 
-cd $propositum.root
+    cd $propositum.root
 
-[Net.ServicePointManager]::SecurityProtocol = "Tls12, Tls11, Tls, Ssl3"
+  [Net.ServicePointManager]::SecurityProtocol = "Tls12, Tls11, Tls, Ssl3"
 
-iex (new-object net.webclient).downloadstring('https://get.scoop.sh')
+  iex (new-object net.webclient).downloadstring('https://get.scoop.sh')
 
-scoop bucket add extras
+  scoop bucket add extras
 
-scoop bucket add propositum 'https://github.com/xeijin/propositum-bucket.git'
+  scoop bucket add propositum 'https://github.com/xeijin/propositum-bucket.git'
 
-# Hash table with necessary details for the clone command
-$propositumRepo = [ordered]@{
-    user = "xeijin"
-    repo = "propositum"
-}
+  # Hash table with necessary details for the clone command
+  $propositumRepo = [ordered]@{
+      user = "xeijin"
+      repo = "propositum"
+  }
 
-# Clone the repo (if not AppVeyor as it is already cloned for us)
-if(-not $buildPlatform -eq "appveyor"){Github-CloneRepo "" $propositumRepo $env:propositumLocation}
+  # Clone the repo (if not AppVeyor as it is already cloned for us)
+  if(-not $buildPlatform -eq "appveyor"){Github-CloneRepo "" $propositumRepo $env:propositumLocation}
 
-$propositumComponents = @(
-    'cmder',
-    'lunacy',
-    'autohotkey',
-    'miniconda3',
-    'imagemagick',
-    'knime-p',
-    'rawgraphs-p',
-    'regfont-p',
-    'emacs-p',
-    'texteditoranywhere-p',
-    'superset-p',
-    'pandoc',
-    'latex'
-)
+  $propositumComponents = @(
+      'cmder',
+      'lunacy',
+      'autohotkey',
+      'miniconda3',
+      'imagemagick',
+      'knime-p',
+      'rawgraphs-p',
+      'regfont-p',
+      'emacs-p',
+      'texteditoranywhere-p',
+      'superset-p',
+      'pandoc',
+      'latex',
+      'plantuml'
+  )
 
 $componentsToInstall = $propositumComponents -join "`r`n=> " | Out-String
 Write-Host "`r`nThe following components will be installed:`r`n`r`n=> $componentsToInstall" -ForegroundColor Black -BackgroundColor Yellow
@@ -128,9 +129,9 @@ scoop cache rm *
 
 scoop list | Write-Host
 
-Push-Location $propositum.apps
-scoop export | Out-String > install-info.txt
-Pop-Location
+  Push-Location $propositum.apps
+  scoop export | Out-String > install-info.txt
+  Pop-Location
 
 if ($buildPlatform -eq "appveyor")
 {
@@ -142,5 +143,5 @@ if ($buildPlatform -eq "appveyor")
     iex "7z a -t7z propositum.tar.7z propositum.tar -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on -v1500m" # Compress tar into 7z archive 
 }
 
-if ($buildPlatform -eq "appveyor") {$deploy = $true}
-else {$deploy = $false}
+  if ($buildPlatform -eq "appveyor") {$deploy = $true}
+  else {$deploy = $false}
