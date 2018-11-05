@@ -1280,9 +1280,9 @@ if ($buildPlatform -eq "appveyor")
     iex "7z a -t7z propositum.tar.7z propositum.tar -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on -v1500m" # Compress tar into 7z archive 
     
     # Workaround for AppVeyor BinTray issue (only accepts .zip archives)
-    if ($bintrayDeploy -eq "Yes")
+    if ($bintrayDeploy)
     {
-    iex "7z a propositum.zip propositum.tar.7z*"
+    iex -verbose "7z a propositum.zip propositum.tar.7z*"
     }
 
 }
