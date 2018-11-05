@@ -150,7 +150,5 @@ if ($buildPlatform -eq "appveyor")
 
 }
 
-if ($binTray -eq "appveyor")
-
   if ($buildPlatform -eq "appveyor") {$deploy = $true}
   else {$deploy = $false}

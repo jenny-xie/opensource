@@ -1289,11 +1289,7 @@ if ($buildPlatform -eq "appveyor")
 #+END_SRC
 
 Due to limitations with =BinTray= uploads, if ~binTrayDeploy~ is set to =Yes= we
-should additionally put the artifact into a zip for upload
-
-#+BEGIN_SRC powershell
-if ($binTray -eq "appveyor")
-#+END_SRC
+should additionally put the artifact into a zip for upload.
 
 * Deploy
 
