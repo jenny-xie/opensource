@@ -19,12 +19,14 @@ build_script:
 test: off
 artifacts:
 - path: propositum.tar.7z*
-  name: propositum
+  name: propositum-7z
+- path: propositum.zip
+  name: propositum-zip
 deploy:
 - provider: GitHub
   auth_token:
     secure: nST1cukl1Jl5NpnP53P7y2SOFs4dYTbhVFu9r8vBL/c/xSsUVHRxhMJqpou4qUtQ
-  artifact: propositum
+  artifact: propositum-7z
   force_update: false
   on:
     githubDeploy: Yes
@@ -35,7 +37,8 @@ deploy:
   subject: xeijin
   repo: propositum
   package: propositum
-  artifact: propositum
+  artifact: propositum-zip
+  explode: true
   on:
     bintrayDeploy: Yes
 notifications:

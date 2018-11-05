@@ -138,10 +138,19 @@ if ($buildPlatform -eq "appveyor")
     echo "Compressing files into release artifact..."
     cd $propositum.root # cd to root, as 7z -v switch does not support specifying end file and directory 
     echo "Creating TAR archive..."
-    iex "7z a -ttar -snl propositum.tar P:\" # Create tar archvie to preserve symlinks
+    iex "7z a -ttar -snl propositum.tar P:\" # Create tar archive to preserve symlinks
     echo "Compressing TAR into 7z archive..."
     iex "7z a -t7z propositum.tar.7z propositum.tar -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on -v1500m" # Compress tar into 7z archive 
+    
+    # Workaround for AppVeyor BinTray issue (only accepts .zip archives)
+    if ($bintrayDeploy -eq "Yes")
+    {
+    iex "7z a propositum.zip propositum.tar.7z*"
+    }
+
 }
+
+if ($binTray -eq "appveyor")
 
   if ($buildPlatform -eq "appveyor") {$deploy = $true}
   else {$deploy = $false}
