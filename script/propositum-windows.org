@@ -649,7 +649,6 @@ Return to the original path
 #+BEGIN_SRC powershell
 Pop-Location
 #+END_SRC
-*** TODO Create private doom-config
 ** Clean-up
 
 Post-installation clean-up, primarily to reduce the overall size of the final
