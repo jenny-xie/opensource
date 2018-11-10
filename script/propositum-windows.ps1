@@ -1,6 +1,6 @@
 ### --- NOTE: If you are reading from the PS1 script you will find documentation sparse, --- ###
 ### --- this script is accompanied by an org-mode file used to literately generate it.   --- ###
-### --- Please see https://github.com/xeijin/propositum for the accompanying README.org  --- ###
+### --- Please see https://gitlab.com/xeijin-dev/propositum for the accompanying README.org  --- ###
 
   cd $psScriptRoot
 
@@ -81,16 +81,9 @@ $propositum | Format-Table | Out-String | Write-Host
 
   scoop bucket add extras
 
-  scoop bucket add propositum 'https://github.com/xeijin/propositum-bucket.git'
+  scoop bucket add propositum 'https://gitlab.com/xeijin-dev/propositum-bucket.git'
 
-  # Hash table with necessary details for the clone command
-  $propositumRepo = [ordered]@{
-      user = "xeijin"
-      repo = "propositum"
-  }
-
-  # Clone the repo (if not AppVeyor as it is already cloned for us)
-  if(-not $buildPlatform -eq "appveyor"){Github-CloneRepo "" $propositumRepo $env:propositumLocation}
+git clone 'https://gitlab.com/xeijin-dev/propositum.git'
 
   $propositumComponents = @(
       'cmder',
@@ -140,8 +133,8 @@ if ($buildPlatform -eq "appveyor")
     echo "Creating TAR archive..."
     iex "7z a -ttar -snl propositum.tar P:\" # Create tar archive to preserve symlinks
     echo "Compressing TAR into 7z archive..."
-    iex "7z a -t7z propositum.tar.7z propositum.tar -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on -v1500m" # Compress tar into 7z archive 
-    
+    iex "7z a -t7z propositum.tar.7z propositum.tar -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on -v1500m" # Compress tar into 7z archive
+
     # Workaround for AppVeyor BinTray issue (only accepts .zip archives)
     if ($bintrayDeploy)
     {

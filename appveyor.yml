@@ -18,18 +18,9 @@ build_script:
 - ps: . ./script/propositum-windows.ps1
 test: off
 artifacts:
-- path: propositum.tar.7z*
-  name: propositum-7z
 - path: propositum.zip
   name: propositum-zip
 deploy:
-- provider: GitHub
-  auth_token:
-    secure: nST1cukl1Jl5NpnP53P7y2SOFs4dYTbhVFu9r8vBL/c/xSsUVHRxhMJqpou4qUtQ
-  artifact: propositum-7z
-  force_update: false
-  on:
-    githubDeploy: true
 - provider: BinTray
   username: xeijin
   api_key:

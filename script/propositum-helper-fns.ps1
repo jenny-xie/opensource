@@ -85,9 +85,3 @@
       return $result
 
   }
-
-  function Github-CloneRepo ($opts, $compValsArr, $cloneDir) {
-  Write-Host ("Cloning ... [ "+"~"+$compValsArr.user+"/"+$compValsArr.repo+" ]") -ForegroundColor Yellow -BackgroundColor Black
-  $cloneUrl = ("https://github.com/"+$compValsArr.user+"/"+$compValsArr.repo)
-  iex "git clone $opts $cloneUrl $cloneDir"
-  }

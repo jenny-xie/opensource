@@ -23,7 +23,7 @@ orchestration script which installs the various components.
 #+BEGIN_SRC powershell :exports code
 ### --- NOTE: If you are reading from the PS1 script you will find documentation sparse, --- ###
 ### --- this script is accompanied by an org-mode file used to literately generate it.   --- ###
-### --- Please see https://github.com/xeijin/propositum for the accompanying README.org  --- ###
+### --- Please see https://gitlab.com/xeijin-dev/propositum for the accompanying README.org  --- ###
 #+END_SRC
 * Define
 
@@ -171,7 +171,6 @@ Then populate with the variable names, which will be executed by
  |--------+---------+------------------------+-----------------------+---------------------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------|
  | normal | assign  | env:propositumLocation | C:\propositum         | C:\propositum                                                                                                                                     | H:\propositum                                                                                                                                     | C:\propositum-test                                                                                                                                | The =git clone= location of the propositum repo                               |
  | normal | execute | env:propositumDrv      | $env:propositumDrv    | (& {if(($result = Read-Host 'Please provide a letter for the Propositum root drive (default is ‘P').') -eq ‘’){‘P:’}else{$result.Trim(‘;’)+’:’}}) | (& {if(($result = Read-Host 'Please provide a letter for the Propositum root drive (default is ‘P').') -eq ‘’){‘P:’}else{$result.Trim(‘;’)+’:’}}) | (& {if(($result = Read-Host 'Please provide a letter for the Propositum root drive (default is ‘P').') -eq ‘’){‘P:’}else{$result.Trim(‘;’)+’:’}}) | The drive letter =$propositumLocation= will map to                            |
- | secure | execute | env:githubApiToken     | $env:githubApiToken   | (& {Read-Host -AsSecureString ‘Please provide your GitHub token.’})                                                                               | (& {Read-Host -AsSecureString ‘Please provide your GitHub token.’})                                                                               | (& {Read-Host -AsSecureString ‘Please provide your GitHub token.’})                                                                               | API Token for interaction with GH (not currently used in non-AppVeyor builds) |
  | secure | execute | env:supersetPassword   | $env:supersetPassword | (& {Read-Host -AsSecureString 'Please provide a password for the Superset user ‘Propositum’.’})                                                   | (& {Read-Host -AsSecureString 'Please provide a password for the Superset user ‘Propositum’.’})                                                   | (& {Read-Host -AsSecureString 'Please provide a password for the Superset user ‘Propositum’.’})                                                   | The password for the =propositum= user for the =superset= application         |
 
  Then export to ~vars-platform.csv~
@@ -374,18 +373,6 @@ Check if a dir exists, and if specified, create the directory (or symlink)
 
   }
 #+END_SRC
-**** ~GitHub-CloneRepo~: Clone GitHub repo
-:PROPERTIES:
-:ID:       165F8517-95D6-47B1-BC20-61E92D0A004B
-:END:
-
-#+BEGIN_SRC powershell
-  function Github-CloneRepo ($opts, $compValsArr, $cloneDir) {
-  Write-Host ("Cloning ... [ "+"~"+$compValsArr.user+"/"+$compValsArr.repo+" ]") -ForegroundColor Yellow -BackgroundColor Black
-  $cloneUrl = ("https://github.com/"+$compValsArr.user+"/"+$compValsArr.repo)
-  iex "git clone $opts $cloneUrl $cloneDir"
-  }
-#+END_SRC
 *** Import functions & variables
 **** Import functions
 :PROPERTIES:
@@ -569,24 +556,17 @@ Add the =extras= bucket which contains some additional free or open source appli
 Add the scoop =propositum= bucket which contains the JSON manifest files for installing and configuring the different propositum components.
 
 #+BEGIN_SRC powershell
-  scoop bucket add propositum 'https://github.com/xeijin/propositum-bucket.git'
+  scoop bucket add propositum 'https://gitlab.com/xeijin-dev/propositum-bucket.git'
 #+END_SRC
 ** Clone =propositum= repo
 :PROPERTIES:
 :ID:       7895CDF9-52B1-4040-9FEC-1B4EE178C3A9
 :END:
 
-   A number of required or source-controlled artifacts, including fonts, scripts and configuration files are already located in the propositum Repo, let's fetch those first
+A number of required or source-controlled artifacts, including fonts, scripts and configuration files are already located in the propositum Repo, let's fetch those first
 
 #+BEGIN_SRC powershell
-  # Hash table with necessary details for the clone command
-  $propositumRepo = [ordered]@{
-      user = "xeijin"
-      repo = "propositum"
-  }
-
-  # Clone the repo (if not AppVeyor as it is already cloned for us)
-  if(-not $buildPlatform -eq "appveyor"){Github-CloneRepo "" $propositumRepo $env:propositumLocation}
+git clone 'https://gitlab.com/xeijin-dev/propositum.git'
 #+END_SRC
 * Build 
 
@@ -715,7 +695,7 @@ Generate a list of the applications & versions installed and store in a text fil
 :ID:       0AC1E5F5-D4EE-40F5-ACF3-D7D6C26DC59E
 :END:
 
-Create the 7zip'd build artifact for later deployment to GitHub - this is the file unzipped on systems which require an 'offline' install (i.e. no access to external package repositories).
+Create the 7zip'd build artifact with high compression for later deployment - this is the file unzipped on systems which require an 'offline' install (i.e. no access to external package repositories).
 
 We only need to do this if running on AppVeyor.
 
@@ -728,7 +708,10 @@ if ($buildPlatform -eq "appveyor")
     iex "7z a -ttar -snl propositum.tar P:\" # Create tar archive to preserve symlinks
     echo "Compressing TAR into 7z archive..."
     iex "7z a -t7z propositum.tar.7z propositum.tar -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on -v1500m" # Compress tar into 7z archive 
-    
+#+END_SRC
+
+*** BinTray Deployment
+#+BEGIN_SRC powershell
     # Workaround for AppVeyor BinTray issue (only accepts .zip archives)
     if ($bintrayDeploy)
     {
@@ -743,7 +726,7 @@ should additionally put the artifact into a zip for upload.
 
 * Deploy
 
-Deploy the latest =propositum= release to GitHub.
+Deploy the latest =propositum= release to the platform of choice.
 
 ** Only attempt to deploy if the ~$buildPlatform~ is AppVeyor
 :PROPERTIES:
@@ -766,8 +749,8 @@ Upgrade an existing instance of =propositum=
 - [ ] tangles as a separate file =propositum-upgrade.ps1=
 - [ ] should include the =propositum-helper-fns.ps1=
 - [ ] should be able to run as a local user (not an admin)
-- [ ] should be able to take the latest propositum artifact release from GitHub as an input
-- [ ] should have a separate function that just updates configs (or perhaps a separate github release that is just the config info? e.g. updated .doom.d config file)
+- [ ] should be able to take the latest propositum artifact release as an input
+- [ ] should have a separate function that just updates configs (or perhaps a separate release that is just the config info? e.g. updated .doom.d config file)
 * Finish
 
 General clean-up and post-installation activities.
@@ -1357,4 +1340,16 @@ Required to clone GitHub repos
 
   # Convert to JSON & extract required fields
   $componentsTable = $appList.ForEach({$appName = $_.BaseName; Get-Content -Raw -Path $_.Path | ConvertFrom-Json | Select @{l='app';e={$appName.Replace('-p','')}}, @{l='manifest';e={$appName}}, @{l='license';e={$_.license.Replace('-or-later','')}}, 'homepage', 'description', '_comment'})
+#+END_SRC
+** COMMENT ~GitHub-CloneRepo~: Clone GitHub repo
+:PROPERTIES:
+:ID:       165F8517-95D6-47B1-BC20-61E92D0A004B
+:END:
+
+#+BEGIN_SRC powershell
+  function Github-CloneRepo ($opts, $compValsArr, $cloneDir) {
+  Write-Host ("Cloning ... [ "+"~"+$compValsArr.user+"/"+$compValsArr.repo+" ]") -ForegroundColor Yellow -BackgroundColor Black
+  $cloneUrl = ("https://github.com/"+$compValsArr.user+"/"+$compValsArr.repo)
+  iex "git clone $opts $cloneUrl $cloneDir"
+  }
 #+END_SRC
