@@ -29,7 +29,11 @@
       {
 
           # If exists, add to existing, else add to not existing
-          if (Test-Path $paths[$i]) {$existing += , $paths[$i]}
+          if (Test-Path $paths[$i]) 
+          {
+              $existing += , $paths[$i]
+              continue
+          }
           else {$notExisting += , $paths[$i]}
 
           # If any symlinks have been provided, also do a check to see if these exist

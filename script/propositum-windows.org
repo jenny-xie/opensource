@@ -28,13 +28,11 @@ orchestration script which installs the various components.
 * Define
 
 Some background on the literate functions used, as well as the tables used to maintain the user-defined [[Components]] and [[Variables]]
-
 ** Literate Functions
 
 The list of [[Components]] and their attributes, as well as user-defined [[Variables]] are both maintained in an [[https://orgmode.org/manual/Tables.html][org-mode tables]]. Using [[https://orgmode.org/worg/org-contrib/babel/][org-babel]] and some elisp the contents of these tables are actually executed by PowerShell for use in scripts.
 
 This makes it easier to add new components and variables, as well as modify the existing attributes of these items. It also helps us segregate user-defined inputs from functions, making debugging easier and our code (hopefully) cleaner.
-
 *** Require elisp dependencies
 :PROPERTIES:
 :ID:       1124209E-CC37-405E-80A0-9466D7FA0FF9
@@ -46,7 +44,6 @@ First, let's ensure we get any required elisp dependencies
   (require 'org)
   ;(require 'json)
 #+END_SRC
-
 *** Import from CSV
 :PROPERTIES:
 :ID:       BA24D132-E2E5-4603-B856-E804B744B5FE
@@ -62,7 +59,6 @@ Now define an org-babel source code block to /import/ variables from an existing
     ;; comment out or cut below one line if you don't have column names in CSV file.
     (append (list (car LST)) '(hline) (cdr (org-table-to-lisp))))
 #+END_SRC
-
 *** Export to CSV
 :PROPERTIES:
 :ID:       FC1EE611-609C-4AB4-9BFC-1B27898BCC88
@@ -79,7 +75,6 @@ It takes two arguments, the path to the =CSV= file, and also a name for the org-
     (while (not (org-table-p)) (forward-line))
     (org-table-export csv-path "orgtbl-to-csv"))
 #+END_SRC
-
 ** Components
 :PROPERTIES:
 :ID:       741E70D9-49CC-4E90-89B0-8B30F110DB46
@@ -145,7 +140,6 @@ Then export to ~components.csv~
 
 #+RESULTS: components-export
 : Export done.
-
 ** Variables
 *** Platform-specific variables & secrets
 
@@ -223,7 +217,6 @@ Finally, export the table back to csv
 As some of the variables are dependent on other build environment functions this section has been moved: [[Import functions & variables]]
 * Prepare
 Obtain any required tools, initialise variables & setup the build environment
-
 ** Set mode & determine build platform
 :PROPERTIES:
 :ID:       18FAC438-1875-4EE9-96F2-39EB5D0C1B6E
@@ -249,7 +242,6 @@ Figure out if the script is being run from a local machine, from gs machine or o
 :ID:       84C36059-E29F-439D-AF82-732D3146F219
 :END:
 Ensure the necessary tooling is in place & prepare the build environment.
-
 *** Start in the Script Root
 :PROPERTIES:
 :ID:       772511DD-7D6F-486F-9F2C-8BC128CDA391
@@ -276,8 +268,7 @@ Turn the PowerShell background color to Black to make blue output from commands 
 :END:
 
 Define helper functions to perform repetitive activities
-
-**** TODO ~Path-CheckOrCreate~: Check for path and optionally create dir or symlink
+**** ~Path-CheckOrCreate~: Check for path and optionally create dir or symlink
 :PROPERTIES:
 :ID:       DA8B2429-3EB2-4784-81B1-F69152B9253A
 :END:
@@ -316,7 +307,11 @@ Check if a dir exists, and if specified, create the directory (or symlink)
       {
 
           # If exists, add to existing, else add to not existing
-          if (Test-Path $paths[$i]) {$existing += , $paths[$i]}
+          if (Test-Path $paths[$i]) 
+          {
+              $existing += , $paths[$i]
+              continue
+          }
           else {$notExisting += , $paths[$i]}
 
           # If any symlinks have been provided, also do a check to see if these exist
@@ -475,7 +470,6 @@ Calling the =$propositum= variable should now give us a hash table of paths
 #+BEGIN_SRC powershell
 $propositum | Format-Table | Out-String | Write-Host
 #+END_SRC
-
 *** Clear testing directory
 :PROPERTIES:
 :ID:       64FA9CC2-4B0E-436D-9EC4-E7E6B2BD50B7
@@ -571,7 +565,6 @@ git clone 'https://gitlab.com/xeijin-dev/propositum.git'
 * Build 
 
 Bring together the different components & create the final build artifact.
-
 ** Install components
 :PROPERTIES:
 :ID:       2B59D992-C445-439D-9C67-54554BBDBF7A
@@ -656,13 +649,11 @@ Return to the original path
 #+BEGIN_SRC powershell
 Pop-Location
 #+END_SRC
-
 *** TODO Create private doom-config
 ** Clean-up
 
 Post-installation clean-up, primarily to reduce the overall size of the final
 build artifact.
-
 *** Delete scoop cache
 :PROPERTIES:
 :ID:       37614274-E067-4FFA-9BD0-83FFB0264075
@@ -709,7 +700,6 @@ if ($buildPlatform -eq "appveyor")
     echo "Compressing TAR into 7z archive..."
     iex "7z a -t7z propositum.tar.7z propositum.tar -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on -v1500m" # Compress tar into 7z archive 
 #+END_SRC
-
 *** BinTray Deployment
 #+BEGIN_SRC powershell
     # Workaround for AppVeyor BinTray issue (only accepts .zip archives)
@@ -723,11 +713,9 @@ if ($buildPlatform -eq "appveyor")
 
 Due to limitations with =BinTray= uploads, if ~binTrayDeploy~ is set to =Yes= we
 should additionally put the artifact into a zip for upload.
-
 * Deploy
 
 Deploy the latest =propositum= release to the platform of choice.
-
 ** Only attempt to deploy if the ~$buildPlatform~ is AppVeyor
 :PROPERTIES:
 :ID:       1386CD2A-F620-4C8C-968A-EFD58840D0C4
@@ -754,7 +742,6 @@ Upgrade an existing instance of =propositum=
 * Finish
 
 General clean-up and post-installation activities.
-
 ** Generate post-install script
 :PROPERTIES:
 :header-args: :tangle propositum-post-install.ps1
@@ -787,9 +774,7 @@ the propositum drive on startup
 reg delete HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run /f /v "Propositum" # Removes the registry entry to map propositum drive on startup
 #+END_SRC
 * Archived
-
 The code & sub-sections below have been archived as they are no longer in-use.
-
 ** COMMENT Import into PowerShell
 :PROPERTIES:
 :ID:       2D7E58E5-B0A0-45D0-ACAA-A3CB3973C285
@@ -813,7 +798,7 @@ Note the ~;~ appended to the ~-replace~ function, which lets us chain another co
        Throw "Check the CSV file actually exists and is formatted correctly before proceeding."
        $error[0]|format-list -force
    }
-*** #+END_SRC
+ #+END_SRC
 ** COMMENT ~Get-GHLatestReleaseDl~: Get the download link for the latest GitHub release
 
 Takes a component hash table as an input
@@ -1316,7 +1301,6 @@ Required to clone GitHub repos
   # Convert to JSON & extract required fields
   $componentsTable = $appList.ForEach({$appName = $_.BaseName; Get-Content -Raw -Path $_.Path | ConvertFrom-Json | Select @{l='app';e={$appName.Replace('-p','')}}, @{l='manifest';e={$appName}}, @{l='license';e={$_.license.Replace('-or-later','')}}, 'homepage', 'description', '_comment'})
 #+END_SRC
-
 *** COMMENT Scoop-driven version
 #+BEGIN_SRC powershell
   # Derive bucket paths
