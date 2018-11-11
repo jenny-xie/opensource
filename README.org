@@ -1,4 +1,4 @@
-# Created 2018-11-11 Sun 15:24
+# Created 2018-11-11 Sun 20:22
 #+TITLE: propositum | =WINDOWS=
 #+AUTHOR: Hassan Dar
 * Usage :README:
@@ -10,9 +10,9 @@ Installation via the [[https://gitlab.com/xeijin/propositum/releases][Releases]]
 the post-install ps1 script.
 
 #+BEGIN_SRC powershell
-### --- NOTE: If you are reading from the PS1 script you will find documentation sparse, --- ###
-### --- this script is accompanied by an org-mode file used to literately generate it.   --- ###
-### --- Please see https://gitlab.com/xeijin-dev/propositum for the accompanying README.org  --- ###
+### --- NOTE: If you are reading from the PS1 script you will find documentation sparse, the --- ###
+### --- script is accompanied by an org-mode file, which is used to literately generate it.  --- ###
+### --- Please see https://gitlab.com/xeijin-dev/propositum for the accompanying README.org. --- ###
 #+END_SRC
 * Define
 Define key [[Components]] and [[Variables]]

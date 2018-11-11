@@ -1,6 +1,6 @@
-### --- NOTE: If you are reading from the PS1 script you will find documentation sparse, --- ###
-### --- this script is accompanied by an org-mode file used to literately generate it.   --- ###
-### --- Please see https://gitlab.com/xeijin-dev/propositum for the accompanying README.org  --- ###
+### --- NOTE: If you are reading from the PS1 script you will find documentation sparse, the --- ###
+### --- script is accompanied by an org-mode file, which is used to literately generate it.  --- ###
+### --- Please see https://gitlab.com/xeijin-dev/propositum for the accompanying README.org. --- ###
 
   cd $psScriptRoot
 
@@ -83,8 +83,6 @@ $propositum | Format-Table | Out-String | Write-Host
 
   scoop bucket add propositum 'https://gitlab.com/xeijin-dev/propositum-bucket.git'
 
-git clone 'https://gitlab.com/xeijin-dev/propositum.git'
-
   $propositumComponents = @(
       'cmder',
       'lunacy',
@@ -136,12 +134,7 @@ if ($buildPlatform -eq "appveyor")
     iex "7z a -t7z propositum.tar.7z propositum.tar -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on -v1500m" # Compress tar into 7z archive
 
     # Workaround for AppVeyor BinTray issue (only accepts .zip archives)
-    if ($bintrayDeploy)
-    {
-    iex -verbose "7z a propositum.zip propositum.tar.7z*"
-    }
-
-}
+    iex -verbose "7z a -tzip propositum.zip propositum.tar.7z*"
 
   if ($buildPlatform -eq "appveyor") {$deploy = $true}
   else {$deploy = $false}

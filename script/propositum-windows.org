@@ -16,9 +16,9 @@ Installation via the [[https://gitlab.com/xeijin/propositum/releases][Releases]]
 the post-install ps1 script.
 
 #+BEGIN_SRC powershell
-### --- NOTE: If you are reading from the PS1 script you will find documentation sparse, --- ###
-### --- this script is accompanied by an org-mode file used to literately generate it.   --- ###
-### --- Please see https://gitlab.com/xeijin-dev/propositum for the accompanying README.org  --- ###
+### --- NOTE: If you are reading from the PS1 script you will find documentation sparse, the --- ###
+### --- script is accompanied by an org-mode file, which is used to literately generate it.  --- ###
+### --- Please see https://gitlab.com/xeijin-dev/propositum for the accompanying README.org. --- ###
 #+END_SRC
 * Define
 Define key [[Components]] and [[Variables]]
@@ -669,12 +669,7 @@ if ($buildPlatform -eq "appveyor")
 *** BinTray Deployment
 #+BEGIN_SRC powershell
     # Workaround for AppVeyor BinTray issue (only accepts .zip archives)
-    if ($bintrayDeploy)
-    {
-    iex -verbose "7z a propositum.zip propositum.tar.7z*"
-    }
-
-}
+    iex -verbose "7z a -tzip propositum.zip propositum.tar.7z*"
 #+END_SRC
 
 Due to limitations with =BinTray= uploads, if ~binTrayDeploy~ is set to =Yes= we
