@@ -1,4 +1,4 @@
-# Created 2018-11-11 Sun 15:11
+# Created 2018-11-11 Sun 15:24
 #+TITLE: propositum | =WINDOWS=
 #+AUTHOR: Hassan Dar
 * Usage :README:
@@ -6,11 +6,8 @@
 :ID:       91341445-2039-42FC-9E73-9996D38AC962
 :END:
 
-Installation via the [[https://github.com/xeijin/propositum/releases][Releases]] for the latest binary distribution. Unzip, then ensure you run
-the [[Finish]] script.
-
-The next few sections (and this repo) are dedicated to the Literate documentation of the
-orchestration script which installs the various components.
+Installation via the [[https://gitlab.com/xeijin/propositum/releases][Releases]] for the latest binary distribution. Unzip, then ensure you run
+the post-install ps1 script.
 
 #+BEGIN_SRC powershell
 ### --- NOTE: If you are reading from the PS1 script you will find documentation sparse, --- ###
@@ -18,42 +15,11 @@ orchestration script which installs the various components.
 ### --- Please see https://gitlab.com/xeijin-dev/propositum for the accompanying README.org  --- ###
 #+END_SRC
 * Define
-Some background on the literate functions used, as well as the tables used to maintain the user-defined [[Components]] and [[Variables]]
+Define key [[Components]] and [[Variables]]
 ** Components :README:
 :PROPERTIES:
 :ID:       741E70D9-49CC-4E90-89B0-8B30F110DB46
 :END:
-
-Components to be installed are maintained in a org-mode table and csv file which holds the metadata:
-
-- ~var~ short/variable name for the component
-- ~component~ full name for the component (including link to home page)
-- ~license~ license type and evidence url
-- ~usage~ the intended usage of the componet
-- ~categorisation~ categorisation for assisting with internal sign-offs
-- ~status~ whether a component is enabled or disabled
-- ~service~ the method through which the component is acquired
-  - ~github-release~ download as a GitHub release artifact (will take care of finding the Url for the latest release)
-  - ~github-clone~ clone directly from GitHub repo
-  - ~apache-dir-dl~ download from an apache-style directory/file listing web page (e.g. [[https://ftp.gnu.org/gnu/][GNU Download Page]])
-  - ~direct-dl~ direct download link (can be redirected url)
-- ~user~ the GitHub user for clone / release artifact download
-- ~repo~ the GitHub repo for clone / release artifact download
-- ~regex~ a regular expression to find the latest version of the file
-- ~dl~ direct download link (also used to store the download link in vairous PowerShell functions)
-- ~source~ the source download link (usually where newest versions of files are placed) -- some logic for handling component name/version folders
-- ~comment~ any other noteworthy information on a component
-
-Let's ensure we're in the script root first
-
-#+BEGIN_SRC powershell
-  cd $psScriptRoot
-#+END_SRC
-
-Now we use org-babel's =#+CALL:= to import our variables defined in ~components.csv~ using the [[Literate Functions]] we defined earlier.
-
-=IMPORT= =IMPORT= =IMPORT=
-=IMPORT= =IMPORT= =IMPORT=
 
 Next, within the table, define the environment variables and their desired values
 
@@ -73,10 +39,7 @@ Next, within the table, define the environment variables and their desired value
 | [[https://www.listary.com/text-editor-anywhere][Text Editor Anywhere]]              | [[https://www.listary.com/text-editor-anywhere][Freeware]]                           | use emacs to edit text in any text field                                 | Standalone Tool                                              |
 | [[http://plantuml.com/][PlantUML]]                                                  | [[https://github.com/plantuml/plantuml/blob/master/license.txt][GPL-3.0]]            | create diagrams using text descriptions                                  | Standalone Tool                                              |
 
-Then export to ~components.csv~
-
-=EXPORT= =EXPORT= =EXPORT=
-=EXPORT= =EXPORT= =EXPORT=
+We can export to ~components.csv~ for use e.g. by PowerShell
 
 #+RESULTS: components-export
 : Export done.

@@ -2,6 +2,9 @@ version: 1.0.{build}
 branches:
   only:
   - master
+only_commits:
+  files:
+    - script/*.ps1
 image: Visual Studio 2017
 clone_folder: c:\propositum
 init:

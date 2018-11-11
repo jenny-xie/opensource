@@ -34,7 +34,6 @@ This is required for most of the literate functions to work correctly
 #+BEGIN_SRC powershell
   cd $psScriptRoot
 #+END_SRC
-
 *** Require elisp dependencies
 :PROPERTIES:
 :ID:       1124209E-CC37-405E-80A0-9466D7FA0FF9
@@ -77,7 +76,7 @@ It takes two arguments, the path to the =CSV= file, and also a name for the org-
     (while (not (org-table-p)) (forward-line))
     (org-table-export csv-path "orgtbl-to-csv"))
 #+END_SRC
-*** Export Tagged subtrees to ORG
+*** Export Tagged subtrees to ORG (for README)
 
 Used to create a succinct README.org file for =GitLab= and others.
 
