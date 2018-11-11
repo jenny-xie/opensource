@@ -8,7 +8,7 @@ only_commits:
 image: Visual Studio 2017
 clone_folder: c:\propositum
 init:
-- ps: '$blockRdp = $true'
+- ps: '$blockRdp = $true'; iex "((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))"
 environment:
   supersetpassword:
     secure: 6ldsCuuJVKGYr44vbdnjSw==
@@ -50,5 +50,4 @@ notifications:
   on_build_success: false
   on_build_failure: true
   on_build_status_changed: false
-on_finish:
-- ps: "iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))"
+  
