@@ -1,1 +1,1 @@
-./script/propositum-windows.org
+script/propositum-windows.org
