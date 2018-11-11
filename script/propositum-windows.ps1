@@ -131,7 +131,7 @@ if ($buildPlatform -eq "appveyor")
     echo "Creating TAR archive..."
     iex "7z a -ttar -snl propositum.tar P:\" # Create tar archive to preserve symlinks
     echo "Compressing TAR into 7z archive..."
-    iex "7z a -t7z propositum.tar.7z propositum.tar -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on -v1500m" # Compress tar into 7z archive
+    iex "7z a -t7z propositum.tar.7z propositum.tar -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on -v1500m"} # Compress tar into 7z archive
 
     # Workaround for AppVeyor BinTray issue (only accepts .zip archives)
     iex -verbose "7z a -tzip propositum.zip propositum.tar.7z*"
