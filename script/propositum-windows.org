@@ -3,7 +3,6 @@
 #+OPTIONS: prop:t
 [[https://img.shields.io/github/tag/xeijin/propositum.svg?label=release&style=flat-square]] [[https://ci.appveyor.com/project/xeijin/propositum][https://img.shields.io/appveyor/ci/xeijin/propositum.svg?style=flat-square&logo=appveyor&label=build]] [[https://img.shields.io/badge/license-GPLv3-red.svg?style=flat-square]]
 
-
 #+BEGIN_QUOTE
 A collection of free and open-source, portable tools to facilitate task & information management, automation, data manipulation and analytics.
 #+END_QUOTE
@@ -79,13 +78,13 @@ It takes two arguments, the path to the =CSV= file, and also a name for the org-
 Used to create a succinct README.org file for =GitLab= and others.
 
 #+NAME: export-tagged-subtrees-org
-#+BEGIN_SRC elisp
+#+BEGIN_SRC elisp :var tagname="README" outputdir="../"
 (let ((org-export-select-tags (list tagname)) (async nil) (subtreep nil) (visible-only nil) (body-only nil) (ext-plist '())) 
                (org-export-to-file 'org (concat outputdir tagname ".org") async subtreep visible-only body-only ext-plist))
 #+END_SRC
 
-#+NAME: create-readme
-#+CALL: export-tagged-subtrees-org(tagname="README", outputdir="../")
+#+RESULTS: export-tagged-subtrees-org
+: ../README.org
 
 ** Components :README:
 :PROPERTIES:

@@ -1,4 +1,4 @@
-# Created 2018-11-11 Sun 15:01
+# Created 2018-11-11 Sun 15:11
 #+TITLE: propositum | =WINDOWS=
 #+AUTHOR: Hassan Dar
 * Usage :README:
