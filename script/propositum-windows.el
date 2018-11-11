@@ -16,3 +16,9 @@
     (while (not (org-table-p)) (forward-line))
     (org-table-export csv-path "orgtbl-to-csv"))
 )
+
+(let ((tagname (quote "README"))
+      (outputdir (quote "../")))
+(let ((org-export-select-tags (list tagname)) (async nil) (subtreep nil) (visible-only nil) (body-only nil) (ext-plist '())) 
+               (org-export-to-file 'org (concat outputdir tagname ".org") async subtreep visible-only body-only ext-plist))
+)

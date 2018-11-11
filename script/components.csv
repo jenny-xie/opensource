@@ -1,9 +1,12 @@
-var,status,component,license,usage,categorisation
-cmder,enabled,[[http://cmder.net/][Cmder]],[[https://github.com/cmderdev/cmder#license][MIT]],console emulator & cmd replacement,Standalone Tool
-emacs,enabled,[[https://www.gnu.org/software/emacs/][emacs]] & [[https://orgmode.org/][org-mode]],[[https://github.com/zklhp/emacs-w64/blob/emacs-25/COPYING][GPL-3.0]],"task & information management, text editor, IDE, composing documentation",Loosely Coupled with internal code (e.g. internal REST APIs)
-doom-emacs,enabled,[[https://github.com/hlissner/doom-emacs][doom-emacs]],[[https://github.com/hlissner/doom-emacs/blob/master/LICENSE][MIT]],configuration framework for emacs,Loosely Coupled with internal code (e.g. internal REST APIs)
-autohotkey,disabled,[[https://autohotkey.com/][AutoHotKey]],[[https://github.com/Lexikos/AutoHotkey_L/blob/master/license.txt][GPL-2.0]],"general Windows automation, expanding commonly used text snippets",Standalone Tool
-knime,disabled,[[https://www.knime.com/knime-analytics-platform][KNIME Analytics Platform]],[[https://www.knime.com/downloads/full-license][GPL-3.0]],"data pipelines, transformation, automation & reporting",Loosely Coupled with internal code (e.g. internal REST APIs)
-rawgraphs,disabled,[[http://rawgraphs.io/][RAWGraphs]],[[https://github.com/densitydesign/raw/blob/master/LICENSE][Apache-2.0]],additional data visualisation options,Standalone Tool
-winpython,disabled,[[https://winpython.github.io/][WinPython]],[[https://github.com/winpython/winpython/blob/master/LICENSE][MIT]],portable python runtime to support Apache Superset & data science applications,Standalone Tool
-superset,disabled,[[https://superset.incubator.apache.org/][Apache Superset]],[[https://github.com/apache/incubator-superset/blob/master/LICENSE.txt][Apache-2.0]],"data exploration, dashboards & data visualisation",Standalone Tool
+component,license,usage,categorisation
+[[http://cmder.net/][Cmder]],[[https://github.com/cmderdev/cmder#license][MIT]],console emulator & cmd replacement,Standalone Tool
+[[https://www.gnu.org/software/emacs/][emacs]] & [[https://orgmode.org/][org-mode]],[[https://github.com/zklhp/emacs-w64/blob/emacs-25/COPYING][GPL-3.0]],"task & information management, text editor, IDE, composing documentation",Loosely Coupled with internal code (e.g. internal REST APIs)
+[[https://github.com/hlissner/doom-emacs][doom-emacs]],[[https://github.com/hlissner/doom-emacs/blob/master/LICENSE][MIT]],configuration framework for emacs,Loosely Coupled with internal code (e.g. internal REST APIs)
+[[https://autohotkey.com/][AutoHotKey]],[[https://github.com/Lexikos/AutoHotkey_L/blob/master/license.txt][GPL-2.0]],"general Windows automation, expanding commonly used text snippets",Standalone Tool
+[[https://www.knime.com/knime-analytics-platform][KNIME Analytics Platform]],[[https://www.knime.com/downloads/full-license][GPL-3.0]],"data pipelines, transformation, automation & reporting",Loosely Coupled with internal code (e.g. internal REST APIs)
+[[http://rawgraphs.io/][RAWGraphs]],[[https://github.com/densitydesign/raw/blob/master/LICENSE][Apache-2.0]],data visualisation,Standalone Tool
+[[https://superset.incubator.apache.org/][Apache Superset]],[[https://github.com/apache/incubator-superset/blob/master/LICENSE.txt][Apache-2.0]],"data exploration, dashboards & data visualisation",Standalone Tool
+[[https://pandoc.org/][Pandoc]],[[https://github.com/jgm/pandoc/blob/master/COPYRIGHT][GPL-2.0]],convert between many different document types,Standalone Tool
+[[https://www.imagemagick.org/][ImageMagick]],[[https://imagemagick.org/script/license.php][ImageMagick]] (GPL-3.0 compatible),convert between different image formats,Standalone Tool
+[[https://www.listary.com/text-editor-anywhere][Text Editor Anywhere]],[[https://www.listary.com/text-editor-anywhere][Freeware]],use emacs to edit text in any text field,Standalone Tool
+[[http://plantuml.com/][PlantUML]],[[https://github.com/plantuml/plantuml/blob/master/license.txt][GPL-3.0]],create diagrams using text descriptions,Standalone Tool

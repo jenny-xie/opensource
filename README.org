@@ -1,1 +1,150 @@
-script/propositum-windows.org
+# Created 2018-11-11 Sun 15:01
+#+TITLE: propositum | =WINDOWS=
+#+AUTHOR: Hassan Dar
+* Usage :README:
+:PROPERTIES:
+:ID:       91341445-2039-42FC-9E73-9996D38AC962
+:END:
+
+Installation via the [[https://github.com/xeijin/propositum/releases][Releases]] for the latest binary distribution. Unzip, then ensure you run
+the [[Finish]] script.
+
+The next few sections (and this repo) are dedicated to the Literate documentation of the
+orchestration script which installs the various components.
+
+#+BEGIN_SRC powershell
+### --- NOTE: If you are reading from the PS1 script you will find documentation sparse, --- ###
+### --- this script is accompanied by an org-mode file used to literately generate it.   --- ###
+### --- Please see https://gitlab.com/xeijin-dev/propositum for the accompanying README.org  --- ###
+#+END_SRC
+* Define
+Some background on the literate functions used, as well as the tables used to maintain the user-defined [[Components]] and [[Variables]]
+** Components :README:
+:PROPERTIES:
+:ID:       741E70D9-49CC-4E90-89B0-8B30F110DB46
+:END:
+
+Components to be installed are maintained in a org-mode table and csv file which holds the metadata:
+
+- ~var~ short/variable name for the component
+- ~component~ full name for the component (including link to home page)
+- ~license~ license type and evidence url
+- ~usage~ the intended usage of the componet
+- ~categorisation~ categorisation for assisting with internal sign-offs
+- ~status~ whether a component is enabled or disabled
+- ~service~ the method through which the component is acquired
+  - ~github-release~ download as a GitHub release artifact (will take care of finding the Url for the latest release)
+  - ~github-clone~ clone directly from GitHub repo
+  - ~apache-dir-dl~ download from an apache-style directory/file listing web page (e.g. [[https://ftp.gnu.org/gnu/][GNU Download Page]])
+  - ~direct-dl~ direct download link (can be redirected url)
+- ~user~ the GitHub user for clone / release artifact download
+- ~repo~ the GitHub repo for clone / release artifact download
+- ~regex~ a regular expression to find the latest version of the file
+- ~dl~ direct download link (also used to store the download link in vairous PowerShell functions)
+- ~source~ the source download link (usually where newest versions of files are placed) -- some logic for handling component name/version folders
+- ~comment~ any other noteworthy information on a component
+
+Let's ensure we're in the script root first
+
+#+BEGIN_SRC powershell
+  cd $psScriptRoot
+#+END_SRC
+
+Now we use org-babel's =#+CALL:= to import our variables defined in ~components.csv~ using the [[Literate Functions]] we defined earlier.
+
+=IMPORT= =IMPORT= =IMPORT=
+=IMPORT= =IMPORT= =IMPORT=
+
+Next, within the table, define the environment variables and their desired values
+
+#+NAME: components-tbl
+#+RESULTS: components-import
+| component                                                                           | license                                                                              | usage                                                                    | categorisation                                               |
+|-------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------+--------------------------------------------------------------------------+--------------------------------------------------------------|
+| [[http://cmder.net/][Cmder]]                                                        | [[https://github.com/cmderdev/cmder#license][MIT]]                                   | console emulator & cmd replacement                                       | Standalone Tool                                              |
+| [[https://www.gnu.org/software/emacs/][emacs]] & [[https://orgmode.org/][org-mode]] | [[https://github.com/zklhp/emacs-w64/blob/emacs-25/COPYING][GPL-3.0]]                | task & information management, text editor, IDE, composing documentation | Loosely Coupled with internal code (e.g. internal REST APIs) |
+| [[https://github.com/hlissner/doom-emacs][doom-emacs]]                              | [[https://github.com/hlissner/doom-emacs/blob/master/LICENSE][MIT]]                  | configuration framework for emacs                                        | Loosely Coupled with internal code (e.g. internal REST APIs) |
+| [[https://autohotkey.com/][AutoHotKey]]                                             | [[https://github.com/Lexikos/AutoHotkey_L/blob/master/license.txt][GPL-2.0]]         | general Windows automation, expanding commonly used text snippets        | Standalone Tool                                              |
+| [[https://www.knime.com/knime-analytics-platform][KNIME Analytics Platform]]        | [[https://www.knime.com/downloads/full-license][GPL-3.0]]                            | data pipelines, transformation, automation & reporting                   | Loosely Coupled with internal code (e.g. internal REST APIs) |
+| [[http://rawgraphs.io/][RAWGraphs]]                                                 | [[https://github.com/densitydesign/raw/blob/master/LICENSE][Apache-2.0]]             | data visualisation                                                       | Standalone Tool                                              |
+| [[https://superset.incubator.apache.org/][Apache Superset]]                         | [[https://github.com/apache/incubator-superset/blob/master/LICENSE.txt][Apache-2.0]] | data exploration, dashboards & data visualisation                        | Standalone Tool                                              |
+| [[https://pandoc.org/][Pandoc]]                                                     | [[https://github.com/jgm/pandoc/blob/master/COPYRIGHT][GPL-2.0]]                     | convert between many different document types                            | Standalone Tool                                              |
+| [[https://www.imagemagick.org/][ImageMagick]]                                       | [[https://imagemagick.org/script/license.php][ImageMagick]] (GPL-3.0 compatible)     | convert between different image formats                                  | Standalone Tool                                              |
+| [[https://www.listary.com/text-editor-anywhere][Text Editor Anywhere]]              | [[https://www.listary.com/text-editor-anywhere][Freeware]]                           | use emacs to edit text in any text field                                 | Standalone Tool                                              |
+| [[http://plantuml.com/][PlantUML]]                                                  | [[https://github.com/plantuml/plantuml/blob/master/license.txt][GPL-3.0]]            | create diagrams using text descriptions                                  | Standalone Tool                                              |
+
+Then export to ~components.csv~
+
+=EXPORT= =EXPORT= =EXPORT=
+=EXPORT= =EXPORT= =EXPORT=
+
+#+RESULTS: components-export
+: Export done.
+** Variables :README:
+*** Platform-specific variables & secrets
+
+Use =#+CALL:= once again to import our variables defined in ~vars-platform.csv~
+
+=IMPORT= =IMPORT= =IMPORT=
+=IMPORT= =IMPORT= =IMPORT=
+
+Define the environment variables and their desired values in the table
+
+- note that for AppVeyor some of these are defined in the UI as secrets, but when we run the script locally we will need to securely collect these from the user
+- Remember *not* to include a ~$~ before the variable name in the =var= column of the table. The ~New-Variable~ command will add this in upon execution
+- Important to specify =assign= or =execute= values, otherwise =iex= can cause undesired behaviour (e.g. trying to evaluate a path that doesn't exist instead of assigning)
+
+Then populate with the variable names, which will be executed by
+=Invoke-Expression= (aka =iex=).
+
+#+NAME: vars-platform-tbl
+#+RESULTS: vars-platform-import
+| type   | exec    | var                    | appveyor              | local                                                                                                                                             | local-gs                                                                                                                                          | testing                                                                                                                                           | comment                                                                       |
+|--------+---------+------------------------+-----------------------+---------------------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------|
+| normal | assign  | env:propositumLocation | C:\propositum         | C:\propositum                                                                                                                                     | H:\propositum                                                                                                                                     | C:\propositum-test                                                                                                                                | The =git clone= location of the propositum repo                               |
+| normal | execute | env:propositumDrv      | $env:propositumDrv    | (& {if(($result = Read-Host 'Please provide a letter for the Propositum root drive (default is ‘P').') -eq ‘’){‘P:’}else{$result.Trim(‘;’)+’:’}}) | (& {if(($result = Read-Host 'Please provide a letter for the Propositum root drive (default is ‘P').') -eq ‘’){‘P:’}else{$result.Trim(‘;’)+’:’}}) | (& {if(($result = Read-Host 'Please provide a letter for the Propositum root drive (default is ‘P').') -eq ‘’){‘P:’}else{$result.Trim(‘;’)+’:’}}) | The drive letter =$propositumLocation= will map to                            |
+| secure | execute | env:githubApiToken     | $env:githubApiToken   | (& {Read-Host -AsSecureString ‘Please provide your GitHub token.’})                                                                               | (& {Read-Host -AsSecureString ‘Please provide your GitHub token.’})                                                                               | (& {Read-Host -AsSecureString ‘Please provide your GitHub token.’})                                                                               | API Token for interaction with GH (not currently used in non-AppVeyor builds) |
+| secure | execute | env:supersetPassword   | $env:supersetPassword | (& {Read-Host -AsSecureString 'Please provide a password for the Superset user ‘Propositum’.’})                                                   | (& {Read-Host -AsSecureString 'Please provide a password for the Superset user ‘Propositum’.’})                                                   | (& {Read-Host -AsSecureString 'Please provide a password for the Superset user ‘Propositum’.’})                                                   | The password for the =propositum= user for the =superset= application         |
+
+Then export to ~vars-platform.csv~
+
+=EXPORT= =EXPORT= =EXPORT=
+=EXPORT= =EXPORT= =EXPORT=
+
+#+RESULTS: vars-platform-export
+: Export done.
+*** Other variables
+
+We need to define a few key paths and other variables which will be referred to regularly throughout the coming scripts, but are not platform specific. 
+
+Let's import these from =vars-other.csv=
+
+=IMPORT= =IMPORT= =IMPORT=
+=IMPORT= =IMPORT= =IMPORT=
+
+Then lets define them in a simplified table
+
+#+NAME: vars-other-tbl
+#+RESULTS: vars-other-import
+| type    | exec    | var             | value                      | comment                                                        |
+|---------+---------+-----------------+----------------------------+----------------------------------------------------------------|
+| hsh-tbl | execute | propositum      | @{}                        | Initialises the hash table                                     |
+| hsh-itm | execute | propositum.root | $env:propositumDrv+"\"     | Propositum root folder                                         |
+| hsh-itm | execute | propositum.apps | $env:propositumDrv+"\apps" | Propositum apps folder (scoop root)                            |
+| hsh-itm | execute | propositum.home | $env:propositumDrv+"\home" | Propositum home folder (dotfiles & projects)                   |
+| hsh-itm | execute | propositum.font | $env:propositumDrv+"\font" | Propositum fonts folder                                        |
+| env-var | execute | env:HOME        | $propositum.home           | Sets env-var home to propositum home                           |
+| env-var | execute | env:SCOOP       | $propositum.root           | Sets scoop home to the propositum root (creates 'apps' folder) |
+
+
+*Note:* The ~type~ column here is important, particularly =hsh-itm= & =env-var=.
+
+Finally, export the table back to csv
+
+=EXPORT= =EXPORT= =EXPORT=
+=EXPORT= =EXPORT= =EXPORT=
+
+#+RESULTS: vars-other-export
+: Export done.
+*** Import into PowerShell
+As some of the variables are dependent on other build environment functions this section has been moved: [[Import functions & variables]]

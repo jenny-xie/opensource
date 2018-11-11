@@ -1,7 +1,6 @@
 #+TITLE: propositum | =WINDOWS=
 #+PROPERTY: header-args :tangle yes
 #+OPTIONS: prop:t
-
 [[https://img.shields.io/github/tag/xeijin/propositum.svg?label=release&style=flat-square]] [[https://ci.appveyor.com/project/xeijin/propositum][https://img.shields.io/appveyor/ci/xeijin/propositum.svg?style=flat-square&logo=appveyor&label=build]] [[https://img.shields.io/badge/license-GPLv3-red.svg?style=flat-square]]
 
 
@@ -9,7 +8,7 @@
 A collection of free and open-source, portable tools to facilitate task & information management, automation, data manipulation and analytics.
 #+END_QUOTE
 
-* Usage
+* Usage :README:
 :PROPERTIES:
 :ID:       91341445-2039-42FC-9E73-9996D38AC962
 :END:
@@ -20,13 +19,12 @@ the [[Finish]] script.
 The next few sections (and this repo) are dedicated to the Literate documentation of the
 orchestration script which installs the various components.
 
-#+BEGIN_SRC powershell :exports code
+#+BEGIN_SRC powershell
 ### --- NOTE: If you are reading from the PS1 script you will find documentation sparse, --- ###
 ### --- this script is accompanied by an org-mode file used to literately generate it.   --- ###
 ### --- Please see https://gitlab.com/xeijin-dev/propositum for the accompanying README.org  --- ###
 #+END_SRC
 * Define
-
 Some background on the literate functions used, as well as the tables used to maintain the user-defined [[Components]] and [[Variables]]
 ** Literate Functions
 
@@ -40,10 +38,11 @@ This makes it easier to add new components and variables, as well as modify the 
 
 First, let's ensure we get any required elisp dependencies
 
-#+BEGIN_SRC elisp :exports both
+#+BEGIN_SRC elisp
   (require 'org)
   ;(require 'json)
 #+END_SRC
+
 *** Import from CSV
 :PROPERTIES:
 :ID:       BA24D132-E2E5-4603-B856-E804B744B5FE
@@ -52,7 +51,7 @@ First, let's ensure we get any required elisp dependencies
 Now define an org-babel source code block to /import/ variables from an existing =CSV= file, into an org-mode table. It takes a single argument, the path to the =CSV= file as a string.
 
 #+NAME: org-babel-tbl-import-csv
-#+BEGIN_SRC elisp :results value table :exports code :var csv-path=""
+#+BEGIN_SRC elisp
   (with-temp-buffer
     (org-table-import csv-path nil) ;; MEMO on `nil' arg is in the footnotes.
     (setq LST (org-table-to-lisp))
@@ -69,13 +68,26 @@ We also need to define an org-babel source block to export an org-mode table bac
 It takes two arguments, the path to the =CSV= file, and also a name for the org-mode table it generates. Both should be a =string=.
 
 #+NAME: org-babel-tbl-export-csv
-#+BEGIN_SRC elisp :exports code :var csv-path="" tbl-name=""
+#+BEGIN_SRC elisp
   (save-excursion
     (org-open-link-from-string (concat "[[" tbl-name "]]"))
     (while (not (org-table-p)) (forward-line))
     (org-table-export csv-path "orgtbl-to-csv"))
 #+END_SRC
-** Components
+*** Export Tagged subtrees to ORG
+
+Used to create a succinct README.org file for =GitLab= and others.
+
+#+NAME: export-tagged-subtrees-org
+#+BEGIN_SRC elisp
+(let ((org-export-select-tags (list tagname)) (async nil) (subtreep nil) (visible-only nil) (body-only nil) (ext-plist '())) 
+               (org-export-to-file 'org (concat outputdir tagname ".org") async subtreep visible-only body-only ext-plist))
+#+END_SRC
+
+#+NAME: create-readme
+#+CALL: export-tagged-subtrees-org(tagname="README", outputdir="../")
+
+** Components :README:
 :PROPERTIES:
 :ID:       741E70D9-49CC-4E90-89B0-8B30F110DB46
 :END:
@@ -139,8 +151,7 @@ Then export to ~components.csv~
 =EXPORT= =EXPORT= =EXPORT=
 
 #+RESULTS: components-export
-: Export done.
-** Variables
+** Variables :README:
 *** Platform-specific variables & secrets
 
  Use =#+CALL:= once again to import our variables defined in ~vars-platform.csv~
@@ -739,7 +750,6 @@ Upgrade an existing instance of =propositum=
 - [ ] should be able to take the latest propositum artifact release as an input
 - [ ] should have a separate function that just updates configs (or perhaps a separate release that is just the config info? e.g. updated .doom.d config file)
 * Finish
-
 General clean-up and post-installation activities.
 ** Generate post-install script
 :PROPERTIES:
@@ -774,565 +784,3 @@ reg delete HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run /f /v "Propositum"
 #+END_SRC
 * Archived
 The code & sub-sections below have been archived as they are no longer in-use.
-** COMMENT Import into PowerShell
-:PROPERTIES:
-:ID:       2D7E58E5-B0A0-45D0-ACAA-A3CB3973C285
-:END:
-
-We can now import the ~components.csv~ into PowerShell.
-
-The script below will first examine the ~status~ column, importing only ~enabled~ components, this prevents alot of the issues trying to do this through ~if~'s and ~try{}~ ~catch{}~ 
-
-Next, it removes ~\[\[~ and ~\]\]~ placed around each component var name, used to create the hyperlinks in this document. 
-
-Note the ~;~ appended to the ~-replace~ function, which lets us chain another command (in this case outputting ~$_~ so that we retrieve the whole ~PSCustomObject~ after the trim operation is completed).
-
- #+BEGIN_SRC powershell
-   Try
-   {
-       $components = Import-CSV "components.csv" | ?{ $_.status -ne "disabled" } | %{ $_.var = $_.var.Trim("[]"); $_}
-   }
-   Catch
-   {
-       Throw "Check the CSV file actually exists and is formatted correctly before proceeding."
-       $error[0]|format-list -force
-   }
- #+END_SRC
-** COMMENT ~Get-GHLatestReleaseDl~: Get the download link for the latest GitHub release
-
-Takes a component hash table as an input
-
-#+BEGIN_SRC powershell
-  function Get-GHLatestReleaseDl ($compValsArr) {
-  # Original: https://www.helloitscraig.co.uk/2016/02/download-the-latest-repo.html
-
-  # --- Set the uri for the latest release
-  $URI = "https://api.github.com/repos/"+$compValsArr.user+"/"+$compValsArr.repo+"/releases/latest"
-
-  # --- Query the API to get the url of the zip
-
-  # Switch to supported version of TLS protocol (1.2) for Github
-  [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-
-  # Traverse the 
-  $latestRelease = Invoke-RestMethod -Method Get -Uri $URI
-  $allReleaseAssets = Invoke-RestMethod -Method Get -URI $latestRelease.assets_url
-
-  # RegEx to isolate the filename (and version number if multiple artifacts)
-  $releaseAsset = $allReleaseAssets -match $compValsArr.regex
-
-  # Store a sorted list of download URLs (as if contianing version number we want highest at top)
-  $downloadUrl = $releaseAsset.browser_download_url | Sort-Object -Descending
-
-  # Check if the downloadUrl is an array, if true return first array value (i.e. highest ver number)
-  If ($downloadUrl -is [array]) {return $downloadUrl[0]}
-
-  # If not array, must be single download url, return as string
-  Else {return $downloadUrl}
-  }
-#+END_SRC
-** COMMENT ~Get-LatestApacheDirDl~: Get the download link for latest direct-dl release (Apache directory listing)
-
-Takes a url to the apache directory, a regex for the file and the component's variable name from the table as inputs.
-
-The function makes some basic attempts to try and dig into subdirectories if it doesn't find the file, primarily based on trying to parse a folder beginning with the component name or version number.
-
-#+BEGIN_SRC powershell
-  function Get-LatestApacheDirDl ($directoryUrl, $fileRegex, $componentVarName) {
-
-      $componentRegex = "^" + $componentVarName + ".*$"
-      $versionRegex = "^(\d*\.\d+)*\/$|^(\d+)*\/$"
-
-      $regexArr = $componentRegex, $versionRegex
-
-      function Get-SiteAsObject ($uri) {
-          # Get the HTML and parse
-          return (Invoke-WebRequest $uri)
-      }
-
-      function Get-UrlFragWithRegex ($siteData, $regex)
-      {
-          # Initialise Variable
-          #$frag = ""
-          # Perform match and assign to variable
-          $frag = $siteData.Links.href -match $regex | sort -Descending
-          #{$frag = $Matches | sort -Descending} # sort descending to get highest ver number
-          # Return first element (highest ver) if multiple matches
-          If ($frag -is [array]) {return $frag[0]}
-          # Otherwise just return as-is
-          Else {return $frag}
-      }
-
-      #### Function still needs some work, incorrectly parsing table (i.e. not capturing dates)    
-      #    function Get-ApacheDirTable ($directoryUrl) {
-      #    $directoryUrl.ParsedHtml.getElementsByTagName("tbody") | ForEach-Object {
-      #
-      #    $Headers = $null
-      #
-      #    # Might need to uncomment the following line depending on table being parsed
-      #    # And if there is more than one table, need a way to get the right headers for each table
-      #    #$Headers = @("IP Address", "Hostname", "HW Address", "Device Type")
-      #
-      #    # Iterate over each <tr> in this table body
-      #    $_.getElementsByTagName("tr") | ForEach-Object {
-      #        # Select/get the <td>'s, but just grab the InnerText and make them an array
-      #        $OutputRow = $_.getElementsByTagName("td") | Select-Object -ExpandProperty InnerText
-      #        # If $Headers not defined, this must be the first row and must contain headers
-      #        # Otherwise create an object out of the row by building up a hash and then using it to make an object
-      #        # These objects can be piped to a lot of different cmdlets, like Out-GridView, ConvertTo-Csv, Format-Table, etc.
-      #        if ($Headers) {
-      #            $OutputHash = [ordered]@{}
-      #            for($i=0;$i -lt $OutputRow.Count;$i++) {
-      #                $OutputHash[$Headers[$i]] = $OutputRow[$i]
-      #            }
-      #            New-Object psobject -Property $OutputHash
-      #        } else {
-      #            $Headers = $OutputRow
-      #
-      #        }
-      #    }
-      #}
-      #}
-      ### 
-
-      # Initialise variables for loop
-      $site = Get-SiteAsObject $directoryUrl
-      $match = ""
-      $file = ""
-
-      Do {
-          ForEach ($regex in $regexArr) {
-              # Check each time if the file can be found in the current dir
-              $file = Get-UrlFragWithRegex $site $fileRegex
-              if ($file -match $fileRegex) {
-                  ### COMMENTED OUT OBJ ROUTINE AS NOT PARSING DATES ###
-                  # File found, but let's be extra cautious and isolate those with the latest date
-                  #$sitePsObj = Get-ApacheDirTable $site
-                  # Then find the latest date & filter the table
-                  #$sitePsObj | Where-Object {$_.Name -match $fileRegex}
-                  # Break out of the loop and return the full URL
-                  ### END PS OBJ ROUTINE ###
-                  $directoryUrl = $directoryUrl+$file
-                  break
-              }
-              # Otherwise crawl through the RegEx array attempting to find a directory that matches
-              else {
-                  $match = Get-UrlFragWithRegex $site $regex
-                  $directoryUrl = $directoryUrl+$match
-                  # Re-initialize the $site object each time we find a match so that we 'enter' the directory
-              $site = Get-SiteAsObject $directoryUrl
-                  continue
-              }
-          }
-      }
-      Until ($file -match $fileRegex)
-
-      # Finally, return the full download Url
-      return $directoryUrl
-  }
-#+END_SRC
-** COMMENT ~Dl-ToDir~: Binary file download wrapper
-
-Since finding no single download tool satisfactorily met my needs, I decided to create a wrapper for them all (plus a relatively easy way to extend for any I may need in the future)
-
-Usage (from ~Get-Help "Dl-ToDir"~)
-
-#+BEGIN_EXAMPLE powershell
-  NAME
-  Dl-ToDir
-
-  SYNTAX
-  Dl-ToDir [[-backend] {curl | wget | aria2c*}] [[-customFilename] <string>] [[-opts] <string[]>] [-uri] <string> [[-dir] <Object>] [-allowRedirs] [-cdispFilename] [-uriFilename]  
-  [<CommonParameters>]
-#+END_EXAMPLE
-
-=*= =aria2c= is used as the default backend if none is specified
-
-- *Further Enhancements*
-  - [ ] Would be good to get backend mapping from org-mode table (with JSON import/export)
-  - [ ] Implement multi-file download, particularly for aria2c which supports concurrent connections (could reduce build time)
-
-
-#+BEGIN_SRC powershell
-  function Dl-ToDir {
-      # Define Parameters incl. defaults, types & validation
-      Param(
-      # Define accepted backends, each needs its own hash table entry in switch
-      [ValidateSet("curl", "wget", "aria2c")]
-      [string]$backend = "aria2c", # default
-
-      # Convenience switches for common behaviours we might need to toggle
-      [switch]$allowRedirs,
-      [switch]$cdispFilename,
-      [switch]$uriFilename,
-
-      # Allow user to specify customFilename, which will disable other options
-      [string]$customFilename,
-
-      # Allow user to pass arbitrary options
-      [string[]]$opts,
-    
-      # Make URI mandatory to avoid hash table init issues later
-      [parameter(Mandatory=$true)]
-      [string]$uri,
-
-      # Check dir exists before accept
-      [ValidateScript({Test-Path $_ -PathType 'Container'})]
-      $dir = ($dir+"\") # default to current dir if not provided or add backslash to path
-      )
-
-      # Define mapping of common commands for each backend
-      switch ($backend)
-      {
-          "curl"
-              {
-               $cmdMap = [ordered]@{
-                          backend = $backend+".exe"; # append .exe to workaround powershell alias issue...
-                          allowRedirs = "-L";
-                          cdispFilename = "-J";
-                          uriFilename = "-O";
-                          customFilename = ("-o '"+$customFilename+"'");
-                          progressBar = "-#"; # 'graphical' progress indicator, rather than 'tabular' progress indicator
-                          uri = $uri;
-                          }
-              }
-
-          "wget"
-              {
-               $cmdMap = [ordered]@{
-                          backend = $backend+".exe"; # append .exe to workaround powershell alias issue...
-                          allowRedirs = if(-not ($allowRedirs)) {"--max-redirect=0"}; # wget allows redirs by default, so disable if switch is false
-                          cdispFilename = "--content-disposition";
-                          uriFilename = if(-not ($cdispFilename)) {("-O '"+($uri | Split-Path -Leaf)+"'")}; # Get filename from path only if user doesn't want to try sourcing from Content-Disposition
-                          customFilename = ("-O '"+$customFilename+"'");
-                          overWrite = "-N"; # Note this will only overwrite if the server file timestamp is newer than the local, for 'true' overwrite use the customFilename option
-                          progressBar = "--progress=bar:force:noscroll";
-                          uri = $uri;
-                          }
-              }
-
-          "aria2c"
-              {
-               $cmdMap = [ordered]@{
-                          backend = $backend;
-                          allowRedirs = ""; # no effect - aria decides this itself
-                          cdispFilename = ""; # no effect - aria decides this itself
-                          uriFilename = if(-not ($cdispFilename)) {("--out='"+($uri | Split-Path -Leaf)+"'")}; # Get filename from path only if user doesn't want to try sourcing from Content-Disposition
-                          customFilename = ("--out='"+$customFilename+"'");
-                          overWrite = "--allow-overwrite=true"; # always overwrite an existing file, since mostly we will be running from build servers which start with a fresh env each time. Also prevents creation of .aria control files.
-                          dontResume = "--always-resume=false"; # prevent aria from resuming downloads
-                          uri = $uri;
-                          }
-              }
-
-          default # For an unknown backend
-              {
-              Throw ("Error: backend '"+$backend+"' not found.")
-              }
-      }
-
-  ## De-dupe $opts params passed by the user
-
-      # Initialize a new List object to hold the RegEx for de-dupe
-      $optDeDupe = New-Object Collections.Generic.List[object]
-
-      # Loop through the keys defined in backend hash table & add to array
-      ForEach ($key in $cmdMap.Keys)
-          {   
-          # Get the associated value for the given arg
-          $val = $cmdMap.$key
-
-          # If the $arg has a val, add the RegEx to the list
-          if($val) {  
-              # Concat regex start/end string tokens & add to list
-              $optDeDupe.Add("^"+[string]$val+"$")            
-            }
-          # Otherwise skip to the next $key
-          else {continue}
-          }
-
-      # Concat into single Regex with "|" (or) operator
-      $optDeDupe = $optDeDupe -join "|"
-
-
-  ## Construct the download command
-
-      # Initialise the hash table used to construct the download command
-      $dlCmd = [ordered]@{}
-
-      # Add in backend mapping
-      $dlCmd += $cmdMap
-    
-      #  Exclude any duplicates from $opts passed by user, then Add to hash table
-      $uniqueOpts = $opts | ?{ $_ -notmatch $optDeDupe }
-      $dlCmd.Add("opts", $uniqueOpts)
-    
-      # Disable (remove) other parameters if customFileName is passed by user
-      if ($customFilename) {
-
-          $dlCmd.Remove("cdispFilename")
-          $dlCmd.Remove("uriFilename")
-      }
-      # Else remove the customFilename entry copied from the array
-      else {$dlCmd.Remove("customFilename")}
-
-      # Get enumerated hashtable, where an given key has a value, then:
-      # expand each property to just its value before concat into dl command
-      $dlCmd = ($dlCmd.GetEnumerator() | ? Value | Select -ExpandProperty Value) -join " "
-
-  ## Download, get filename & return details
-
-      # If dir isn't the current path, store the current directory location then cd to the path
-      # this is primarily to workaround limitations with Curl -O
-      if($dir -ne (Get-Location)){
-      $origLocation = Get-Location
-      Set-Location $dir
-      }
-
-  Try {
-
-      # Execute the download (and pipe the output to the console)
-      iex $dlCmd | Out-Host
-
-      # If a customFilename was specified, return that as the filename
-      if ($customFilename)
-      {$fileName = $customFilename}
-      # Otherwise get the name of the file added to the download folder *after* the command was run
-      else {
-      $funcExecTimestamp = (Get-History | Where { $_.CommandLine -contains $MyInvocation.MyCommand } | Sort StartExecutionTime -Descending | Select StartExecutionTime -First 1).StartExecutionTime
-      $fileName = Get-ChildItem -Path $propTest | Sort-Object LastWriteTime -Descending | ?{ $_.LastWriteTime -gt $funcExecTimestamp } | Select -First 1}
-      }
-
-  Finally {
-      # cd back to the original location if it exists
-      if($origLocaction) {Set-Location $origLocation}
-
-      # Assemble result array (outside of Try block, to assist with debugging) - includes full path to the file, as well as the command used to initiate the download
-      $result = ($dir+"\"+$fileName), ([string]$dlCmd)
-
-      }
-
-    return $result
-
-  }
-#+END_SRC
-
-Useful parts of the function that I began writing but later realised I didn't need, in particular traversing using the key paradigm may come in handy one day... the code block is set not to tangle.
-
-#+BEGIN_SRC powershell :exports none
-  ### Potentially useful but not currently required ###
-  #    # Copy the relevant keys 
-  #    ForEach ($key in $cmdMap.Keys)
-  #
-  #    {        
-  #        # Set some initial variables to make things more legible
-  #        $value = $cmdMap.$key
-  #        $keyIsArg = if($PSBoundParameters.ContainsKey($key)) {$true}
-  #        $keyAsVarValue = $PSBoundParameters.$key
-  #
-  #        # If the key is equal to the name of an argument variable and the argument variable is not empty or false
-  #        if ( ($keyIsArg) -and ($keyAsVarValue) ) 
-  #            # Then add the key-value pair 
-  #            {
-  #            $dlCmd.Add($key, $value)
-  #            }
-  #        }
-  #    }
-  #
-  #    # construct the download command
-  #    $dlCmd = (([ordered]@{ # [ordered] to preserve command order when we concat later
-  #               backend = $cmdMap.backend; # append .exe to workaround powershell alias issue...
-  #               allowRedirs = if($allowRedirs){$cmdMap.allowRedirs};
-  #               cdispFilename = if($cdispFilename){$cmdMap.cdispFilename};
-  #               uriFilename = if($uriFilename){$cmdMap.uriFilename};
-  #               uniqueOpts = $opts | ?{ $_ -notmatch $optExcludeRegex }; # Remove any dupe opts that user passed
-  #               uri = $uri;
-  #               }).Values | %{ [string]$_ }) -join " " # Get hashtable values, recursively convert to string (to catch opts with an arg) then concat into command
-  #
-  #    # Loop through arguments passed by user and add to array
-  #    ForEach ($arg in $PSBoundParameters.Keys)
-  #        {   
-      #        # Get the associated value for the given arg
-      #        $val = $PSBoundParameters.$arg
-      #
-      #        # Skip '$opts' vals otherwise it will delete opts during de-dupe
-      #        if($arg -eq "opts") {continue}
-      #        # If the $arg has a val, add the RegEx to the list
-      #        if($val) {  
-          #            # Concat regex start/end string tokens & add to list
-          #            $optDeDupe.Add("^"+[string]$val+"$")            
-          #          }
-      #        # Otherwise skip to the next $arg
-      #        else {continue}
-      #        }
-#+END_SRC
-** COMMENT ~Write-InstallStatus~: Write & Log Install Status
-#+BEGIN_SRC powershell
-  function Write-InstallStatus ($component, $arr, $status, $msg) {
-    
-      # Set status Write-Host colours & messages
-      switch ($status)
-      {
-          "Disabled"
-          {
-                  $msg = If ($msg) {$msg} else {" Component is disabled -- check the components table. "}
-                  $fgColour = "White"
-                  $bgColour = "DarkRed"
-              }
-          "Failed"
-          {
-                  $msg = If ($msg) {$msg} else {" Component installation failed -- check error message "}
-                  $fgColour = "White"
-                  $bgColour = "DarkRed"
-              }
-          "Succeeded"
-          {
-                  $msg = If ($msg) {$msg} else {" Component installation succeeded. "}
-                  $fgColour = "Green"
-                  $bgColour = "DarkGreen"
-              }
-          default # If no status provided
-          {
-                  $status = "Unknown"
-                  $msg = If ($msg) {$msg} else {" Unable to verify the installation status. "}
-                  $fgColour = "Yellow"
-                  $bgColour = "DarkYellow"
-              }
-      }
-    
-      # Send message to user and include the error message if not 'succeeded'
-      if($status -ne "Succeeded")
-      {Write-Host ("`n ["+$status+"] "+$component.var+": "+$msg+"`nError:`n"+$Error[0]) -ForegroundColor $fgColour -BackgroundColor $bgColour}
-      else
-      {Write-Host ("`n ["+$status+"] "+$component.var+": "+$msg) -ForegroundColor $fgColour -BackgroundColor $bgColour}
-    
-      # Write details into psobj Results Array
-      $result = [PSCustomObject]@{
-          Component = $component.var
-          Status = $status
-          Date = Get-Date -Format "ddd dd MMM yyyy h:mm:ss tt"
-          Message = $msg
-          LastError = if ($status -eq "Failed") {"L: "+$Error[0].InvocationInfo.ScriptLineNumber+" "+$Error[0].Exception}
-      }
-      $arr += $result
-  }
-#+END_SRC
-** COMMENT ~Refresh-PathVariable~: Refresh Path Variable
-
-Refresh path variable to reflect any executables added from a given installation
-
-#+BEGIN_SRC powershell
-  function Refresh-PathVariable {
-      foreach($level in "Machine","User") {
-      [Environment]::GetEnvironmentVariables($level).GetEnumerator() | % {
-          # For Path variables, append the new values, if they're not already in there
-          if($_.Name -match 'Path$') { 
-              $_.Value = ($((Get-Content "Env:$($_.Name)") + ";$($_.Value)") -split ';' | Select -unique) -join ';'
-          }
-          $_
-      } | Set-Content -Path { "Env:$($_.Name)" }
-  }
-  }
-#+END_SRC
-** COMMENT Add =aria2= for faster downloads
-:PROPERTIES:
-:ID:       6EAA36AD-4CE2-4520-ABDA-DF591D7873A8
-:END:
-:LOGBOOK:
-- Note taken on [2018-08-18 Sat 21:18] \\
-  Disabled as Lunacy was failing to download with =aria2= (likely because it was
-  trying to use multiple connections).
-:END:
-
-*commented out as aria2 currently breaking some downloads due to multiple connections*
-
-Should be auto-detected and used by =scoop=
-
-#+BEGIN_SRC powershell
-scoop install aria2
-#+END_SRC
-** COMMENT Ensure =7zip= is available
-:PROPERTIES:
-:ID:       737F5333-F4D2-4C85-9051-CB54BAF6F1C2
-:END:
-
-Required by scoop to extract files, and also required by git.
-
-#+BEGIN_SRC powershell
-  # If git isn't installed, install it
-  if (-not (Get-Command 7z.exe)) {scoop install 7zip --global}
-#+END_SRC
-** COMMENT Ensure =git= is available
-:PROPERTIES:
-:ID:       ABF852A2-5F36-4892-9804-28614F5ED99F
-:END:
-
-Required to clone GitHub repos
-
-#+BEGIN_SRC powershell
-  # If git isn't installed, install it
-  if (-not (Get-Command git.exe)) {scoop install git --global}
-#+END_SRC
-** COMMENT Generate list of components & metadata
-:PROPERTIES:
-:header-args: :tangle propositum-components-list.ps1
-:END:
-#+BEGIN_SRC powershell
-  # Derive bucket paths
-  $localBuckets = $env:SCOOP+'buckets'
-  $mainBucket = $env:SCOOP+'apps\scoop\current\bucket'
-  $extrasBucket = $localBuckets+'\extras'
-  $propositumBucket = $localBuckets+'\propositum'
-  $buckets = @($mainBucket, $extrasBucket, $propositumBucket)
-
-  # Create a list of all apps in each bucket
-  $allApps = $buckets.ForEach({$bucketPath = $_; Get-ChildItem $_ | Where 'Extension' -eq '.json' | Select 'BaseName', 'Extension', @{l="Path";e={$bucketPath+'\'+$_}}})
-
-  # Create an object of scoop apps currently installed
-  $installedApps = $propositumComponents
-
-  # Filter all apps by installed
-  $appList = $allApps | Where 'BaseName' -In $installedApps
-
-
-  $Testing = $appList.ForEach({$appName = $_.BaseName; Get-Content -Raw -Path $_.Path | ConvertFrom-Json | Select @{l='app';e={$appName.Replace('-p','')}}, *})
-
-  # Convert to JSON & extract required fields
-  $componentsTable = $appList.ForEach({$appName = $_.BaseName; Get-Content -Raw -Path $_.Path | ConvertFrom-Json | Select @{l='app';e={$appName.Replace('-p','')}}, @{l='manifest';e={$appName}}, @{l='license';e={$_.license.Replace('-or-later','')}}, 'homepage', 'description', '_comment'})
-#+END_SRC
-*** COMMENT Scoop-driven version
-#+BEGIN_SRC powershell
-  # Derive bucket paths
-  $localBuckets = $env:SCOOP+'buckets'
-  $mainBucket = $env:SCOOP+'apps\scoop\current\bucket'
-  $extrasBucket = $localBuckets+'\extras'
-  $propositumBucket = $localBuckets+'\propositum'
-  $buckets = @($mainBucket, $extrasBucket, $propositumBucket)
-
-  # Create a list of all apps in each bucket
-  $allApps = $buckets.ForEach({$bucketPath = $_; Get-ChildItem $_ | Where 'Extension' -eq '.json' | Select 'BaseName', 'Extension', @{l="Path";e={$bucketPath+'\'+$_}}})
-
-  # Create an object of scoop apps currently installed
-  $installedApps = scoop export | ConvertFrom-String -PropertyNames 'app', 'version', 'bucket'
-
-  # Filter all apps by installed
-  $appList = $allApps | Where 'BaseName' -In $installedApps.app
-
-
-  $Testing = $appList.ForEach({$appName = $_.BaseName; Get-Content -Raw -Path $_.Path | ConvertFrom-Json | Select @{l='app';e={$appName.Replace('-p','')}}, *})
-
-  # Convert to JSON & extract required fields
-  $componentsTable = $appList.ForEach({$appName = $_.BaseName; Get-Content -Raw -Path $_.Path | ConvertFrom-Json | Select @{l='app';e={$appName.Replace('-p','')}}, @{l='manifest';e={$appName}}, @{l='license';e={$_.license.Replace('-or-later','')}}, 'homepage', 'description', '_comment'})
-#+END_SRC
-** COMMENT ~GitHub-CloneRepo~: Clone GitHub repo
-:PROPERTIES:
-:ID:       165F8517-95D6-47B1-BC20-61E92D0A004B
-:END:
-
-#+BEGIN_SRC powershell
-  function Github-CloneRepo ($opts, $compValsArr, $cloneDir) {
-  Write-Host ("Cloning ... [ "+"~"+$compValsArr.user+"/"+$compValsArr.repo+" ]") -ForegroundColor Yellow -BackgroundColor Black
-  $cloneUrl = ("https://github.com/"+$compValsArr.user+"/"+$compValsArr.repo)
-  iex "git clone $opts $cloneUrl $cloneDir"
-  }
-#+END_SRC
