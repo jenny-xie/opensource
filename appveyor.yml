@@ -4,6 +4,7 @@ branches:
   - master
 only_commits:
   files:
+    - appveyor.yml
     - script/*.ps1
 image: Visual Studio 2017
 clone_folder: c:\propositum
