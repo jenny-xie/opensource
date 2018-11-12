@@ -26,18 +26,18 @@ test: off
 artifacts:
 - path: propositum.zip
   name: propositum-zip
-deploy:
-- provider: BinTray
-  username: xeijin
-  api_key:
-    secure: O0DhLTtmK77asEUTQzGE+6rO0ANBZEA1AUnH9rR4FpwgIUBwSE7Eh4L0dUJexsU9
-  subject: xeijin
-  repo: propositum
-  package: propositum
-  artifact: propositum-zip
-  explode: true
-  on:
-    bintrayDeploy: true
+# deploy:
+# - provider: BinTray
+#   username: xeijin
+#   api_key:
+#     secure: O0DhLTtmK77asEUTQzGE+6rO0ANBZEA1AUnH9rR4FpwgIUBwSE7Eh4L0dUJexsU9
+#   subject: xeijin
+#   repo: propositum
+#   package: propositum
+#   artifact: propositum-zip
+#   explode: true
+#   on:
+#     bintrayDeploy: true
 notifications:
 - provider: Slack
   incoming_webhook: https://hooks.slack.com/services/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
