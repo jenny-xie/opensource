@@ -669,7 +669,7 @@ if ($buildPlatform -eq "appveyor")
 *** BinTray Deployment
 #+BEGIN_SRC powershell
     # Workaround for AppVeyor BinTray issue (only accepts .zip archives)
-    #[disabled pending resolution of issue with support] iex -verbose "7z a -tzip propositum.zip propositum.tar.7z*"
+    iex "7z a -tzip propositum.zip propositum.tar.7z*"
 #+END_SRC
 
 Due to limitations with =BinTray= uploads, if ~binTrayDeploy~ is set to =Yes= we
