@@ -10,3 +10,4 @@ component,license,usage,categorisation
 [[https://www.imagemagick.org/][ImageMagick]],[[https://imagemagick.org/script/license.php][ImageMagick]] (GPL-3.0 compatible),convert between different image formats,Standalone Tool
 [[https://www.listary.com/text-editor-anywhere][Text Editor Anywhere]],[[https://www.listary.com/text-editor-anywhere][Freeware]],use emacs to edit text in any text field,Standalone Tool
 [[http://plantuml.com/][PlantUML]],[[https://github.com/plantuml/plantuml/blob/master/license.txt][GPL-3.0]],create diagrams using text descriptions,Standalone Tool
+[[https://about.draw.io/][draw.io]],[[https://github.com/jgraph/drawio-desktop/blob/master/LICENSE][Apache-2.0]],create diagrams using gui interface (visio alternative),Standalone Tool

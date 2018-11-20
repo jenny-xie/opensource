@@ -97,7 +97,8 @@ $propositum | Format-Table | Out-String | Write-Host
       'superset-p',
       'pandoc',
       'latex',
-      'plantuml'
+      'plantuml',
+      'draw-io-p'
   )
 
 $componentsToInstall = $propositumComponents -join "`r`n=> " | Out-String
