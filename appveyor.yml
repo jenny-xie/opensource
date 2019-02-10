@@ -3,6 +3,7 @@ branches:
   only:
   - master
 only_commits:
+# Doesn't work with GitLab yet...
   files:
     - appveyor.yml
     - script/*.ps1
