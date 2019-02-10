@@ -1,0 +1,5 @@
+job:
+  # only allow appveyor build to trigger if pipeline run fom web or new tag is committed
+  only:
+    - web
+    - tags
