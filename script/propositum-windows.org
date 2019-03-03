@@ -169,15 +169,16 @@ Then lets define them in a simplified table
 
 #+NAME: vars-other-tbl
  #+RESULTS: vars-other-import
- | type    | exec    | var             | value                      | comment                                                        |
- |---------+---------+-----------------+----------------------------+----------------------------------------------------------------|
- | hsh-tbl | execute | propositum      | @{}                        | Initialises the hash table                                     |
- | hsh-itm | execute | propositum.root | $env:propositumDrv+"\"     | Propositum root folder                                         |
- | hsh-itm | execute | propositum.apps | $env:propositumDrv+"\apps" | Propositum apps folder (scoop root)                            |
- | hsh-itm | execute | propositum.home | $env:propositumDrv+"\home" | Propositum home folder (dotfiles & projects)                   |
- | hsh-itm | execute | propositum.font | $env:propositumDrv+"\font" | Propositum fonts folder                                        |
- | env-var | execute | env:HOME        | $propositum.home           | Sets env-var home to propositum home                           |
- | env-var | execute | env:SCOOP       | $propositum.root           | Sets scoop home to the propositum root (creates 'apps' folder) |
+ | type    | exec    | var              | value                                                   | comment                                                        |
+ |---------+---------+------------------+---------------------------------------------------------+----------------------------------------------------------------|
+ | hsh-tbl | execute | propositum       | @{}                                                     | Initialises the hash table                                     |
+ | hsh-itm | execute | propositum.root  | $env:propositumDrv+"\"                                  | Propositum root folder                                         |
+ | hsh-itm | execute | propositum.apps  | $env:propositumDrv+"\apps"                              | Propositum apps folder (scoop root)                            |
+ | hsh-itm | execute | propositum.home  | $env:propositumDrv+"\home"                              | Propositum home folder (dotfiles & projects)                   |
+ | hsh-itm | execute | propositum.font  | $env:propositumDrv+"\font"                              | Propositum fonts folder                                        |
+ | env-var | execute | env:HOME         | $propositum.home                                        | Sets env-var home to propositum home                           |
+ | env-var | execute | env:SCOOP        | $propositum.root                                        | Sets scoop home to the propositum root (creates 'apps' folder) |
+ | env-var | execute | env:GRAPHVIZ_DOT | $env:propositumDrv+"\apps\graphviz\current\bin\dot.exe" | GraphViz DOT executable used by plantUML                       |
 
 
 *Note:* The ~type~ column here is important, particularly =hsh-itm= & =env-var=.

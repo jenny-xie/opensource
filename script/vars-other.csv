@@ -6,3 +6,4 @@ hsh-itm,execute,propositum.home,"$env:propositumDrv+""\home""",Propositum home f
 hsh-itm,execute,propositum.font,"$env:propositumDrv+""\font""",Propositum fonts folder
 env-var,execute,env:HOME,$propositum.home,Sets env-var home to propositum home
 env-var,execute,env:SCOOP,$propositum.root,Sets scoop home to the propositum root (creates 'apps' folder)
+env-var,execute,env:GRAPHVIZ_DOT,"$env:propositumDrv+""\apps\graphviz\current\bin\dot.exe""",GraphViz DOT executable used by plantUML
