@@ -82,6 +82,8 @@ $propositum | Format-Table | Out-String | Write-Host
   scoop bucket add extras
 
   scoop bucket add propositum 'https://gitlab.com/xeijin-dev/propositum-bucket.git'
+  
+  git clone https://github.com/fuxialexander/doom-emacs-private-xfu %USERPROFILE%/.doom.d
 
   $propositumComponents = @(
       'doom-emacs-p'
