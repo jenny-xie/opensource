@@ -558,6 +558,7 @@ Use a powershell array to define the components to install (and for better reada
       #'rawgraphs-p',
       #'regfont-p',
       'emacs-p',
+      'doom-emacs-p'
       'texteditoranywhere-p',
       #'superset-p',
       'pandoc',
