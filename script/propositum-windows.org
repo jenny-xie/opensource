@@ -12,8 +12,8 @@ A collection of free and open-source, portable tools to facilitate task & inform
 :ID:       91341445-2039-42FC-9E73-9996D38AC962
 :END:
 
-Installation via the [[https://gitlab.com/xeijin/propositum/releases][Releases]] for the latest binary distribution. Unzip, then ensure you run
-the post-install ps1 script.
+Installation is currently only via the build artifacts stored by AppVeyor, click
+on the build badge above to find the latest one.
 
 #+BEGIN_SRC powershell
 ### --- NOTE: If you are reading from the PS1 script you will find documentation sparse, the --- ###
@@ -510,6 +510,10 @@ and install scoop to that path
 #+BEGIN_SRC powershell
   iex (new-object net.webclient).downloadstring('https://get.scoop.sh')
 #+END_SRC
+*** Add =scoop dlcache= extension
+For upgrades, the ability to download /only/ an component's cache file(s) is
+required. This =ps1= script extends the
+
 *** Add =extras= bucket
 :PROPERTIES:
 :ID:       E9337FC2-A9DB-4F26-8108-C6C44CC66F85
