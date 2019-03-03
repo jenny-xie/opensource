@@ -794,7 +794,7 @@ Use a powershell array to define the components to install (and for better reada
       #'superset-p',
       'pandoc',
       #'latex',
-      'plantuml',
+      'plantuml'
       #'draw-io-p'
   )
 #+END_SRC

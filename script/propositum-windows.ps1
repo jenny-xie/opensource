@@ -100,7 +100,7 @@ $propositumComponents = @(
     #'superset-p',
     'pandoc',
     #'latex',
-    'plantuml',
+    'plantuml'
     #'draw-io-p'
 )
 

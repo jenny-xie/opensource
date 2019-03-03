@@ -64,7 +64,7 @@ $propositumComponents = @(
     #'superset-p',
     'pandoc',
     #'latex',
-    'plantuml',
+    'plantuml'
     #'draw-io-p'
 )
 $env:Path = $env:Path + ";" + "$propositum.root\shims"  # Add shims to path again so scoop & other commands available on command line
