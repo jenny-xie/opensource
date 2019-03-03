@@ -2,30 +2,30 @@
 ### --- script is accompanied by an org-mode file, which is used to literately generate it.  --- ###
 ### --- Please see https://gitlab.com/xeijin-dev/propositum for the accompanying README.org. --- ###
 
-  cd $psScriptRoot
+cd $psScriptRoot
 
 $testing = $false
 
-  $buildPlatform = if ($env:APPVEYOR) {"appveyor"}
-  elseif ($testing) {"testing"} # For debugging locally
-  elseif ($env:computername -match "NDS.*") {"local-gs"} # Check for NDS
-  else {"local"}
+$buildPlatform = if ($env:APPVEYOR) {"appveyor"}
+elseif ($testing) {"testing"} # For debugging locally
+elseif ($env:computername -match "NDS.*") {"local-gs"} # Check for NDS
+else {"local"}
 
-  cd $PSScriptRoot
+cd $PSScriptRoot
 
-  $Host.UI.RawUI.BackgroundColor = ($bckgrnd = 'Black')
+$Host.UI.RawUI.BackgroundColor = ($bckgrnd = 'Black')
 
-   . ./propositum-helper-fns.ps1
+. ./propositum-helper-fns.ps1
 
-   Try
-   {
-       $platformVars = Import-CSV "vars-platform.csv"
-   }
-   Catch
-   {
-       Throw "Check the CSV file actually exists and is formatted correctly before proceeding."
-       $error[0]|format-list -force
-   }
+Try
+{
+    $platformVars = Import-CSV "vars-platform.csv"
+}
+Catch
+{
+    Throw "Check the CSV file actually exists and is formatted correctly before proceeding."
+    $error[0]|format-list -force
+}
 
 ForEach ($var in $platformVars | Select 'var', $buildPlatform, 'exec') { # Narrow to required columns & $buildPlatform
     if ($var.var -like "env:*") { # If variable name contains 'env:'
@@ -38,15 +38,15 @@ ForEach ($var in $platformVars | Select 'var', $buildPlatform, 'exec') { # Narro
     }
 }
 
-   Try
-   {
-       $otherVars = Import-CSV "vars-other.csv"
-   }
-   Catch
-   {
-       Throw "Check the CSV file actually exists and is formatted correctly before proceeding."
-       $error[0]|format-list -force
-   }
+Try
+{
+    $otherVars = Import-CSV "vars-other.csv"
+}
+Catch
+{
+    Throw "Check the CSV file actually exists and is formatted correctly before proceeding."
+    $error[0]|format-list -force
+}
 
 ForEach ($var in $otherVars) {
     if (($var.var -like "env:*") -or ($var.type -eq 'env-var')) { # If variable name contains 'env:', or is type 'env-var'
@@ -60,34 +60,49 @@ ForEach ($var in $otherVars) {
         else {$hshtbl.add($hsh[1], $var.value)}  # Same as above, but assign rather than invoke/execute the $var.value
     }
     else { # Logic for everything else (i.e. a regular variable)
-        if ($var.exec -eq 'execute') {New-Variable $var.var (iex $var.value) -Force} 
+        if ($var.exec -eq 'execute') {New-Variable $var.var (iex $var.value) -Force}
         else {New-Variable $var.var $var.value -Force}
     }
 }
 
 $propositum | Format-Table | Out-String | Write-Host
 
-  if ($testing -and $env:propositumLocation) {Remove-Item ($env:propositumLocation+"\*") -Recurse -Force}
+if ($testing -and $env:propositumLocation) {Remove-Item ($env:propositumLocation+"\*") -Recurse -Force}
 
-    subst $env:propositumDrv $env:propositumLocation
+subst $env:propositumDrv $env:propositumLocation
 
-    $createdDirs = Path-CheckOrCreate -Paths $propositum.values -CreateDir
+$createdDirs = Path-CheckOrCreate -Paths $propositum.values -CreateDir
 
-    cd $propositum.root
+cd $propositum.root
 
-  [Net.ServicePointManager]::SecurityProtocol = "Tls12, Tls11, Tls, Ssl3"
+[Net.ServicePointManager]::SecurityProtocol = "Tls12, Tls11, Tls, Ssl3"
 
-  iex (new-object net.webclient).downloadstring('https://get.scoop.sh')
+iex (new-object net.webclient).downloadstring('https://get.scoop.sh')
 
-  scoop bucket add extras
+Move-Item -Path "$propositum.root+'\script\scoop-dlcache.ps1'" -Destination "$propositum.apps\scoop\current\libexec"
 
-  scoop bucket add propositum 'https://gitlab.com/xeijin-dev/propositum-bucket.git'
-  
-  #git clone https://github.com/fuxialexander/doom-emacs-private-xfu P:/.doom.d
+scoop bucket add extras
 
-  $propositumComponents = @(
-      'doom-emacs-p'
-  )
+scoop bucket add propositum 'https://gitlab.com/xeijin-dev/propositum-bucket.git'
+
+$propositumComponents = @(
+    'cmder-full',
+    #'lunacy',
+    #'autohotkey',
+    #'miniconda3',
+    #'imagemagick',
+    #'knime-p',
+    #'rawgraphs-p',
+    #'regfont-p',
+    'emacs-p',
+    'doom-emacs-p',
+    'texteditoranywhere-p',
+    #'superset-p',
+    'pandoc',
+    #'latex',
+    'plantuml',
+    #'draw-io-p'
+)
 
 $componentsToInstall = $propositumComponents -join "`r`n=> " | Out-String
 Write-Host "`r`nThe following components will be installed:`r`n`r`n=> $componentsToInstall" -ForegroundColor Black -BackgroundColor Yellow
@@ -98,21 +113,21 @@ scoop cache rm *
 
 scoop list | Write-Host
 
-  Push-Location $propositum.apps
-  scoop export | Out-String > install-info.txt
-  Pop-Location
+Push-Location $propositum.apps
+scoop export | Out-String > install-info.txt
+Pop-Location
 
 if ($buildPlatform -eq "appveyor")
 {
     echo "Compressing files into release artifact..."
-    cd $propositum.root # cd to root, as 7z -v switch does not support specifying end file and directory 
+    cd $propositum.root # cd to root, as 7z -v switch does not support specifying end file and directory
     echo "Creating TAR archive..."
     iex "7z a -ttar -snl propositum.tar P:\" # Create tar archive to preserve symlinks
     echo "Compressing TAR into 7z archive..."
     iex "7z a -t7z propositum.tar.7z propositum.tar -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on -v1500m"} # Compress tar into 7z archive
 
-    # Workaround for AppVeyor BinTray issue (only accepts .zip archives)
-    iex "7z a -tzip propositum.zip propositum.tar.7z*"
+# Workaround for AppVeyor BinTray issue (only accepts .zip archives)
+iex "7z a -tzip propositum.zip propositum.tar.7z*"
 
-  if ($buildPlatform -eq "appveyor") {$deploy = $true}
-  else {$deploy = $false}
+if ($buildPlatform -eq "appveyor") {$deploy = $true}
+else {$deploy = $false}

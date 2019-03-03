@@ -28,6 +28,9 @@ The list of [[Components]] and their attributes, as well as user-defined [[Varia
 
 This makes it easier to add new components and variables, as well as modify the existing attributes of these items. It also helps us segregate user-defined inputs from functions, making debugging easier and our code (hopefully) cleaner.
 *** Start in the script folder
+:PROPERTIES:
+:ID:       1c56a611-8cbd-45a2-89fe-80f942834329
+:END:
 
 This is required for most of the literate functions to work correctly
 
@@ -77,6 +80,9 @@ It takes two arguments, the path to the =CSV= file, and also a name for the org-
     (org-table-export csv-path "orgtbl-to-csv"))
 #+END_SRC
 *** Export Tagged subtrees to ORG (for README)
+:PROPERTIES:
+:ID:       ccd55ff4-d52a-4d48-9ea2-db5bb359d55a
+:END:
 
 Used to create a succinct README.org file for =GitLab= and others.
 
@@ -512,10 +518,13 @@ and install scoop to that path
   iex (new-object net.webclient).downloadstring('https://get.scoop.sh')
 #+END_SRC
 *** Add =scoop dlcache= extension
+:PROPERTIES:
+:ID:       df17abb0-37d9-43ae-82fc-4b5b413c208d
+:END:
 For upgrades, the ability to download /only/ an component's cache file(s) is
 required. This =ps1= script extends the =scoop= command with =scoop dlcache <app>=
 
-#+BEGIN_SRC powershell :tangle scoop-dlcachee.ps1
+#+BEGIN_SRC powershell :tangle scoop-dlcache.ps1
 # Usage: scoop dlcache <app> [options]
 # Summary: Download cache files for offline update
 # Help: 'scoop dlcache <app>' downloads the latest version of an app's cache files, useful for performing offline updates.
@@ -732,7 +741,6 @@ folder for scoop to pick it up as a command.
 #+BEGIN_SRC powershell
 Move-Item -Path "$propositum.root+'\script\scoop-dlcache.ps1'" -Destination "$propositum.apps\scoop\current\libexec"
 #+END_SRC
-
 *** Add =extras= bucket
 :PROPERTIES:
 :ID:       E9337FC2-A9DB-4F26-8108-C6C44CC66F85
@@ -807,9 +815,15 @@ Invoke-Expression "scoop install $propositumComponents"
 
 Post-installation clean-up, primarily to reduce the overall size of the final
 build artifact.
-*** Delete scoop cache
+*** TODO  Delete scoop cache
 :PROPERTIES:
 :ID:       37614274-E067-4FFA-9BD0-83FFB0264075
+:END:
+:LOGBOOK:
+- [2019-03-03 Sun 22:08]: NOTE \\
+  This command will delete the cache for upgrades, need to figure out workaround /
+  strategy.
+- [2019-03-03 Sun 22:08]:      -> "TODO"
 :END:
 
 #+BEGIN_SRC powershell
@@ -854,6 +868,9 @@ if ($buildPlatform -eq "appveyor")
     iex "7z a -t7z propositum.tar.7z propositum.tar -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on -v1500m"} # Compress tar into 7z archive
 #+END_SRC
 *** BinTray Deployment
+:PROPERTIES:
+:ID:       181dd721-f5dc-4687-b9a7-21b980a24ad3
+:END:
 #+BEGIN_SRC powershell
     # Workaround for AppVeyor BinTray issue (only accepts .zip archives)
     iex "7z a -tzip propositum.zip propositum.tar.7z*"

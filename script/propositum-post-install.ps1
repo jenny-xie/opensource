@@ -50,21 +50,22 @@ ForEach ($var in $otherVars) {
 subst $env:propositumDrv $env:propositumLocation
 reg add HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run /f /v "Propositum" /d "subst $propositumDrv $propositumLocation" # Add registry entry to map on startup
 $propositumComponents = @(
-    'cmder',
-    'lunacy',
-    'autohotkey',
-    'miniconda3',
-    'imagemagick',
-    'knime-p',
-    'rawgraphs-p',
-    'regfont-p',
+    'cmder-full',
+    #'lunacy',
+    #'autohotkey',
+    #'miniconda3',
+    #'imagemagick',
+    #'knime-p',
+    #'rawgraphs-p',
+    #'regfont-p',
     'emacs-p',
+    'doom-emacs-p',
     'texteditoranywhere-p',
-    'superset-p',
+    #'superset-p',
     'pandoc',
-    'latex',
+    #'latex',
     'plantuml',
-    'draw-io-p'
+    #'draw-io-p'
 )
 $env:Path = $env:Path + ";" + "$propositum.root\shims"  # Add shims to path again so scoop & other commands available on command line
 $doomBin = $propositum.home + "\.emacs.d\bin"
