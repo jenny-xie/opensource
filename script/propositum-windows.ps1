@@ -82,40 +82,17 @@ $propositum | Format-Table | Out-String | Write-Host
   scoop bucket add extras
 
   scoop bucket add propositum 'https://gitlab.com/xeijin-dev/propositum-bucket.git'
+  
+  #git clone https://github.com/fuxialexander/doom-emacs-private-xfu P:/.doom.d
 
   $propositumComponents = @(
-      'cmder',
-      'lunacy',
-      'autohotkey',
-      'miniconda3',
-      'imagemagick',
-      'knime-p',
-      'rawgraphs-p',
-      'regfont-p',
-      'emacs-p',
-      'texteditoranywhere-p',
-      'superset-p',
-      'pandoc',
-      'latex',
-      'plantuml',
-      'draw-io-p'
+      'doom-emacs-p'
   )
 
 $componentsToInstall = $propositumComponents -join "`r`n=> " | Out-String
 Write-Host "`r`nThe following components will be installed:`r`n`r`n=> $componentsToInstall" -ForegroundColor Black -BackgroundColor Yellow
 
 Invoke-Expression "scoop install $propositumComponents"
-
-Push-Location $propositum.home
-
-git clone https://github.com/hlissner/doom-emacs .emacs.d; cd .emacs.d; git checkout develop
-
-$doomBin = $propositum.home + "\.emacs.d\bin"
-$env:Path = $env:Path + ";" + $doomBin
-
-doom -y quickstart
-
-Pop-Location
 
 scoop cache rm *
 
