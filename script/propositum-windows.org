@@ -549,21 +549,21 @@ Use a powershell array to define the components to install (and for better reada
 #+NAME: propositum-components-list
 #+BEGIN_SRC powershell
   $propositumComponents = @(
-      'cmder',
-      'lunacy',
-      'autohotkey',
-      'miniconda3',
-      'imagemagick',
-      'knime-p',
-      'rawgraphs-p',
-      'regfont-p',
+      'cmder-full',
+      #'lunacy',
+      #'autohotkey',
+      #'miniconda3',
+      #'imagemagick',
+      #'knime-p',
+      #'rawgraphs-p',
+      #'regfont-p',
       'emacs-p',
       'texteditoranywhere-p',
-      'superset-p',
+      #'superset-p',
       'pandoc',
-      'latex',
+      #'latex',
       'plantuml',
-      'draw-io-p'
+      #'draw-io-p'
   )
 #+END_SRC
 
