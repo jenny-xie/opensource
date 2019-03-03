@@ -82,7 +82,7 @@ Used to create a succinct README.org file for =GitLab= and others.
 
 #+NAME: export-tagged-subtrees-org
 #+BEGIN_SRC elisp :var tagname="README" outputdir="../"
-(let ((org-export-select-tags (list tagname)) (async nil) (subtreep nil) (visible-only nil) (body-only nil) (ext-plist '())) 
+(let ((org-export-select-tags (list tagname)) (async nil) (subtreep nil) (visible-only nil) (body-only nil) (ext-plist '()))
                (org-export-to-file 'org (concat outputdir tagname ".org") async subtreep visible-only body-only ext-plist))
 #+END_SRC
 
@@ -92,7 +92,7 @@ Used to create a succinct README.org file for =GitLab= and others.
 :PROPERTIES:
 :ID:       741E70D9-49CC-4E90-89B0-8B30F110DB46
 :END:
-  
+
 Next, within the table, define the environment variables and their desired values
 
 #+NAME: components-tbl
@@ -139,11 +139,11 @@ Then populate with the variable names, which will be executed by
 
  #+NAME: vars-platform-tbl
  #+RESULTS: vars-platform-import
- | type   | exec    | var                    | appveyor              | local                                                                                                                                             | local-gs                                                                                                                                          | testing                                                                                                                                           | comment                                                                       |
- |--------+---------+------------------------+-----------------------+---------------------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------|
- | normal | assign  | env:propositumLocation | C:\propositum         | C:\propositum                                                                                                                                     | H:\propositum                                                                                                                                     | C:\propositum-test                                                                                                                                | The =git clone= location of the propositum repo                               |
- | normal | execute | env:propositumDrv      | $env:propositumDrv    | (& {if(($result = Read-Host 'Please provide a letter for the Propositum root drive (default is ‘P').') -eq ‘’){‘P:’}else{$result.Trim(‘;’)+’:’}}) | (& {if(($result = Read-Host 'Please provide a letter for the Propositum root drive (default is ‘P').') -eq ‘’){‘P:’}else{$result.Trim(‘;’)+’:’}}) | (& {if(($result = Read-Host 'Please provide a letter for the Propositum root drive (default is ‘P').') -eq ‘’){‘P:’}else{$result.Trim(‘;’)+’:’}}) | The drive letter =$propositumLocation= will map to                            |
- | secure | execute | env:supersetPassword   | $env:supersetPassword | (& {Read-Host -AsSecureString 'Please provide a password for the Superset user ‘Propositum’.’})                                                   | (& {Read-Host -AsSecureString 'Please provide a password for the Superset user ‘Propositum’.’})                                                   | (& {Read-Host -AsSecureString 'Please provide a password for the Superset user ‘Propositum’.’})                                                   | The password for the =propositum= user for the =superset= application         |
+ | type   | exec    | var                    | appveyor              | local                                                                                                                                             | local-gs                                                                                                                                          | testing                                                                                                                                           | comment                                                               |
+ |--------+---------+------------------------+-----------------------+---------------------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------|
+ | normal | assign  | env:propositumLocation | C:\propositum         | C:\propositum                                                                                                                                     | H:\propositum                                                                                                                                     | C:\propositum-test                                                                                                                                | The =git clone= location of the propositum repo                       |
+ | normal | execute | env:propositumDrv      | $env:propositumDrv    | (& {if(($result = Read-Host 'Please provide a letter for the Propositum root drive (default is ‘P').') -eq ‘’){‘P:’}else{$result.Trim(‘;’)+’:’}}) | (& {if(($result = Read-Host 'Please provide a letter for the Propositum root drive (default is ‘P').') -eq ‘’){‘P:’}else{$result.Trim(‘;’)+’:’}}) | (& {if(($result = Read-Host 'Please provide a letter for the Propositum root drive (default is ‘P').') -eq ‘’){‘P:’}else{$result.Trim(‘;’)+’:’}}) | The drive letter =$propositumLocation= will map to                    |
+ | secure | execute | env:supersetPassword   | $env:supersetPassword | (& {Read-Host -AsSecureString 'Please provide a password for the Superset user ‘Propositum’.’})                                                   | (& {Read-Host -AsSecureString 'Please provide a password for the Superset user ‘Propositum’.’})                                                   | (& {Read-Host -AsSecureString 'Please provide a password for the Superset user ‘Propositum’.’})                                                   | The password for the =propositum= user for the =superset= application |
 
  Then export to ~vars-platform.csv~
 
@@ -154,9 +154,9 @@ Then populate with the variable names, which will be executed by
 
  #+RESULTS: vars-platform-export
  : Export done.
-*** Other variables
+*** Other Variables
 
-We need to define a few key paths and other variables which will be referred to regularly throughout the coming scripts, but are not platform specific. 
+We need to define a few key paths and other variables which will be referred to regularly throughout the coming scripts, but are not platform specific.
 
 Let's import these from =vars-other.csv=
 
@@ -285,7 +285,7 @@ Check if a dir exists, and if specified, create the directory (or symlink)
       {
 
           # If exists, add to existing, else add to not existing
-          if (Test-Path $paths[$i]) 
+          if (Test-Path $paths[$i])
           {
               $existing += , $paths[$i]
               continue
@@ -324,7 +324,7 @@ Check if a dir exists, and if specified, create the directory (or symlink)
       #Write-Host "`nDirectories created:`n$createdDir`n"
       #Write-Host "`nSymbolic Links created:`n$createdSymLink`n"
       #Write-Host "`n==========`n"
-    
+
       # Create a hash table of arrs, to access a given entry: place e.g. ["existing"] at the end of the expression
       # to get the arr value within add an index ref. e.g. ["existing"][0] for the first value within existing dirs
       $result = [ordered]@{
@@ -335,13 +335,13 @@ Check if a dir exists, and if specified, create the directory (or symlink)
           createdDirs = $createdDir
           createdSymLinks = $createdSymLink
       }
-    
+
       # Write results to the console
       Write-Host "`n================================="
       Write-Host "[Summary of Directory Operations]"
       Write-Host "=================================`n"
       Write-Host ($result | Format-Table | Out-String)
-    
+
       return $result
 
   }
@@ -400,7 +400,7 @@ ForEach ($var in $platformVars | Select 'var', $buildPlatform, 'exec') { # Narro
 :PROPERTIES:
 :ID:       FE6574FA-0768-4A9E-826A-60EA8F8ECBD7
 :END:
-     
+
  Let's import the ~vars-other.csv~ into PowerShell
 
 #+NAME: collect-other-vars
@@ -437,11 +437,11 @@ ForEach ($var in $otherVars) {
         else {$hshtbl.add($hsh[1], $var.value)}  # Same as above, but assign rather than invoke/execute the $var.value
     }
     else { # Logic for everything else (i.e. a regular variable)
-        if ($var.exec -eq 'execute') {New-Variable $var.var (iex $var.value) -Force} 
+        if ($var.exec -eq 'execute') {New-Variable $var.var (iex $var.value) -Force}
         else {New-Variable $var.var $var.value -Force}
     }
 }
-#+END_SRC 
+#+END_SRC
 
 Calling the =$propositum= variable should now give us a hash table of paths
 
@@ -453,7 +453,7 @@ $propositum | Format-Table | Out-String | Write-Host
 :ID:       64FA9CC2-4B0E-436D-9EC4-E7E6B2BD50B7
 :END:
 
-To save some time, let's also delete the contents of the testing directory when in testing mode. 
+To save some time, let's also delete the contents of the testing directory when in testing mode.
 
 We also add an additional condition to ensure that =$propositumLocation= has been set, otherwise we could end up deleting the root drive..
 
@@ -466,7 +466,7 @@ Note there's currently a powershell bug that prevents this from working if any s
 :PROPERTIES:
 :ID:       6DE0B5D0-189B-44BB-B418-201E8D8BD081
 :END:
- 
+
  Mapping the propositum folder to a drive letter creates a short, intuitive path to key directories
 
  #+NAME: map-propositum-drv
@@ -499,7 +499,7 @@ This stops WebClient and other processes that require a secure connection from c
 :PROPERTIES:
 :ID:       AC6E8709-BED1-4C65-9290-1D631C0CA7B0
 :END:
-    
+
 [[https://scoop.sh][scoop]] is a bit like [[https://chocolatey.org][chocolatey]] but focused more on open source tools, and
 importantly, allows you to install apps as self-contained 'units', as well as
 creating handy manifests for your own apps / customm installs.
@@ -530,7 +530,7 @@ Add the scoop =propositum= bucket which contains the JSON manifest files for ins
 #+BEGIN_SRC powershell
   scoop bucket add propositum 'https://gitlab.com/xeijin-dev/propositum-bucket.git'
 #+END_SRC
-* Build 
+* Build
 
 Bring together the different components & create the final build artifact.
 ** Install components
@@ -579,45 +579,6 @@ And =Invoke-Expression= to call the scoop installer with the array
 #+BEGIN_SRC powershell
 Invoke-Expression "scoop install $propositumComponents"
 #+END_SRC
-** Install & setup =doom-emacs=
-:PROPERTIES:
-:ID:       4BCE227D-7309-4E0E-BF45-F00C0E4BD769
-:END:
-
-Save the current path & navigate to the =$propositum.home= folder
-
-#+BEGIN_SRC powershell
-Push-Location $propositum.home
-#+END_SRC
-
-Clone the =doom-emacs= repo as our =.emacs.d= folder and switch to the =develop= branch (=master= is out-of-date)
-
-#+BEGIN_SRC powershell
-git clone https://github.com/hlissner/doom-emacs .emacs.d; cd .emacs.d; git checkout develop
-#+END_SRC
-
-Add the =doom-emacs= binaries folder to =path=
-
-#+NAME: doom-bin-to-path
-#+BEGIN_SRC powershell
-$doomBin = $propositum.home + "\.emacs.d\bin"
-$env:Path = $env:Path + ";" + $doomBin
-#+END_SRC
-
-Then =doom quickstart= to install packages for a basic configuration (at least
-until my custom one is ready).
-
-=-y= accepts all prompts to prevent AppVeyor build from hanging.
-
-#+BEGIN_SRC powershell
-doom -y quickstart
-#+END_SRC
-
-Return to the original path
-
-#+BEGIN_SRC powershell
-Pop-Location
-#+END_SRC
 ** Clean-up
 
 Post-installation clean-up, primarily to reduce the overall size of the final
@@ -662,11 +623,11 @@ We only need to do this if running on AppVeyor.
 if ($buildPlatform -eq "appveyor")
 {
     echo "Compressing files into release artifact..."
-    cd $propositum.root # cd to root, as 7z -v switch does not support specifying end file and directory 
+    cd $propositum.root # cd to root, as 7z -v switch does not support specifying end file and directory
     echo "Creating TAR archive..."
     iex "7z a -ttar -snl propositum.tar P:\" # Create tar archive to preserve symlinks
     echo "Compressing TAR into 7z archive..."
-    iex "7z a -t7z propositum.tar.7z propositum.tar -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on -v1500m"} # Compress tar into 7z archive 
+    iex "7z a -t7z propositum.tar.7z propositum.tar -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on -v1500m"} # Compress tar into 7z archive
 #+END_SRC
 *** BinTray Deployment
 #+BEGIN_SRC powershell
@@ -723,7 +684,7 @@ This section has a =:PROPERTIES:= section that tangles to =propositum-post-insta
 <<set-scoop-env-var>>
 <<map-propositum-drv>>
 reg add HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run /f /v "Propositum" /d "subst $propositumDrv $propositumLocation" # Add registry entry to map on startup
-<<propositum-components-list>> 
+<<propositum-components-list>>
 $env:Path = $env:Path + ";" + "$propositum.root\shims"  # Add shims to path again so scoop & other commands available on command line
 <<doom-bin-to-path>>
 iex "scoop reset *" # Re-enables all scoop apps
@@ -744,9 +705,9 @@ The code & sub-sections below have been archived as they are no longer in-use.
 
 We can now import the ~components.csv~ into PowerShell.
 
-The script below will first examine the ~status~ column, importing only ~enabled~ components, this prevents alot of the issues trying to do this through ~if~'s and ~try{}~ ~catch{}~ 
+The script below will first examine the ~status~ column, importing only ~enabled~ components, this prevents alot of the issues trying to do this through ~if~'s and ~try{}~ ~catch{}~
 
-Next, it removes ~\[\[~ and ~\]\]~ placed around each component var name, used to create the hyperlinks in this document. 
+Next, it removes ~\[\[~ and ~\]\]~ placed around each component var name, used to create the hyperlinks in this document.
 
 Note the ~;~ appended to the ~-replace~ function, which lets us chain another command (in this case outputting ~$_~ so that we retrieve the whole ~PSCustomObject~ after the trim operation is completed).
 
@@ -777,7 +738,7 @@ Takes a component hash table as an input
   # Switch to supported version of TLS protocol (1.2) for Github
   [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
-  # Traverse the 
+  # Traverse the
   $latestRelease = Invoke-RestMethod -Method Get -Uri $URI
   $allReleaseAssets = Invoke-RestMethod -Method Get -URI $latestRelease.assets_url
 
@@ -826,7 +787,7 @@ The function makes some basic attempts to try and dig into subdirectories if it 
           Else {return $frag}
       }
 
-      #### Function still needs some work, incorrectly parsing table (i.e. not capturing dates)    
+      #### Function still needs some work, incorrectly parsing table (i.e. not capturing dates)
       #    function Get-ApacheDirTable ($directoryUrl) {
       #    $directoryUrl.ParsedHtml.getElementsByTagName("tbody") | ForEach-Object {
       #
@@ -856,7 +817,7 @@ The function makes some basic attempts to try and dig into subdirectories if it 
       #    }
       #}
       #}
-      ### 
+      ###
 
       # Initialise variables for loop
       $site = Get-SiteAsObject $directoryUrl
@@ -905,7 +866,7 @@ Usage (from ~Get-Help "Dl-ToDir"~)
   Dl-ToDir
 
   SYNTAX
-  Dl-ToDir [[-backend] {curl | wget | aria2c*}] [[-customFilename] <string>] [[-opts] <string[]>] [-uri] <string> [[-dir] <Object>] [-allowRedirs] [-cdispFilename] [-uriFilename]  
+  Dl-ToDir [[-backend] {curl | wget | aria2c*}] [[-customFilename] <string>] [[-opts] <string[]>] [-uri] <string> [[-dir] <Object>] [-allowRedirs] [-cdispFilename] [-uriFilename]
   [<CommonParameters>]
 #+END_EXAMPLE
 
@@ -934,7 +895,7 @@ Usage (from ~Get-Help "Dl-ToDir"~)
 
       # Allow user to pass arbitrary options
       [string[]]$opts,
-    
+
       # Make URI mandatory to avoid hash table init issues later
       [parameter(Mandatory=$true)]
       [string]$uri,
@@ -1001,14 +962,14 @@ Usage (from ~Get-Help "Dl-ToDir"~)
 
       # Loop through the keys defined in backend hash table & add to array
       ForEach ($key in $cmdMap.Keys)
-          {   
+          {
           # Get the associated value for the given arg
           $val = $cmdMap.$key
 
           # If the $arg has a val, add the RegEx to the list
-          if($val) {  
+          if($val) {
               # Concat regex start/end string tokens & add to list
-              $optDeDupe.Add("^"+[string]$val+"$")            
+              $optDeDupe.Add("^"+[string]$val+"$")
             }
           # Otherwise skip to the next $key
           else {continue}
@@ -1025,11 +986,11 @@ Usage (from ~Get-Help "Dl-ToDir"~)
 
       # Add in backend mapping
       $dlCmd += $cmdMap
-    
+
       #  Exclude any duplicates from $opts passed by user, then Add to hash table
       $uniqueOpts = $opts | ?{ $_ -notmatch $optDeDupe }
       $dlCmd.Add("opts", $uniqueOpts)
-    
+
       # Disable (remove) other parameters if customFileName is passed by user
       if ($customFilename) {
 
@@ -1084,18 +1045,18 @@ Useful parts of the function that I began writing but later realised I didn't ne
 
 #+BEGIN_SRC powershell :exports none
   ### Potentially useful but not currently required ###
-  #    # Copy the relevant keys 
+  #    # Copy the relevant keys
   #    ForEach ($key in $cmdMap.Keys)
   #
-  #    {        
+  #    {
   #        # Set some initial variables to make things more legible
   #        $value = $cmdMap.$key
   #        $keyIsArg = if($PSBoundParameters.ContainsKey($key)) {$true}
   #        $keyAsVarValue = $PSBoundParameters.$key
   #
   #        # If the key is equal to the name of an argument variable and the argument variable is not empty or false
-  #        if ( ($keyIsArg) -and ($keyAsVarValue) ) 
-  #            # Then add the key-value pair 
+  #        if ( ($keyIsArg) -and ($keyAsVarValue) )
+  #            # Then add the key-value pair
   #            {
   #            $dlCmd.Add($key, $value)
   #            }
@@ -1114,16 +1075,16 @@ Useful parts of the function that I began writing but later realised I didn't ne
   #
   #    # Loop through arguments passed by user and add to array
   #    ForEach ($arg in $PSBoundParameters.Keys)
-  #        {   
+  #        {
       #        # Get the associated value for the given arg
       #        $val = $PSBoundParameters.$arg
       #
       #        # Skip '$opts' vals otherwise it will delete opts during de-dupe
       #        if($arg -eq "opts") {continue}
       #        # If the $arg has a val, add the RegEx to the list
-      #        if($val) {  
+      #        if($val) {
           #            # Concat regex start/end string tokens & add to list
-          #            $optDeDupe.Add("^"+[string]$val+"$")            
+          #            $optDeDupe.Add("^"+[string]$val+"$")
           #          }
       #        # Otherwise skip to the next $arg
       #        else {continue}
@@ -1132,7 +1093,7 @@ Useful parts of the function that I began writing but later realised I didn't ne
 ** COMMENT ~Write-InstallStatus~: Write & Log Install Status
 #+BEGIN_SRC powershell
   function Write-InstallStatus ($component, $arr, $status, $msg) {
-    
+
       # Set status Write-Host colours & messages
       switch ($status)
       {
@@ -1162,13 +1123,13 @@ Useful parts of the function that I began writing but later realised I didn't ne
                   $bgColour = "DarkYellow"
               }
       }
-    
+
       # Send message to user and include the error message if not 'succeeded'
       if($status -ne "Succeeded")
       {Write-Host ("`n ["+$status+"] "+$component.var+": "+$msg+"`nError:`n"+$Error[0]) -ForegroundColor $fgColour -BackgroundColor $bgColour}
       else
       {Write-Host ("`n ["+$status+"] "+$component.var+": "+$msg) -ForegroundColor $fgColour -BackgroundColor $bgColour}
-    
+
       # Write details into psobj Results Array
       $result = [PSCustomObject]@{
           Component = $component.var
@@ -1189,7 +1150,7 @@ Refresh path variable to reflect any executables added from a given installation
       foreach($level in "Machine","User") {
       [Environment]::GetEnvironmentVariables($level).GetEnumerator() | % {
           # For Path variables, append the new values, if they're not already in there
-          if($_.Name -match 'Path$') { 
+          if($_.Name -match 'Path$') {
               $_.Value = ($((Get-Content "Env:$($_.Name)") + ";$($_.Value)") -split ';' | Select -unique) -join ';'
           }
           $_
@@ -1310,4 +1271,43 @@ those first (only relevant for non-appvyeor platforms?)
 
 #+BEGIN_SRC powershell
 if (-not ($buildPlatform -eq "appveyor") {git clone 'https://gitlab.com/xeijin-dev/propositum.git'}
+#+END_SRC
+** COMMENT Install & setup =doom-emacs=
+:PROPERTIES:
+:ID:       4BCE227D-7309-4E0E-BF45-F00C0E4BD769
+:END:
+
+Save the current path & navigate to the =$propositum.home= folder
+
+#+BEGIN_SRC powershell
+Push-Location $propositum.home
+#+END_SRC
+
+Clone the =doom-emacs= repo as our =.emacs.d= folder and switch to the =develop= branch (=master= is out-of-date)
+
+#+BEGIN_SRC powershell
+git clone https://github.com/hlissner/doom-emacs .emacs.d; cd .emacs.d; git checkout develop
+#+END_SRC
+
+Add the =doom-emacs= binaries folder to =path=
+
+#+NAME: doom-bin-to-path
+#+BEGIN_SRC powershell
+$doomBin = $propositum.home + "\.emacs.d\bin"
+$env:Path = $env:Path + ";" + $doomBin
+#+END_SRC
+
+Then =doom quickstart= to install packages for a basic configuration (at least
+until my custom one is ready).
+
+=-y= accepts all prompts to prevent AppVeyor build from hanging.
+
+#+BEGIN_SRC powershell
+doom -y quickstart
+#+END_SRC
+
+Return to the original path
+
+#+BEGIN_SRC powershell
+Pop-Location
 #+END_SRC
