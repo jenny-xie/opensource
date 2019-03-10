@@ -5,6 +5,6 @@
 * **Given**
 * **When**
 * **Then**
-  * 
-  * [UX]
-  * [KBD]
+  * [ ] <acceptance criteria..>
+  * [ ] `[UX]` e.g. changes to theme, font overlays etc in *all* views (org file, agenda etc)
+  * [ ] `[SK]` e.g. Shortcut keys <kbd>T-c</kbd>
