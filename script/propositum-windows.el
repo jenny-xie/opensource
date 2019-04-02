@@ -1,16 +1,16 @@
-(require 'org)
-;(require 'json)
+  (require 'org)
+  ;(require 'json)
 
-(with-temp-buffer
-  (org-table-import csv-path nil) ;; MEMO on `nil' arg is in the footnotes.
-  (setq LST (org-table-to-lisp))
-  ;; comment out or cut below one line if you don't have column names in CSV file.
-  (append (list (car LST)) '(hline) (cdr (org-table-to-lisp))))
+  (with-temp-buffer
+    (org-table-import csv-path nil) ;; MEMO on `nil' arg is in the footnotes.
+    (setq LST (org-table-to-lisp))
+    ;; comment out or cut below one line if you don't have column names in CSV file.
+    (append (list (car LST)) '(hline) (cdr (org-table-to-lisp))))
 
-(save-excursion
-  (org-open-link-from-string (concat "[[" tbl-name "]]"))
-  (while (not (org-table-p)) (forward-line))
-  (org-table-export csv-path "orgtbl-to-csv"))
+  (save-excursion
+    (org-open-link-from-string (concat "[[" tbl-name "]]"))
+    (while (not (org-table-p)) (forward-line))
+    (org-table-export csv-path "orgtbl-to-csv"))
 
 (let ((tagname (quote "README"))
       (outputdir (quote "../")))

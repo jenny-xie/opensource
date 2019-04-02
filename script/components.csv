@@ -11,3 +11,5 @@ component,license,usage,categorisation
 [[https://www.listary.com/text-editor-anywhere][Text Editor Anywhere]],[[https://www.listary.com/text-editor-anywhere][Freeware]],use emacs to edit text in any text field,Standalone Tool
 [[http://plantuml.com/][PlantUML]],[[https://github.com/plantuml/plantuml/blob/master/license.txt][GPL-3.0]],create diagrams using text descriptions,Standalone Tool
 [[https://about.draw.io/][draw.io]],[[https://github.com/jgraph/drawio-desktop/blob/master/LICENSE][Apache-2.0]],create diagrams using gui interface (visio alternative),Standalone Tool
+[[https://getgreenshot.org/][Greenshot]],[[https://github.com/greenshot/greenshot/blob/develop/LICENSE][GPL-3.0]],screenshot capture,Standalone Tool
+[[https://www.gpg4win.org][gpg4win]],[[https://www.gpg4win.org/license.html][GPL-3.0]],secure credential management within emacs,Standalone Tool
