@@ -66,8 +66,8 @@ reg add HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run /f /v "Propositum" /d
       #'latex',
       'plantuml'
       #'draw-io-p',
-      #''greenshot',
-      #'
+      #'greenshot',
+      #'fd'
   )
 $env:Path = $env:Path + ";" + "$propositum.root\shims"  # Add shims to path again so scoop & other commands available on command line
 $doomBin = $propositum.home + "\.emacs.d\bin"
