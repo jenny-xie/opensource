@@ -800,7 +800,8 @@ Use a powershell array to define the components to install (and for better reada
       'plantuml'
       #'draw-io-p',
       #'greenshot',
-      #'fd'
+      #'fd',
+      #'ripgrep'
   )
 #+END_SRC
 
